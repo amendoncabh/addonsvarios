@@ -1,0 +1,7 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+
+sequence_per_company.company_session_sequence_group,company.session.sequence user,sequence_per_company.model_company_session_sequence,base.group_user,1,1,1,0
+
+
+
+

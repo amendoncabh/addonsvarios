@@ -1,0 +1,50 @@
+<?xml version="1.0"?>
+<openerp>
+    <data>
+        <record model="ir.ui.view" id="view_pos_cash_box_reason_form">
+            <field name="name">pos.cash.box.reason.form</field>
+            <field name="model">pos.cash.box.reason</field>
+            <field name="arch" type="xml">
+                <form string="Cash Box Reason">
+                    <div class="oe_title">
+                        <label class="oe_edit_only" for="name" string="Cash Box Reason"/>
+                    </div>
+                    <group>
+                        <field name="name" />
+                    </group>
+                </form>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="view_pos_cash_box_reason_tree">
+            <field name="name">pos.cash.box.reason.tree</field>
+            <field name="model">pos.cash.box.reason</field>
+            <field name="arch" type="xml">
+                <tree string="Cash Box Reason">
+                    <field name="name" />
+                </tree>
+            </field>
+        </record>
+
+        <record model="ir.actions.act_window" id="action_pos_cash_box_reason_form">
+            <field name="name">Cash Box Reason</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">pos.cash.box.reason</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="help" type="html">
+                <p class="oe_view_nocontent_create">
+                    Click to create a pos cash box reason.
+                </p>
+            </field>
+        </record>
+
+        <menuitem
+            parent="point_of_sale.menu_point_config_product"
+            action="action_pos_cash_box_reason_form"
+            id="menu_pos_cash_box_reason"
+            sequence="31"
+            groups="point_of_sale.group_pos_admin" />
+
+    </data>
+</openerp>

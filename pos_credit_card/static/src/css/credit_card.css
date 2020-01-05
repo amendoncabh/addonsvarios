@@ -1,0 +1,10 @@
+.credit_card_type_class {
+    border-radius: 3px;
+    border: solid 1px #cecbcb;
+    margin-bottom: 4px;
+    background: white;
+    font-family: "Lato","Lucida Grande", Helvetica, Verdana, Arial;
+    color: #555555;
+    font-size: 14px;
+    box-sizing: border-box;
+}

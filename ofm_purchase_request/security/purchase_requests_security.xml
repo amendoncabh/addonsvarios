@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="group_purchase_request_admin" model="res.groups">
+            <field name="name">Admin</field>
+            <field name="category_id" ref="base.module_category_purchase_management"/>
+            <field name="implied_ids" eval="[
+                (4, ref('purchase.group_purchase_manager')),
+            ]"/>
+        </record>
+
+        <record id="purchase_request_ofm_group" model="res.groups">
+            <field name="name">Purchase Request OFM</field>
+            <field name="category_id" ref="base.module_category_purchase_management"/>
+        </record>
+
+        <record id="ofm_access_right_center.group_ofm_hq" model="res.groups">
+            <field name="implied_ids" eval="[
+                (4, ref('purchase.group_purchase_manager')),
+                (4, ref('ofm_purchase_request.purchase_request_ofm_group')),
+                (4, ref('ofm_purchase_request.group_purchase_request_admin')),
+            ]"/>
+        </record>
+
+        <record id="rule_purchase_order_user_branch" model="ir.rule">
+            <field name="name">Purchase Order User Branch</field>
+            <field name="model_id" ref="ofm_purchase_request.model_purchase_order" />
+            <field name="groups" eval="[(4, ref('purchase.group_purchase_user'))]"/>
+            <field name="domain_force">[('branch_id', '=', user.branch_id.id)]</field>
+        </record>
+
+        <record id="rule_purchase_order_manager_branch" model="ir.rule">
+            <field name="name">Purchase Order Manager Branch</field>
+            <field name="model_id" ref="ofm_purchase_request.model_purchase_order" />
+            <field name="groups" eval="[(4, ref('purchase.group_purchase_manager'))]"/>
+            <field name="domain_force">[('branch_id.id', 'in', user.branch_ids.ids)]</field>
+        </record>
+
+        <record id="rule_purchase_order_hq_admin" model="ir.rule">
+            <field name="name">Purchase Order HQ/Admin</field>
+            <field name="model_id" ref="ofm_purchase_request.model_purchase_order" />
+            <field name="groups" eval="[
+                (4, ref('ofm_access_right_center.group_ofm_hq')),
+                (4, ref('ofm_access_right_center.group_ofm_admin')),
+                (4, ref('ofm_purchase_request.group_purchase_request_admin')),
+            ]"/>
+            <field name="domain_force">[]</field>
+        </record>
+    </data>
+</odoo>

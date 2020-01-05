@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data noupdate="1">
+
+        <record id="ir_cron_pos_so_batch_file_action" model="ir.cron">
+            <field name="name">Generate transaction file from POS/SO</field>
+            <field name="user_id" ref="base.user_root"/>
+            <field name="interval_number">24</field>
+            <field name="interval_type">hours</field>
+            <field name="numbercall">-1</field>
+            <field eval="False" name="doall"/>
+            <field eval="'pos.batch'" name="model"/>
+            <field eval="'batch_file_generate'" name="function"/>
+            <field name="active" eval="False"/>
+        </record>
+
+    </data>
+</openerp>

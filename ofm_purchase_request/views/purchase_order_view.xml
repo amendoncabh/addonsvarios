@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+        <record id="view_confirm_purchase_orders" model="ir.ui.view">
+            <field name="name">Issue License</field>
+            <field name="model">purchase.orders.confirm.all</field>
+            <field name="arch" type="xml">
+                <form string="Confirm Purchase Orders">
+
+                    <footer>
+                        <button name="action_approve"
+                            string="Confirm" type="object"
+                            class="oe_highlight"/>
+                        or
+                        <button string="Cancel" class="oe_link"
+                            special="cancel"/>
+                    </footer>
+               </form>
+            </field>
+        </record>
+
+        <!--<record id="action_confirm_purchase_order" model="ir.actions.act_window">-->
+            <!--<field name="name">Confirm Purchase Orders</field>-->
+            <!--<field name="type">ir.actions.act_window</field>-->
+            <!--<field name="res_model">purchase.orders.confirm.all</field>-->
+            <!--<field name="view_type">form</field>-->
+            <!--<field name="view_mode">form</field>-->
+            <!--<field name="view_id" ref="view_confirm_purchase_orders"/>-->
+            <!--<field name="target">new</field>-->
+            <!--<field name="multi">True</field>-->
+        <!--</record>-->
+
+        <!--<record model="ir.values" id="ir_value_confirm_purchase_orders">-->
+            <!--<field name="model_id" ref="purchase.model_purchase_order" />-->
+            <!--<field name="name">Confirm Purchase Orders</field>-->
+            <!--<field name="key2">client_action_multi</field>-->
+            <!--<field name="value" eval="'ir.actions.act_window,' + str(ref('action_confirm_purchase_order'))" />-->
+            <!--<field name="key">action</field>-->
+            <!--<field name="model">purchase.order</field>-->
+        <!--</record>-->
+
+    </data>
+</openerp>

@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+        <record id="view_partner_property_form_user" model="ir.ui.view">
+            <field name="name">res.partner.property.form.inherit</field>
+            <field name="model">res.partner</field>
+            <field name="priority">2</field>
+            <field name="groups_id" eval="[(6, 0, [ref('point_of_sale.group_pos_user')])]"/>
+            <field name="inherit_id" ref="base.view_partner_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='website']" position="after">
+                    <field name="vat" string="Tax ID" required="True" widget="allow_number"/>
+                    <field name="vip" widget="radio" options="{'horizontal': true}" />
+                    <field name="shop_id" attrs="{'invisible': [('company_type','!=','company')], 'required':[('company_type', '=', 'company')]}" widget="allow_number"/>
+                    <field name="ignore_repeat" />
+                </xpath>
+
+                <xpath expr="//field[@name='child_ids']" position="attributes">
+                    <attribute name="context">{
+                        'default_parent_id': active_id,
+                        'default_street': street,
+                        'default_street2': street2,
+                        'default_city': city,
+                        'default_state_id': state_id,
+                        'default_zip': zip,
+                        'default_country_id': country_id,
+                        'default_supplier': supplier,
+                        'default_customer': customer,
+                        'default_lang': lang,
+                        'default_vat': vat,
+                        'default_shop_id': shop_id,
+                        'default_is_company': is_company,
+                    }
+                    </attribute>
+                </xpath>
+
+                <xpath expr="//field[@name='child_ids']/form//field[@name='comment']" position="after">
+                    <field name="vat" string="Tax ID" required="True" widget="allow_number"/>
+                    <field
+                            name="shop_id"
+                            attrs="{
+                                'invisible': [
+                                    ('company_type','!=','company')
+                                ],
+                                'required':[
+                                    ('company_type', '=', 'company')
+                                ]
+                            }"
+                            widget="allow_number"
+                    />
+                    <field name="is_company" invisible="1"/>
+                    <field
+                            name="company_type"
+                            invisible="1"
+                            widget="radio"
+                            class="oe_edit_only"
+                            options="{'horizontal': true}"
+                    />
+                </xpath>
+                <xpath expr="//field[@name='phone']" position="attributes">
+                    <attribute name="widget">allow_number</attribute>
+                </xpath>
+                <xpath expr="//field[@name='mobile']" position="attributes">
+                    <attribute name="widget">allow_number</attribute>
+                </xpath>
+                <xpath expr="//field[@name='fax']" position="attributes">
+                    <attribute name="widget">allow_number</attribute>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="view_partner_tree" model="ir.ui.view">
+            <field name="name">res.partner.tree</field>
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="base.view_partner_tree"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='display_name']" position="after">
+                    <field name="total_address" string="Address"/>
+                    <field name="vat" string="Tax ID" />
+                    <field name="shop_id"/>
+                </xpath>
+                <xpath expr="//field[@name='email']" position="after">
+                    <field name="loyalty_points" string="Points" />
+                </xpath>
+            </field>
+        </record>
+
+        <record id="view_res_partner_filter" model="ir.ui.view">
+            <field name="name">res.partner.select</field>
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="base.view_res_partner_filter"/>
+            <field name="arch" type="xml">
+                 <xpath expr="//field[@name='name']" position="replace">
+                     <field name="name" filter_domain="['|','|','|',('name','ilike',self),('phone','ilike',self),('shop_id','ilike',self),('vat','ilike',self)]" string="Contact Name"/>
+                  </xpath>
+            </field>
+        </record>
+
+        <record id="view_partner_property_form_pos_admin" model="ir.ui.view">
+            <field name="name">res.partner.property.form.pos.admin</field>
+            <field name="model">res.partner</field>
+            <field name="priority">3</field>
+            <field name="groups_id" eval="[(6, 0, [ref('base.group_system')])]"/>
+            <field name="inherit_id" ref="pos_customize.view_partner_property_form_user"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='ignore_repeat']" position="after">
+                    <field name="admin_edit_only" />
+                </xpath>
+            </field>
+        </record>
+
+    </data>
+</openerp>

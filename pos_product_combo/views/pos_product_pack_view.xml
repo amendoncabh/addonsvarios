@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="product_template_form_view_combo" model="ir.ui.view">
+        <field name="name">product.template.combo.form.inherit</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="/form/sheet/div[@class='oe_title']/div[@name='options']" position="inside">
+                <field name="is_pack"/>
+                <label for="is_pack"/>
+            </xpath>
+            <xpath expr="/form/sheet/notebook/page[@name='sales']" position="inside">
+                <group>
+                    <group/>
+                    <group string="Combo Pack" attrs="{'invisible':[('is_pack','=',False)]}">
+                        <field name="product_pack_id" nolabel="1">
+                            <tree editable="bottom">
+                                <field name="product_id" options="{'no_create': True, 'no_open': True}"/>
+                                <field name="product_quantity"/>
+                            </tree>
+                        </field>
+                    </group>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+    <record model="ir.ui.view" id="view_pos_config_form_inhetit_pos">
+        <field name="name">pos.config.form.view.inhetit.pos</field>
+        <field name="model">pos.config</field>
+        <field name="inherit_id" ref="point_of_sale.view_pos_config_form"/>
+        <field name="arch" type="xml">
+            <field name="iface_tax_included" position="after">
+                <field name="show_qty"/>
+            </field>
+        </field>
+    </record>
+</odoo>

@@ -1,0 +1,344 @@
+#cash-coupon-barcode {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+#cash-coupon-amount {
+    margin-top: 10px;
+    margin-bottom: 10px;   
+}
+
+.pos .actionpad .button.t1c_card {
+    height: 10%;
+    width: 185px;
+}
+
+.custom_checkbox {
+    zoom: 0.5;
+}
+
+.pos .actionpad .t1c_card {
+    border-bottom: 1px solid;
+    border-color: #bfbfbf;
+    max-height: 64px;
+    height: 64px;
+    padding: 6px 0px 0px 6px;
+    color: #444;
+}
+
+.pos .actionpad .button.pay {
+    height: 133px !important;
+}
+
+.pos .leftpane {
+	width: 680px !important;
+}
+
+.pos .rightpane {
+	left: 680px !important;
+}
+
+.pos .order {
+	max-width: 100% !important;
+}
+
+.pos .actionpad {
+	float: none;
+    margin: 8px 0px 0px 0px;
+    width: 200px;
+}
+
+.redeem-button {
+    display: inline-block;
+    float: left;
+    margin-left: 6px;
+    margin-top: 8px;
+    margin-right: 0;
+    text-align: center;
+    width: 75px;
+    border: none;
+}
+
+.redeem-button button {
+	display: inline-block;
+    cursor: pointer;
+    padding: 4px 10px;
+    font-size: 14px;
+    margin-bottom: 10px;
+    margin-top: 10px;
+    border: 1px solid #cacaca;
+    background: #e2e2e2;
+    border-radius: 3px;
+}
+
+.the-one-card-search {
+    display: inline-block;
+    float: left;
+    margin: 8px 0px 0px 0px;
+    text-align: center;
+    width: 158px;
+    border: none;
+}
+
+.the-one-card-search .button{
+    display: inline-block;
+    cursor: pointer;
+    padding: 4px 10px;
+    font-size: 18px;
+    border: 1px solid #cacaca;
+    background: #e2e2e2;
+    border-radius: 3px;
+    height:  249px;
+    min-width: 100px;
+    color: #444;
+}
+
+.pos .window .cardsearch{
+    float: left;
+    width: 45%;
+    padding: 10px;
+    height: 300px;
+    text-align: center;
+    border-right: dashed 1px rgb(215,215,215);
+}
+
+.pos .window .cardsearch input{
+	width: 250px;
+	height: 50px;
+    border: 1px solid #cecbcb;
+    margin: 20px;
+    background-color: white;
+    border-radius: 5px;
+    font-family: "Lato","Lucida Grande", Helvetica, Verdana, Arial;
+    font-size: 18px;
+    text-align: center;
+}
+
+.pos .window .cardcontent{
+    float: right;
+    width: 45%;
+    padding: 10px;
+    height: 300px;
+    text-align: center;
+}
+
+.pos .cardlist-screen .card-list{
+    font-size: 16px;
+    width: 100%;
+    line-height: 40px;
+}
+.pos .cardlist-screen .card-list th,
+.pos .cardlist-screen .card-list td {
+    padding: 0px 8px;
+}
+.pos .cardlist-screen .card-list tr{
+    transition: all 150ms linear;
+    background: rgb(230,230,230);
+}
+.pos .cardlist-screen .card-list thead > tr,
+.pos .cardlist-screen .card-list tr:nth-child(even) {
+    background: rgb(247,247,247);
+}
+.pos .cardlist-screen .card-list tr.highlight{
+    transition: all 150ms linear;
+    background: rgb(110,200,155) !important;
+    color: white;
+}
+.pos .cardlist-screen .card-list tr.lowlight{
+    transition: all 150ms linear;
+    background: rgb(216, 238, 227);
+}
+.pos .cardlist-screen .card-list tr.lowlight:nth-child(even){
+    transition: all 150ms linear;
+    background: rgb(227, 246, 237);
+}
+.pos .cardlist-screen .card-details{
+    padding: 16px;
+}
+.pos .cardlist-screen .card-picture{
+    height: 64px;
+    width: 64px;
+    border-radius: 32px;
+    overflow: hidden;
+    text-align: center;
+    float: left;
+    margin-right: 16px;
+    background: white;
+    position: relative;
+}
+.pos .cardlist-screen .card-picture > img {
+    position: absolute;
+    top: -9999px;
+    bottom: -9999px;
+    right: -9999px;
+    left: -9999px;
+    max-height: 64px;
+    margin: auto;
+}
+.pos .cardlist-screen .card-picture > .fa {
+    line-height: 64px;
+    font-size: 32px;
+}
+.pos .cardlist-screen .card-picture .image-uploader {
+    position: absolute;
+    z-index: 1000;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    opacity: 0;
+    cursor: pointer;
+}
+.pos .cardlist-screen .card-name {
+    font-size: 32px;
+    line-height: 64px;
+    margin-bottom:16px;
+}
+.pos .cardlist-screen .edit-buttons {
+    position: absolute;
+    right: 16px;
+    top: 10px;
+}
+.pos .cardlist-screen .edit-buttons .button{
+    display: inline-block;
+    margin-left: 16px;
+    color: rgb(128,128,128);
+    cursor: pointer;
+    font-size: 36px;
+}
+.pos .cardlist-screen .card-details-box{
+    position: relative;
+    font-size: 16px;
+}
+.pos .cardlist-screen .card-details-center{
+    width: 100%;
+}
+.pos .cardlist-screen .card-details-left{
+    width: 50%;
+    float: left;
+}
+.pos .cardlist-screen .card-details-right{
+    width: 50%;
+    float: right;
+}
+.pos .cardlist-screen .card-detail{
+    line-height: 24px;
+    text-align: left;
+}
+.pos .cardlist-screen .card-detail > .label{
+    font-weight: bold;
+    display: inline-block;
+    text-align: left;
+    margin-right: 8px;
+}
+.pos .cardlist-screen .card-details input,
+.pos .cardlist-screen .card-details select
+{
+    padding: 4px;
+    border-radius: 3px;
+    border: solid 1px #cecbcb;
+    margin-bottom: 4px;
+    background: white;
+    font-family: "Lato","Lucida Grande", Helvetica, Verdana, Arial;
+    color: #555555;
+    width: 340px;
+    font-size: 14px;
+    box-sizing: border-box;
+}
+.pos .cardlist-screen .card-details input.card-name {
+    font-size: 24px;
+    line-height: 24px;
+    margin: 18px 6px;
+    width: 340px;
+}
+.pos .cardlist-screen .card-detail > .empty{
+    opacity: 0.3;
+}
+.pos .cardlist-screen .searchbox{
+    right: auto;
+    margin-left: -90px;
+    margin-top:8px;
+    left: 50%;
+}
+.pos .cardlist-screen .searchbox input{
+    width: 120px;
+}
+.pos .cardlist-screen .button.new-customer {
+    left: 50%;
+    margin-left: 120px;
+}
+
+div .member_detail .member-detail {
+	font-size: 13px;
+	text-align: left;
+	padding-top: 5px;
+}
+
+.member-detail > .label{
+    font-weight: bold;
+}
+
+div .member-detail {
+	font-size: 13px;
+	text-align: left;
+}
+
+div .member_search {
+    padding-top: 110px;
+    word-break: break-all;
+}
+
+div .the_one_card_ticket_description {
+    word-break: break-all;
+    padding-left: 120px;
+    padding-top: 4px;
+    line-height: 14px;
+}
+
+.empty {
+    display: none;
+}
+
+.card-detail .member-name {
+    font-size: 22px;
+}
+
+.pos .numpad {
+    border-top: none !important;
+}
+
+.void-return {
+    border-bottom: 1px solid;
+    border-color: inherit;
+}
+
+.member-not-found {
+    text-align: center;
+    font-size: 30px;
+    font-weight: bold;
+}
+
+.popup-textinput .return_qty input{
+    margin: 0px;
+}
+
+.popup-textinput input {
+    margin: 50px;
+}
+
+div .button.button-search{
+    display: inline-block;
+    cursor: pointer;
+    padding: 4px 10px;
+    font-size: 18px;
+    border: 1px solid #cacaca;
+    background: #e2e2e2;
+    border-radius: 3px;
+    position: absolute;
+    right: 550px;
+    top: 110px;
+    height: 50px;
+    width: 70px;
+    text-align: center;
+    padding-top: 30px;
+}

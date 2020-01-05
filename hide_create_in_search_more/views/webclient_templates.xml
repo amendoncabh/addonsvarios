@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="assets_common" name="hide_create_in_search_more" inherit_id="web.assets_common">
+        <xpath expr="." position="inside">
+            <script type="text/javascript" src="/hide_create_in_search_more/static/src/js/framework/dialog.js"></script>
+        </xpath>
+    </template>
+
+</odoo>

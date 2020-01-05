@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="rule_stock_warehouse_orderpoint_user" model="ir.rule">
+            <field name="name">Stock Warehouse Orderpoint User</field>
+            <field name="model_id" ref="model_stock_warehouse_orderpoint" />
+            <field name="groups" eval="[(4, ref('stock.group_stock_user'))]"/>
+            <field name="domain_force">[('branch_id', '=', user.branch_id.id)]</field>
+        </record>
+
+        <record id="rule_stock_warehouse_orderpoint_manager" model="ir.rule">
+            <field name="name">Stock Warehouse Orderpoint Manager</field>
+            <field name="model_id" ref="model_stock_warehouse_orderpoint" />
+            <field name="groups" eval="[(4, ref('stock.group_stock_manager'))]"/>
+            <field name="domain_force">[('branch_id', 'in', user.branch_ids.ids)]</field>
+        </record>
+    </data>
+</odoo>

@@ -1,0 +1,8 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+
+ofm_pos_hq,pos group_hq,point_of_sale.model_pos_order,ofm_access_right_center.group_ofm_hq,1,0,0,0
+ofm_pos_admin,pos group_admin,point_of_sale.model_pos_order,ofm_access_right_center.group_ofm_admin,1,1,1,1
+
+
+
+

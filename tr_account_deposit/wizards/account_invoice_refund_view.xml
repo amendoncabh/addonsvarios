@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+        <!-- Inherit Form View to Modify it -->
+        <record id="tr_invoice_refund_form" model="ir.ui.view">
+            <field name="name">tr.account.invoice.refund</field>
+            <field name="model">account.invoice.refund</field>
+            <field name="inherit_id" ref="account.view_account_invoice_refund"/>
+            <field name="arch" type="xml">
+
+                <xpath expr="//field[@name='date']" position="after">
+                    <field name="account_refund_id" domain="[('type','in',('receivable','liquidity'))]"/>
+                </xpath>
+
+            </field>
+        </record>
+
+
+    </data>
+</openerp>

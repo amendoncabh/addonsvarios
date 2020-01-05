@@ -1,0 +1,54 @@
+<?xml version="1.0"?>
+<openerp>
+    <data>
+        <menuitem
+            name="Reports"
+            parent="point_of_sale.menu_point_root"
+            id="point_of_sale.menu_point_rep"
+            sequence="99"
+            groups="point_of_sale.group_pos_user,point_of_sale.group_pos_manager" />
+        
+        <menuitem id="menu_report_cashier"
+            name="Cashier"
+            groups="point_of_sale.group_pos_manager"
+            parent="point_of_sale.menu_point_rep"
+            sequence="7" />
+
+        <menuitem id="menu_report_sales_user"
+            name="Sales User"
+            groups="point_of_sale.group_pos_manager,point_of_sale.group_pos_user"
+            parent="point_of_sale.menu_point_rep"
+            sequence="8" />
+
+        <menuitem id="menu_report_sales"
+            name="Sales"
+            groups="point_of_sale.group_pos_manager"
+            parent="point_of_sale.menu_point_rep"
+            sequence="9" />
+
+        <menuitem id="menu_report_sales_admin"
+            name="Sales Admin"
+            groups="point_of_sale.group_pos_admin,base.group_system"
+            parent="point_of_sale.menu_point_rep"
+            sequence="10" />
+
+        <menuitem id="menu_report_discount"
+            name="Discount Report"
+            groups="point_of_sale.group_pos_manager"
+            parent="point_of_sale.menu_point_rep"
+            sequence="11" />
+
+        <menuitem id="menu_report_promotion"
+            name="Promotion Report"
+            groups="point_of_sale.group_pos_manager"
+            parent="point_of_sale.menu_point_rep"
+            sequence="12" />
+
+        <menuitem id="menu_report_payment"
+            name="Payment Type Report"
+            groups="point_of_sale.group_pos_admin,base.group_system"
+            parent="point_of_sale.menu_point_rep"
+            sequence="13" />
+
+    </data>
+</openerp>

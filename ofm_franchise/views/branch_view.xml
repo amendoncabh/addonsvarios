@@ -1,0 +1,129 @@
+<?xml version="1.0"?>
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_branch_form_franchise">
+            <field name="name">pos.branch.form.view.franchise</field>
+            <field name="model">pos.branch</field>
+            <field name="inherit_id" ref="pos_customize.view_branch_form"/>
+            <field name="priority">17</field>
+            <field name="arch" type="xml">
+                <xpath expr="//header" position="inside">
+                    <button name="action_branch_active"
+                        class="btn-primary"
+                        string="Active"
+                        groups="base.group_system"
+                        states="pending"
+                        type="object"/>
+                    <button name="action_branch_closed"
+                        class="btn-primary"
+                        string="Closed"
+                        groups="base.group_system"
+                        states="pending,active"
+                        type="object"/>
+                    <button name="action_branch_pending"
+                        class="btn-primary"
+                        string="Set to Pending"
+                        groups="base.group_system"
+                        states="closed"
+                        type="object"/>
+					<field name="state" widget="statusbar"/>
+                </xpath>
+                <xpath expr="//notebook/page[@name='order_line']" position="after">
+					<page string="Contract Description">
+						<div>
+                            <group>
+                                <group>
+                                    <field name="id" invisible="1"></field>
+                                    <field name="res_partner_bank_id"
+                                            options="{
+                                                'no_quick_create': True,
+                                                'no_create_edit': True,
+                                                'no_open': True
+                                            }"
+                                            domain="[
+                                                ('company_id', '=', pos_company_id),
+                                                '|',
+                                                ('branch_id', '=', id),
+                                                ('branch_id', '=', False)
+                                            ]"
+                                    />
+                                    <field name="acc_number"
+                                            attrs="{'readonly': [('res_partner_bank_id', '!=', False)]}"/>
+                                    <field name="bank_id"
+                                           options="{
+                                                'no_quick_create': True,
+                                                'no_create_edit': True,
+                                                'no_open': True
+                                            }"/>
+                                    <field name="acc_name_en"/>
+                                </group>
+                                <group>
+                                    <field name="start_date"/>
+                                    <field name="end_date"/>
+                                    <field name="royalty_fee" class="text-right"/>
+                                </group>
+                            </group>
+                            <group>
+                                <field name="remark"/>
+                            </group>
+						</div>
+					</page>
+                </xpath>
+                <xpath expr="//notebook/page[@name='pos_branch_manager']" position="after">
+					<page string="Contract">
+                        <button name="%(action_open_upload_file_attachment)d"
+                                string="Upload"
+                                icon="fa-stack-overflow"
+                                type="action"
+                                class="oe_stat_button"/>
+                        <field name="attachment_ids" widget="many2many_kanban">
+                            <kanban create="false">
+                                <field name="id"/>
+                                <field name="mimetype"/>
+                                <field name="type"/>
+                                <field name="datas_fname"/>
+                                <field name="name"/>
+                                <templates>
+                                    <t t-name="kanban-box">
+                                        <div class="o_kanban_card">
+                                            <div class="oe_kanban_box_header">
+                                                <div class="row">
+                                                    <div class="col-xs-10 text-center"
+                                                         t-if="record.type.raw_value == 'binary'">
+                                                        <a t-attf-href="/web/content/#{record.id.value}?download=1">
+                                                            <field class="text-center" name="datas_fname"/>
+                                                        </a>
+                                                    </div>
+                                                    <div class="col-xs-2 text-right">
+                                                        <a type="delete">
+                                                            <i style="font-size:24px" class="fa fa-trash"/>
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </t>
+                                </templates>
+                            </kanban>
+                        </field>
+					</page>
+                </xpath>
+                <xpath expr="//field[@name='cash_limit']" position="after">
+                    <field name="is_cron_job" />
+                </xpath>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="view_branch_handle_tree_franchise">
+            <field name="name">pos.branch.form.view.franchise</field>
+            <field name="model">pos.branch</field>
+            <field name="inherit_id" ref="pos_customize.view_branch_handle_tree"/>
+            <field name="priority">17</field>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='branch_code']" position="after">
+                    <field name="state" />
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

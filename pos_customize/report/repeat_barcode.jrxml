@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="repeat_barcode" language="groovy" columnCount="2" printOrder="Horizontal" pageWidth="297" pageHeight="107" orientation="Landscape" columnWidth="138" columnSpacing="2" leftMargin="9" rightMargin="9" topMargin="7" bottomMargin="7">
+	<property name="ireport.zoom" value="4.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="IDS" class="java.lang.Object">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[select polb.barcode ,
+pt.name,
+concat('DS1:',to_char(pow.date_schedule, 'DDMMYY')) as date_done,
+concat('DS3:',to_char(spl.use_date, 'DDMMYY')) as date_use
+from production_order_line_barcode  polb
+left join production_order_line_waraporn polw on polw.id = polb.order_line_id
+left join production_order_waraporn pow on pow.id = polw.order_id
+left join product_product pp on pp.id = polw.product_id
+left join stock_production_lot spl on spl.product_id = pp.id and spl.name like split_part(polb.barcode, '-', 2)
+where order_line_id = $P!{IDS}]]>
+	</queryString>
+	<field name="barcode" class="java.lang.String">
+		<fieldDescription><![CDATA[Barcode]]></fieldDescription>
+	</field>
+	<field name="name_template" class="java.lang.String">
+		<fieldDescription><![CDATA[Template Name]]></fieldDescription>
+	</field>
+	<field name="date_done" class="java.lang.String">
+		<fieldDescription><![CDATA[Closed On]]></fieldDescription>
+	</field>
+	<field name="date_use" class="java.lang.String"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<pageHeader>
+		<band splitType="Stretch"/>
+	</pageHeader>
+	<columnHeader>
+		<band splitType="Stretch"/>
+	</columnHeader>
+	<detail>
+		<band height="93" splitType="Stretch">
+			<textField>
+				<reportElement x="-1" y="57" width="140" height="12"/>
+				<textElement textAlignment="Center" lineSpacing="Single">
+					<font fontName="TH Baijam" size="9"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{barcode}]]></textFieldExpression>
+			</textField>
+			<textField pattern="ddMMyyyy" isBlankWhenNull="false">
+				<reportElement mode="Transparent" x="-1" y="69" width="140" height="12" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Center" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH Baijam" size="9" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{date_done}+ "" +$F{date_use}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="-1" y="2" width="140" height="12"/>
+				<textElement textAlignment="Center" lineSpacing="Single">
+					<font fontName="TH Baijam" size="9"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{name_template}+" (แพ็คเต็ม)"]]></textFieldExpression>
+			</textField>
+			<componentElement>
+				<reportElement mode="Transparent" x="-1" y="14" width="140" height="43"/>
+				<jr:barbecue xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd" type="Code128" drawText="false" checksumRequired="false" barWidth="0" barHeight="45">
+					<jr:codeExpression><![CDATA[$F{barcode}]]></jr:codeExpression>
+				</jr:barbecue>
+			</componentElement>
+		</band>
+	</detail>
+	<columnFooter>
+		<band splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band splitType="Stretch"/>
+	</pageFooter>
+	<summary>
+		<band splitType="Stretch"/>
+	</summary>
+</jasperReport>

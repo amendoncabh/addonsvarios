@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+
+        <template id="assets" inherit_id="point_of_sale.assets">
+            <xpath expr="." position="inside">
+                <script type="text/javascript" src="/pos_select_product/static/src/js/models.js"></script>
+            </xpath>
+        </template>
+
+        <template id="report_get_pos_product_template_label">
+            <t t-call="report.html_container">
+                <div class="page">
+                    <t t-foreach="docs" t-as="pos_product_templates">
+                        <t t-foreach="pos_product_templates.product_ids" t-as="pos_product_template_lines">
+                            <t t-foreach="pos_product_template_lines.product_id" t-as="product">
+                                <t t-call="product.report_simple_label">
+                                    <t t-set="product" t-value="product"/>
+                                </t>
+                            </t>
+                        </t>
+                    </t>
+                </div>
+            </t>
+        </template>
+
+    </data>
+</openerp>

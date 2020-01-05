@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<openerp>
+    <data>
+        <record model="ir.ui.view" id="view_pos_pos_form">
+            <field name="name">pos.order</field>
+            <field name="model">pos.order</field>
+            <field name="inherit_id" ref="pos_customize.view_pos_pos_form"/>
+            <field name="arch" type="xml">
+
+                <xpath expr="//tree/field[@name='price_subtotal_incl']" position="after">
+                    <field name="promotion_name" readonly="1"/>
+                </xpath>
+                <xpath expr="//form/group/field[@name='notice']" position="after">
+                    <field name="promotion_name" readonly="1"/>
+                    <field name="multi_coupon_barcode" readonly="1"/>
+
+                    <field name="prorate_ids" readonly="1" colspan="4">
+                        <tree>
+                            <field name="promotion_name" readonly="1"/>
+                            <field name="prorate_amount_exclude" readonly="1" sum="Total Prorate Exclude"/>
+                            <field name="prorate_vat" readonly="1" sum="Total Prorate Vat"/>
+                            <field name="prorate_amount" readonly="1" sum="Total Prorate Amount"/>
+                        </tree>
+                    </field>
+                </xpath>
+
+                <xpath expr="//field[@name='before_rounding']" position="before">
+                    <field name="before_discount" readonly="1"/>
+                </xpath>
+
+            </field>
+        </record>
+
+    </data>
+</openerp>

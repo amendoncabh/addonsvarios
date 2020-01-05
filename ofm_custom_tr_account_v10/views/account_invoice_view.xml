@@ -1,0 +1,277 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+        <record id="full_tax_invoice_jasper" model="ir.actions.report.xml">
+                <field name="string">Full Tax Invoice</field>
+                <field name="name">Full Tax Invoice</field>
+                <field name="model">account.invoice</field>
+                <field name="auto">True</field>
+                <field name="report_name">full.tax.invoice.jasper</field>
+                <field name="rml">ofm_custom_tr_account_v10/report/full_tax_invoice.jrxml</field>
+                <field name="report_rml">ofm_custom_tr_account_v10/report/full_tax_invoice.jrxml</field>
+                <field name="jasper_model_id" ref="base.model_res_users"/>
+                <field name="menu">False</field>
+                <field name="header">False</field>
+                <field name="jasper_report">True</field>
+                <field name="jasper_output">pdf</field>
+        </record>
+
+        <record id="credit_note_jasper" model="ir.actions.report.xml">
+                <field name="string">Credit Note</field>
+                <field name="name">Credit Note</field>
+                <field name="model">account.invoice</field>
+                <field name="auto">True</field>
+                <field name="report_name">credit.note.jasper</field>
+                <field name="rml">ofm_custom_tr_account_v10/report/credit_note.jrxml</field>
+                <field name="report_rml">ofm_custom_tr_account_v10/report/credit_note.jrxml</field>
+                <field name="jasper_model_id" ref="base.model_res_users"/>
+                <field name="menu">False</field>
+                <field name="header">False</field>
+                <field name="jasper_report">True</field>
+                <field name="jasper_output">pdf</field>
+        </record>
+
+        <record model="ir.ui.view" id="invoice_form">
+            <field name="name">account.invoice.form</field>
+            <field name="model">account.invoice</field>
+            <field name="inherit_id" ref="account.invoice_form" />
+            <field name="arch" type="xml">
+                <xpath expr="//button[@name='action_invoice_open']" position="after">
+                    <button name="make_first_print"
+                            states="open,paid"
+                            string="Make First Print"
+                            type="object"
+                            context="{'default_partner_id': partner_id,
+                                        'default_invoice_date': date_invoice,}"
+                            groups="base.group_no_one,base.group_system"
+                            attrs="{
+                                'invisible': [
+                                    '|', '|',
+                                    ('is_first_print', '=', True),
+                                    ('print_time', '=', 0),
+                                ],
+                            }"
+                    />
+                </xpath>
+                <xpath expr="//field[@name='payment_term_id']" position="after">
+                    <field name="is_first_print"/>
+                    <field name="print_time" invisible="1"/>
+                </xpath>
+                <xpath expr="//field[@name='address_inv']" position="attributes">
+                    <attribute name="readonly">1</attribute>
+                </xpath>
+                <xpath expr="//div[@name='button_box']" position="inside">
+                    <button type="object"
+                            name="print_full_tax_invoice"
+                            class="oe_stat_button"
+                            icon="fa-print"
+                            attrs="{
+                                'invisible': ['|', '|', '|',
+                                    ('state','not in',('open', 'paid')),
+                                    ('type', '!=', 'out_invoice'),
+                                    ('is_show_clear_deposit', '=', True)
+                                ]
+                            }">
+                        <span>Full Tax Invoice</span>
+                    </button>
+                </xpath>
+                <xpath expr="//div[@name='button_box']" position="inside">
+                    <button type="object"
+                            name="print_credit_note"
+                            class="oe_stat_button"
+                            icon="fa-print"
+                            string="Credit Note"
+                            attrs="{'invisible': ['|', ('state','not in',('open', 'paid')), ('type', '!=', 'out_refund')]}"/>
+                </xpath>
+                <xpath expr="//group/group/field[@name='name']" position="replace">
+                    <field name="return_reason_id"
+                           attrs="{'invisible': [('type', '!=', 'out_refund')]}"/>
+                </xpath>
+                <xpath expr="//field[@name='return_reason_id']" position="after">
+                    <field name="cancel_from_state" invisible="1"/>
+                    <field name="is_super_user" invisible="1"/>
+                </xpath>
+                <xpath expr="//field[@name='amount_untaxed']" position="before">
+                    <label string="Update" class="oe_edit_only"/>
+                    <button
+                            name="button_dummy"
+                            string="(update)"
+                            type="object"
+                            class="oe_edit_only oe_link"/>
+                </xpath>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="invoice_form_account_v10">
+            <field name="name">account.invoice.form</field>
+            <field name="model">account.invoice</field>
+            <field name="inherit_id" ref="account_invoice_wht_caculate.view_account_invoice_inherit_form" />
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='amount_wht']" position="after">
+                    <field name="change_rounding"/>
+                </xpath>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="invoice_supplier_form">
+            <field name="name">account.invoice.supplier.form</field>
+            <field name="model">account.invoice</field>
+            <field name="inherit_id" ref="account.invoice_supplier_form" />
+            <field name="arch" type="xml">
+                <xpath expr="//group/group/field[@name='company_id']" position="after">
+                    <field name="return_reason_id"
+                           attrs="{'invisible': [('type', '!=', 'in_refund')]}"/>
+                </xpath>
+                <xpath expr="//field[@name='return_reason_id']" position="after">
+                    <field name="cancel_from_state" invisible="1"/>
+                    <field name="is_super_user" invisible="1"/>
+                </xpath>
+                <xpath expr="//field[@name='amount_untaxed']" position="before">
+                    <label string="Update" class="oe_edit_only"/>
+                    <button
+                            name="button_dummy"
+                            string="(update)"
+                            type="object"
+                            class="oe_edit_only oe_link"/>
+                </xpath>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="invoice_supplier_form_account_v10">
+            <field name="name">account.invoice.supplier.form</field>
+            <field name="model">account.invoice</field>
+            <field name="inherit_id" ref="account_invoice_wht_caculate.view_account_invoice_supplier_inherit_form" />
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='amount_wht']" position="after">
+                    <field name="change_rounding"/>
+                </xpath>
+            </field>
+         </record>
+      
+        <record model="ir.ui.view" id="invoice_supplier_purchase_form_inherit">
+            <field name="name">account.invoice.supplier.form</field>
+            <field name="model">account.invoice</field>
+            <field name="inherit_id" ref="purchase.view_invoice_supplier_purchase_form" />
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='purchase_id']" position="before">
+                    <field name="vendor_invoice_date" attrs="{
+                        'readonly': [
+                            ('state', '!=', 'draft')
+                        ],
+                        'invisible': [
+                            ('reference', '=', False)
+                        ],
+                        'required': [
+                            ('type_purchase_ofm', '=', True)
+                        ]
+                    }"
+                    />
+                    <field name="type_purchase_ofm" invisible="1"/>
+                </xpath>
+                <xpath expr="//button[@name='action_invoice_open']" position="replace">
+                    <field name="hide_action_validate" invisible="True"/>
+                    <button
+                            name="action_invoice_open"
+                            type="object"
+                            string="Validate"
+                            class="oe_highlight"
+                            groups="account.group_account_invoice"
+                            attrs="{
+                                'invisible': [
+                                    ('hide_action_validate', '=', True),
+                                ]
+                            }"
+                    />
+                </xpath>
+            </field>
+        </record>
+    
+         <record model="ir.ui.view" id="invoice_customer_form">
+            <field name="name">account.invoice.customer.form</field>
+            <field name="model">account.invoice</field>
+            <field name="inherit_id" ref="rd_account_invoice.view_account_invoice_inherit_form_rd" />
+            <field name="arch" type="xml">
+                <xpath expr="//button[@name='print_credit_customer_form']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//button[@name='print_tax_invoice_form']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+            </field>
+         </record>
+
+        <record id="invoice_form_cancel_inherit" model="ir.ui.view">
+            <field name="name">account.invoice.form</field>
+            <field name="model">account.invoice</field>
+            <field name="inherit_id" ref="rd_account_invoice.invoice_form_cancel_inherit"/>
+            <field name="arch" type="xml">
+                <xpath expr="//button[@name='action_invoice_draft']" position="attributes">
+                    <attribute name="invisible">False</attribute>
+                    <attribute name="groups">base.group_no_one,base.group_system</attribute>
+                    <attribute name="attrs">{
+                        'invisible': ['|','|',
+                            ('is_super_user', '!=', True),
+                            ('cancel_from_state', '!=', 'open'),
+                        ]}</attribute>
+                </xpath>
+                <xpath expr="//button[@name='action_invoice_cancel']" position="attributes">
+                    <attribute name="invisible">False</attribute>
+                    <attribute name="groups">base.group_no_one,base.group_system</attribute>
+                    <attribute name="states">open</attribute>
+                    <attribute name="attrs">{'invisible': ['|',
+                        ('is_super_user', '!=', True),
+                        ]}</attribute>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="invoice_supplier_cancel_form_inherit" model="ir.ui.view">
+            <field name="name">invoice.supplier.cancel.form.inherit</field>
+            <field name="model">account.invoice</field>
+            <field name="inherit_id" ref="rd_account_invoice.invoice_supplier_cancel_form_inherit"/>
+            <field name="arch" type="xml">
+                <xpath expr="//button[@name='action_invoice_draft']" position="attributes">
+                    <attribute name="invisible">False</attribute>
+                    <attribute name="groups">base.group_no_one,base.group_system</attribute>
+                    <attribute name="attrs">{
+                        'invisible': ['|','|',
+                            ('is_super_user', '!=', True),
+                            ('cancel_from_state', '!=', 'open'),
+                        ]}</attribute>
+                </xpath>
+                <xpath expr="//button[@name='action_invoice_cancel']" position="attributes">
+                    <attribute name="invisible">False</attribute>
+                    <attribute name="groups">base.group_no_one,base.group_system</attribute>
+                    <attribute name="states">open</attribute>
+                    <attribute name="attrs">{'invisible': ['|',
+                        ('is_super_user', '!=', True),
+                        ]}</attribute>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="account_invoice_supplier_discount" model="ir.ui.view">
+            <field name="name">account.invoice.discount</field>
+            <field name="model">account.invoice</field>
+            <field name="inherit_id" ref="account_invoice_discount.account_invoice_supplier_discount"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='amount_discount_untax']" position="attributes">
+                    <attribute name="invisible">True</attribute>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="account_invoice_discount" model="ir.ui.view">
+            <field name="name">account.invoice.discount</field>
+            <field name="model">account.invoice</field>
+            <field name="inherit_id" ref="account_invoice_discount.account_invoice_discount"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='amount_discount_untax']" position="attributes">
+                    <attribute name="invisible">True</attribute>
+                </xpath>
+            </field>
+        </record>
+
+
+    </data>
+</openerp>

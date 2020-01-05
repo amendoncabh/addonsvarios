@@ -1,0 +1,58 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+
+pos_customize.requisition_branches_line_group,requisition.branches.line user,pos_customize.model_requisition_branches_line,base.group_user,1,0,0,1
+pos_customize.requisition_branches_group,requisition.branches user,pos_customize.model_requisition_branches,base.group_user,1,0,0,0
+
+pos_customize.requisition_branches_line_group_pos_user,requisition.branches.line group_pos_user,pos_customize.model_requisition_branches_line,point_of_sale.group_pos_user,1,0,0,1
+pos_customize.requisition_branches_group_pos_user,requisition.branches group_pos_user,pos_customize.model_requisition_branches,point_of_sale.group_pos_user,1,0,0,0
+
+pos_customize.requisition_branches_line_group_pos_manager,requisition.branches.line group_pos_manager,pos_customize.model_requisition_branches_line,point_of_sale.group_pos_manager,1,1,1,0
+pos_customize.requisition_branches_group_pos_manager,requisition.branches group_pos_manager,pos_customize.model_requisition_branches,point_of_sale.group_pos_manager,1,1,1,0
+
+pos_customize.requisition_branches_sale_group,requisition.branches.sale user,pos_customize.model_requisition_branches_sale,base.group_user,1,1,1,0
+pos_customize.requisition_branches_sale_line_group,requisition.branches.sale.line user,pos_customize.model_requisition_branches_sale_line,base.group_user,1,1,1,0
+
+pos_customize.pos_branch_group,pos.branch user,pos_customize.model_pos_branch,base.group_user,1,1,0,0
+
+pos_select_product.pos_product_template_group,pos_product.template user,pos_select_product.model_pos_product_template,base.group_user,1,1,0,0
+pos_select_product.pos_product_template_pos_admin,pos_product.template pos_admin,pos_select_product.model_pos_product_template,point_of_sale.group_pos_admin,1,1,1,1
+pos_select_product.pos_product_template_line_group,product.template,pos_select_product.model_pos_product_template_line,base.group_user,1,1,1,0
+
+pos_customize.pos_company_group,pos_company,pos_customize.model_pos_company,base.group_user,1,1,1,0
+pos_customize.pos_branch_group,pos branch,pos_customize.model_pos_branch,base.group_user,1,1,1,0
+
+pos_customize.rcustomer_change_log_group,customer_change_log user,pos_customize.model_customer_change_log,base.group_user,1,1,1,0
+
+stock.access_product_template_stock_user,product.template stock user,product.model_product_template,stock.group_stock_user,1,0,0,0
+stock.access_product_template_stock_manager,product.template stock manger,product.model_product_template,stock.group_stock_manager,1,1,1,0
+
+point_of_sale.access_pos_config_user,pos.config user,model_pos_config,point_of_sale.group_pos_user,1,1,0,0
+point_of_sale.access_pos_config_manager,pos.config user,model_pos_config,point_of_sale.group_pos_manager,1,1,1,0
+access_pos_config_admin_setting,pos.config admin_setting,model_pos_config,base.group_system,1,1,1,0
+
+requisition_branches_round_group,requisition.branches.round user,model_requisition_branches_round,base.group_user,1,1,1,0
+requisition_branches_line_stock_group,requisition.branches.line.stock user,model_requisition_branches_line_stock,base.group_user,1,1,1,0
+requisition_branches_line_reverse_group,requisition.branches.line.reverse user,model_requisition_branches_line_reverse,base.group_user,1,1,1,0
+
+jasper_reports.access_ir_actions_report_xml_file_all,ir_actions_report_xml_file,jasper_reports.model_ir_actions_report_xml_file,base.group_user,1,1,1,1
+
+base.access_ir_actions_report_xml_all,ir_actions_report_xml,base.model_ir_actions_report_xml,,1,1,0,0
+base.access_ir_actions_report_xml_group_system,ir_actions_report_xml_group_system,base.model_ir_actions_report_xml,base.group_system,1,1,1,1
+
+custom_res_partner_group_user,res_partner group_user,base.model_res_partner,point_of_sale.group_pos_user,1,1,0,0
+
+custom_res_users_pos_user,res_users pos_user,base.model_res_users,point_of_sale.group_pos_user,1,1,0,0
+
+account.access_account_journal_pos_admin,account.journal pos_admin,model_account_journal,point_of_sale.group_pos_admin,1,1,1,1
+
+pos_customize.ir_sequence_group_user,ir_sequence group_user,base.model_ir_sequence,base.group_user,1,1,0,0
+
+pos_customize.stock_pack_operation_remove_group,stock.pack.operation.remove group_user,pos_customize.model_stock_pack_operation_remove,base.group_user,1,1,1,0
+
+point_of_sale.access_pos_order_pos_user,pos.order pos_user,model_pos_order,point_of_sale.group_pos_user,1,1,1,0
+point_of_sale.access_pos_order,pos.order pos_admin,model_pos_order,point_of_sale.group_pos_admin,1,1,1,1
+
+point_of_sales.access_pos_order_stock_worker,pos.order stock_worker,point_of_sale.model_pos_order,stock.group_stock_user,1,1,1,0
+
+access_return_reason_group_user,return_reason group_user,model_return_reason,stock.group_stock_user,1,0,0,0
+access_return_reason_group_manager,return_reason group_manager,model_return_reason,stock.group_stock_manager,1,1,1,1

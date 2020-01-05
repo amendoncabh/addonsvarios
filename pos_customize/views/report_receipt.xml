@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+        <template id="assets_common" inherit_id="report.assets_common">
+            <xpath expr="." position="inside">
+                    <link href="/pos_customize/static/src/css/report_receipt.css" rel="stylesheet"/>
+            </xpath>
+        </template>
+        <template id="assets_pdf" inherit_id="report.assets_pdf">
+            <xpath expr="." position="inside">
+                    <link href="/pos_customize/static/src/css/report_receipt.css" rel="stylesheet"/>
+            </xpath>
+        </template>
+        <template id="report_receipt_inherit" inherit_id="point_of_sale.report_receipt">
+            <xpath expr="//div[@class='page']" position="replace">
+                <div class="page">
+                    <div class="pos-sale-ticket">
+            
+                        <div class="row">
+                            <div class="col-xs-12 text-center">
+                            <t t-if='o.company_id.logo'>
+                                <img t-att-src='"data:image/png;base64,"+o.company_id.logo' />
+                                <br />
+                            </t>
+                          
+                            </div>
+                        </div>
+                        <br />
+                        <div class="row">
+                            <div class="col-xs-12 text-center">
+<!--                            <t t-esc="receipt.company.pos_company_name || ''"/>
+                            <br />
+                            <t t-esc="widget.pos.branch.branch_name || ''"/>
+                            <br />
+                            TEL :<t t-esc="widget.pos.branch.phone || ''"/>
+                            <br />
+                            TAX INVOICE (ABB) VAT INCLUDED<br />
+                            TAX ID :<t t-esc="receipt.company.pos_tax_id || ''"/>
+                            <br />
+                            POS ID :<t t-esc="widget.pos.config.pos_no || ''"/>-->
+                            <br />
+                            <div class="billtype">Settlement</div>
+                            </div>
+                        </div>
+                        INV. NO :
+                        <br />
+                        Cashier :<span t-field="o.user_id"/><br/>
+                        <br />
+                        DATE :<span t-field="o.date_order"/>
+                        <br />
+                        <hr />
+            
+                        <br />
+                        <div class="row">
+                            <div class="col-xs-12 text-center">
+                                ** Thank you Please come again **<br />
+                                สินค้าซื้อแล้วไม่รับเปลี่ยนคืน
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </xpath>
+        </template>
+    </data>
+</openerp>

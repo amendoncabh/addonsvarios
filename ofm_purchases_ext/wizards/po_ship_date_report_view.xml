@@ -1,0 +1,76 @@
+<?xml version="1.0"?>
+<odoo>
+   <data>
+
+       <record id="po_ship_date_report_jasper" model="ir.actions.report.xml">
+           <field name="string">รายงาน PO ตาม Ship Date</field>
+           <field name="auto">True</field>
+           <field name="model">po.ship.date.report.wizard</field>
+           <field name="jasper_model_id" ref="base.model_res_users"/>
+           <field name="name">รายงาน PO ตาม Ship Date</field>
+           <field name="report_name">po.ship.date.report.jasper</field>
+           <field name="rml">ofm_purchases_ext/reports/po_ship_date_report.jrxml</field>
+           <field name="report_rml">ofm_purchases_ext/reports/po_ship_date_report.jrxml</field>
+           <field name="menu">False</field>
+           <field name="header">False</field>
+           <field name="jasper_report">True</field>
+           <field name="jasper_output">xls</field>
+       </record>
+
+       <act_window id="action_po_ship_date_report_wizard"
+                   name="รายงาน PO ตาม Ship Date"
+                   res_model="po.ship.date.report.wizard"
+                   view_mode="form"
+                   target="new"/>
+
+<!--       <menuitem id="menu_po_ship_date_report_wizard"-->
+<!--                 parent="purchase.purchase_report"-->
+<!--                 action="action_po_ship_date_report_wizard"-->
+<!--                 sequence="3"/>-->
+
+       <record id="view_po_ship_date_report_wizard" model="ir.ui.view">
+           <field name="name">po.ship.date.report.form</field>
+           <field name="model">po.ship.date.report.wizard</field>
+           <field name="arch" type="xml">
+               <form string="รายงาน PO ตาม Ship Date">
+                   <group>
+                       <group>
+                           <field name="company_id"
+                                  options="{'no_quick_create': True, 'no_create_edit': True}"/>
+                           <field name="branch_id"
+                                  options="{'no_quick_create': True, 'no_create_edit': True}"
+                                  domain="[('pos_company_id', '=',company_id)]" />
+                           <field name="planned_start_date"/>
+                           <field name="planned_end_date"/>
+                           <field name="po_status"
+                                  domain="[
+                                        ('value', 'not in', ['draft','sent','pending','completed','to approve'])
+                                        ]"
+                                  widget="many2many_checkboxes"
+                           />
+                           <field name="stock_received" />
+                       </group>
+                       <group>
+                           <field name="po_start_date"/>
+                           <field name="po_end_date"/>
+                           <field name="pr_start_date"/>
+                           <field name="pr_end_date"/>
+                           <field name="inv_col_no"/>
+                           <field name="vendor_code_branch"/>
+                           <field name="product_pid_sku"/>
+                       </group>
+                   </group>
+                   <footer>
+                       <button name="action_print_report"
+                               string="Print Report" type="object"
+                               class="oe_highlight"/>
+                       or
+                       <button string="Cancel" class="oe_link"
+                               special="cancel"/>
+                   </footer>
+               </form>
+           </field>
+       </record>
+
+   </data>
+</odoo>

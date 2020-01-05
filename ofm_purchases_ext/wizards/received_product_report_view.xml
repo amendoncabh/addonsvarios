@@ -1,0 +1,68 @@
+<?xml version="1.0"?>
+<odoo>
+   <data>
+
+       <record id="received_product_report_jasper" model="ir.actions.report.xml">
+           <field name="string">รายงานการรับสินค้า</field>
+           <field name="auto">True</field>
+           <field name="model">received.product.report.wizard</field>
+           <field name="jasper_model_id" ref="base.model_res_users"/>
+           <field name="name">รายงานการรับสินค้า</field>
+           <field name="report_name">received.product.report.jasper</field>
+           <field name="rml">ofm_purchases_ext/reports/received_product_report.jrxml</field>
+           <field name="report_rml">ofm_purchases_ext/reports/received_product_report.jrxml</field>
+           <field name="menu">False</field>
+           <field name="header">False</field>
+           <field name="jasper_report">True</field>
+           <field name="jasper_output">xls</field>
+       </record>
+
+       <act_window id="action_received_product_report_wizard"
+                   name="รายงานการรับสินค้า"
+                   res_model="received.product.report.wizard"
+                   view_mode="form"
+                   target="new"/>
+
+       <menuitem id="menu_received_product_report_wizard"
+                 parent="purchase.purchase_report"
+                 action="action_received_product_report_wizard"
+                 sequence="1"/>
+
+       <record id="view_received_product_report_wizard" model="ir.ui.view">
+           <field name="name">received.product.report.form</field>
+           <field name="model">received.product.report.wizard</field>
+           <field name="arch" type="xml">
+               <form string="รายงานการรับสินค้า">
+                   <group>
+                       <group>
+                           <field name="company_id"
+                                  options="{'no_quick_create': True, 'no_create_edit': True}"/>
+                           <field name="branch_id"
+                                  options="{'no_quick_create': True, 'no_create_edit': True}"
+                                  domain="[('pos_company_id', '=',company_id)]" />
+                           <field name="rd_start_date"/>
+                           <field name="rd_end_date"/>
+                       </group>
+                       <group>
+                           <field name="rd_no"/>
+                           <field name="po_no"/>
+                           <field name="col_inv_no"/>
+                           <field name="inv_start_date"/>
+                           <field name="inv_end_date"/>
+                           <field name="product_code"/>
+                       </group>
+                   </group>
+                   <footer>
+                       <button name="action_print_report"
+                               string="Print Report" type="object"
+                               class="oe_highlight"/>
+                       or
+                       <button string="Cancel" class="oe_link"
+                               special="cancel"/>
+                   </footer>
+               </form>
+           </field>
+       </record>
+
+   </data>
+</odoo>

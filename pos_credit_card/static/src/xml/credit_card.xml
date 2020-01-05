@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+    <t t-extend="PaymentScreen-Paymentlines">
+        <t t-jquery="table.paymentlines colgroup col.method" t-operation="after">
+            <col class='credit_card_no' />
+            <!--<col class='approve_code' />-->
+        </t>
+        <t t-jquery="table.paymentlines thead tr.label th:nth-child(4)" t-operation="after">
+            <th>No.</th>
+        </t>
+
+        <t t-jquery="table.paymentlines tbody tr.paymentline td.col-name" t-operation="replace">
+            <td class='col-name' style="white-space: nowrap;">
+                <t t-if="line.cashregister.journal.redeem_type_id">
+                    <t t-set="redeem_type"  t-value="line.cashregister.journal.redeem_type_id" />
+                    <t t-set="is_t1cc" t-value="redeem_type.code == 'T1CC'" />
+                    <t t-set="is_t1cp" t-value="redeem_type.code == 'T1CP'" />
+                    <t t-set="is_t1ac" t-value="redeem_type.code == 'T1AC'" />
+                    <t t-if="is_t1cc || is_t1cp || is_t1ac">
+                        <t t-esc="line.cashregister.journal.code" />
+                    </t>
+                </t>
+                <t t-else="">
+                    <t t-esc='line.name' />
+                </t>
+                <t t-if="line.is_credit_card">
+                    <div style="margin-top: 5px;">Approve Code</div>
+                    <div style="margin-top: 5px;">Tender</div>
+                </t>
+            </td>
+        </t>
+
+        <t t-jquery="table.paymentlines tbody tr.paymentline td.col-name" t-operation="after">
+            <t t-if='line.cashregister.journal.is_credit_card'>
+                <td class='col-credit_card_no'>
+                    <t t-if="(widget.pos.get_order().is_void_order || widget.pos.get_order().is_return_order) ">
+                        <div style="font-size: 14px;text-align: center;">
+                            <t t-esc="line.credit_card_no_encrypt"></t>
+                        </div>
+                        <t t-if="widget.pos.get_order().is_void_order">
+                            <div style="font-size: 14px;text-align: center; margin-top: 10px;">
+                                <t t-esc="line.approve_code"></t>
+                            </div>
+                        </t>
+                        <t t-if="widget.pos.get_order().is_return_order">
+                            <div style="text-align: center;">
+                                <input class="approve_code_class" type="text" maxlength="6" placeholder="Approve Code"
+                                       t-att-value="line.approve_code" t-att-index="line.get_index(line)"
+                                       style="width:85px;border-radius: 3px; border: solid 1px #cecbcb;background: white;color: #555555;font-family: 'Lato','Lucida Grande', Helvetica, Verdana, Arial;"/>
+                            </div>
+                        </t>
+                        <div style="font-size: 14px;text-align: center;margin-top: 10px;">
+                            <t t-esc="line.credit_card_type"></t>
+                        </div>
+                    </t>
+                    <t t-if="!(widget.pos.get_order().is_void_order || widget.pos.get_order().is_return_order)">
+                        <input class="credit_card_no_class only_number" type="text" maxlength="16" placeholder="Credit Card No."
+                               t-att-index="line.get_index(line)" t-att-value="line.credit_card_no"
+                               style="width:135px;border-radius: 3px; border: solid 1px #cecbcb;background: white;color: #555555;font-family: 'Lato','Lucida Grande', Helvetica, Verdana, Arial;"/>
+                        <input class="approve_code_class" type="text" maxlength="6" placeholder="Approve Code"
+                               t-att-index="line.get_index(line)" t-att-value="line.approve_code"
+                               style="width:85px;border-radius: 3px; border: solid 1px #cecbcb;background: white;color: #555555;font-family: 'Lato','Lucida Grande', Helvetica, Verdana, Arial;"/>
+                        <select class="credit_card_type_class"
+                                t-att-index="line.get_index(line)" style="width:137px;">
+                            <option value="">Type of Credit Card</option>
+                            <t t-foreach="widget.credit_card_types" t-as="credit_card_type">
+                                <t t-if="line.credit_card_type==credit_card_type">
+                                    <option t-att-value="credit_card_type" selected="selected"><t t-esc="credit_card_type"/></option>
+                                </t>
+                                <t t-else="">
+                                    <option t-att-value="credit_card_type"><t t-esc="credit_card_type"/></option>
+                                </t>
+                            </t>
+                        </select>
+                    </t>
+                </td>
+
+            </t>
+            <t t-if='!line.cashregister.journal.is_credit_card'>
+                <t t-if='is_t1cc'>
+                    <td class='col-credit_card_no' style="font-size: 15px;">
+                        <t t-esc='line.t1cc_barcode'/>
+                    </td>                    
+                </t>
+                <t t-elif='is_t1cp'>
+                    <td class='col-credit_card_no' style="font-size: 15px;">
+                        <t t-esc='line.t1cp_receipt_no'/>
+                    </td>                    
+                </t>
+                <t t-elif='!is_t1cc'>
+                    <td class='col-credit_card_no'>
+                        <input class="cash_class" type="text" maxlength="16" placeholder="Cash" style="display:none;" />
+                    </td>
+                </t>
+            </t>
+        </t>
+    </t>
+    <t t-extend="PosTicket">
+        <t t-jquery="#PaymentInfo .paymentline-tender t tr > td:nth-child(1)" t-operation="replace">
+            <td>
+                <t t-if="line.cashregister.journal.is_credit_card and line.credit_card_type != '' ">
+                    <t t-esc="line.credit_card_type + ': '+ line.credit_card_no_encrypt"/>
+                </t>
+                <t t-elif="line.cashregister.journal.is_credit_card and line.credit_card_type == '' ">
+                    <t t-esc="line.name + ': '+ line.credit_card_no_encrypt"/>
+                </t>
+                <t t-elif="line.cashregister.journal.redeem_type_id">
+                    <t t-set="redeem_type"  t-value="line.cashregister.journal.redeem_type_id" />
+                    <t t-set="is_t1cc" t-value="redeem_type.code == 'T1CC'" />
+                    <t t-set="is_t1cp" t-value="redeem_type.code == 'T1CP'" />
+                    <t t-set="is_t1ac" t-value="redeem_type.code == 'T1AC'" />
+                    <div>
+                        <t t-esc="line.cashregister.journal.code"/>
+                    </div>
+                    <div>
+                        <span>&#160;&#160;&#160;&#160;Serial : </span><t t-esc="line.t1cc_barcode"/>
+                    </div>
+                </t>
+                <t t-else="">
+                    <t t-esc="line.name"/>
+                </t>
+            </td>
+        </t>
+    </t>
+    <t t-extend="PaymentScreen-Paymentmethods">
+        <t t-jquery=".paymentmethods" t-operation="replace">
+            <div class='paymentmethods'>
+                <t t-foreach="widget.pos.cashregisters" t-as="cashregister">
+                    <div class="button paymentmethod" t-att-data-id="cashregister.journal_id[0]">
+                    <t t-if="cashregister.journal.redeem_type_id">
+                        <t t-set="redeem_type"  t-value="cashregister.journal.redeem_type_id" />
+                        <t t-set="is_t1cc" t-value="redeem_type.code == 'T1CC'" />
+                        <t t-set="is_t1cp" t-value="redeem_type.code == 'T1CP'" />
+                        <t t-set="is_t1ac" t-value="redeem_type.code == 'T1AC'" />
+                            <t t-if="is_t1cc || is_t1cp || is_t1ac">
+                                <t t-esc="cashregister.journal.name" /><span> (</span><t t-esc="cashregister.journal.code"/><span>)</span>
+                            </t>
+                    </t>
+                    <t t-else="">
+                        <t t-esc="cashregister.journal_id[1]" />
+                    </t>
+                    </div>
+                </t>
+            </div>
+        </t>
+    </t>
+</templates>

@@ -1,0 +1,112 @@
+/* Copyright (c) 2016-Present Webkul Software Pvt. Ltd. (<https://webkul.com/>) */
+/* See LICENSE file for full copyright and licensing details. */
+/* License URL : <https://store.webkul.com/license.html/> */
+.return_popup_table{
+	table-layout: fixed;
+	text-align: left;
+	width:100%;
+}
+.container_div{
+	height: 310px;
+    overflow-y: scroll;
+    margin-top: -3%;
+}
+.return_popup_tr{
+	height: 53px;
+	background-color: rgb(222, 224, 224);
+}
+
+.pos tr.return_popup_tr td.return_qty > input{
+    text-align: left;
+    display: inline-block;
+    overflow: hidden;
+    background: #FAFAFA;
+    min-height: 44px;
+    font-family: "Lato";
+    font-size: 20px;
+    color: #444;
+    padding: 10px;
+    border-radius: 3px;
+    border: none;
+    box-shadow: 0px 0px 0px 1px rgb(220,220,220) inset;
+    box-sizing: border-box;
+    width: 80%;
+}
+
+.pos tr.return_popup_tr td.return_qty > input:disabled{
+    box-shadow: none;
+    background: none;
+}
+
+.table_data_cells{
+    padding-left: 2%;
+}
+.return_popup_style{
+	height: 440px !important;
+	width: 640px !important;
+	font-family: inherit;
+}
+.return_order_button{
+	pointer-events: none;
+	opacity: 0.4;
+	background-color: #c1c1c1 !important;
+}
+.return_reason_box{
+    float: left;
+    display: flex;
+    width: 50%;
+    margin-left: 20px;
+    background: #f0eeee;
+    border: 0;
+    height: 40px;
+    line-height: 40px;
+    text-align: center;
+    border-radius: 2px;
+    margin-top: 10px;
+    margin-right: 10px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+}
+.return_reason_selection_box{
+    margin-left: 10px;
+    width: 190px;
+    padding: 4px;
+    border-radius: 3px;
+    border: solid 1px #cecbcb;
+    background: rgba(255,255,255,0.5);
+    font-family: "Lato","Lucida Grande", Helvetica, Verdana, Arial;
+    color: #555555;
+    font-size: 14px;
+    box-sizing: border-box;
+}
+.pos .clientlist-screen .client-detail > .label{
+    font-weight: bold;
+    display: inline-block;
+    width: 100px;
+    text-align: right;
+    margin-right: 8px;
+}
+.pos .tableBodyScroll > tbody {
+  display: block;
+  max-height: 200px;
+  overflow-y: scroll;
+}
+
+.pos .tableBodyScroll > thead, .pos .tableBodyScroll > tbody tr {
+  display: table;
+  width: 100%;
+  table-layout: fixed;
+}
+
+.pos-sale-ticket .box-flex {
+    display: flex;
+    width: 100%;
+}
+.pos-sale-ticket .box-overflow-hidden {
+    width:100%;
+    overflow:hidden;
+}
+.border-required-field{
+    border: solid 1px #d9534f !important;
+}

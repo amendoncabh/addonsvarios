@@ -1,0 +1,2416 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="annual_sales_report" language="groovy" pageWidth="842" pageHeight="595" orientation="Landscape" whenNoDataType="NoDataSection" columnWidth="802" leftMargin="20" rightMargin="20" topMargin="9" bottomMargin="6">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<property name="net.sf.jasperreports.export.xls.white.page.background" value="false"/>
+	<subDataset name="sale_by_day">
+		<parameter name="year_input" class="java.lang.String"/>
+		<parameter name="branch_id" class="java.lang.String"/>
+		<queryString>
+			<![CDATA[select*,
+	(
+
+		select sum_total
+		from
+		(
+			select  sum(round(((pol1.price_unit*pol1.qty)*(1-(pol1.discount)/100)),2)) as sum_total
+			from pos_order po1
+			left join pos_order_line pol1 on po1.id=pol1.order_id
+			LEFT JOIN pos_session ps1 ON po1.session_id = ps1.id
+			LEFT JOIN pos_config pf1 ON ps1.config_id = pf1.id
+			LEFT JOIN pos_branch pb1 ON pf1.branch_id = pb1.id
+			where date_part('month',date(po1.date_order))=1
+			and date_part('year',date(po1.date_order))=$P{year_input}::integer
+			and date_part('day',date(po1.date_order))=test.date_of_month
+			and
+			(pol1.product_id not in ( SELECT promotion_discount_product_id
+			FROM pos_config group by promotion_discount_product_id) and
+			pol1.product_id not in ( SELECT vip_discount_product_id
+			FROM pos_config group by vip_discount_product_id))
+			and po1.is_return_order <> True
+			and pb1.id = $P{branch_id}::integer
+
+		) as temp
+
+	) as january_sub_total,
+
+	(
+
+		select sum_total
+		from
+		(
+			select  sum(round(((pol1.price_unit*pol1.qty)*(1-(pol1.discount)/100)),2)) as sum_total
+			from pos_order po1
+			left join pos_order_line pol1 on po1.id=pol1.order_id
+			LEFT JOIN pos_session ps1 ON po1.session_id = ps1.id
+			LEFT JOIN pos_config pf1 ON ps1.config_id = pf1.id
+			LEFT JOIN pos_branch pb1 ON pf1.branch_id = pb1.id
+			where date_part('month',date(po1.date_order))=2
+			and date_part('year',date(po1.date_order))=$P{year_input}::integer
+			and date_part('day',date(po1.date_order))=test.date_of_month
+			and
+			(pol1.product_id not in ( SELECT promotion_discount_product_id
+			FROM pos_config group by promotion_discount_product_id) and
+			pol1.product_id not in ( SELECT vip_discount_product_id
+			FROM pos_config group by vip_discount_product_id))
+			and po1.is_return_order <> True
+			and pb1.id = $P{branch_id}::integer
+
+		) as temp
+
+	) as febuary_sub_total,
+
+	(
+
+		select sum_total
+		from
+		(
+			select  sum(round(((pol1.price_unit*pol1.qty)*(1-(pol1.discount)/100)),2)) as sum_total
+			from pos_order po1
+			left join pos_order_line pol1 on po1.id=pol1.order_id
+			LEFT JOIN pos_session ps1 ON po1.session_id = ps1.id
+			LEFT JOIN pos_config pf1 ON ps1.config_id = pf1.id
+			LEFT JOIN pos_branch pb1 ON pf1.branch_id = pb1.id
+			where date_part('month',date(po1.date_order))=3
+			and date_part('year',date(po1.date_order))=$P{year_input}::integer
+			and date_part('day',date(po1.date_order))=test.date_of_month
+			and
+			(pol1.product_id not in ( SELECT promotion_discount_product_id
+			FROM pos_config group by promotion_discount_product_id) and
+			pol1.product_id not in ( SELECT vip_discount_product_id
+			FROM pos_config group by vip_discount_product_id))
+			and po1.is_return_order <> True
+			and pb1.id = $P{branch_id}::integer
+
+		) as temp
+
+	) as march_sub_total,
+
+	(
+
+		select sum_total
+		from
+		(
+			select  sum(round(((pol1.price_unit*pol1.qty)*(1-(pol1.discount)/100)),2)) as sum_total
+			from pos_order po1
+			left join pos_order_line pol1 on po1.id=pol1.order_id
+			LEFT JOIN pos_session ps1 ON po1.session_id = ps1.id
+			LEFT JOIN pos_config pf1 ON ps1.config_id = pf1.id
+			LEFT JOIN pos_branch pb1 ON pf1.branch_id = pb1.id
+			where date_part('month',date(po1.date_order))=4
+			and date_part('year',date(po1.date_order))=$P{year_input}::integer
+			and date_part('day',date(po1.date_order))=test.date_of_month
+			and
+			(pol1.product_id not in ( SELECT promotion_discount_product_id
+			FROM pos_config group by promotion_discount_product_id) and
+			pol1.product_id not in ( SELECT vip_discount_product_id
+			FROM pos_config group by vip_discount_product_id))
+			and po1.is_return_order <> True
+			and pb1.id = $P{branch_id}::integer
+
+		) as temp
+
+	) as april_sub_total,
+		(
+
+		select sum_total
+		from
+		(
+			select  sum(round(((pol1.price_unit*pol1.qty)*(1-(pol1.discount)/100)),2)) as sum_total
+			from pos_order po1
+			left join pos_order_line pol1 on po1.id=pol1.order_id
+			LEFT JOIN pos_session ps1 ON po1.session_id = ps1.id
+			LEFT JOIN pos_config pf1 ON ps1.config_id = pf1.id
+			LEFT JOIN pos_branch pb1 ON pf1.branch_id = pb1.id
+			where date_part('month',date(po1.date_order))=5
+			and date_part('year',date(po1.date_order))=$P{year_input}::integer
+			and date_part('day',date(po1.date_order))=test.date_of_month
+			and
+			(pol1.product_id not in ( SELECT promotion_discount_product_id
+			FROM pos_config group by promotion_discount_product_id) and
+			pol1.product_id not in ( SELECT vip_discount_product_id
+			FROM pos_config group by vip_discount_product_id))
+			and po1.is_return_order <> True
+			and pb1.id = $P{branch_id}::integer
+
+		) as temp
+
+	) as may_sub_total,
+		(
+
+		select sum_total
+		from
+		(
+			select sum(round(((pol1.price_unit*pol1.qty)*(1-(pol1.discount)/100)),2)) as sum_total
+			from pos_order po1
+			left join pos_order_line pol1 on po1.id=pol1.order_id
+			LEFT JOIN pos_session ps1 ON po1.session_id = ps1.id
+			LEFT JOIN pos_config pf1 ON ps1.config_id = pf1.id
+			LEFT JOIN pos_branch pb1 ON pf1.branch_id = pb1.id
+			where date_part('month',date(po1.date_order))=6
+			and date_part('year',date(po1.date_order))=$P{year_input}::integer
+			and date_part('day',date(po1.date_order))=test.date_of_month
+			and
+			(pol1.product_id not in ( SELECT promotion_discount_product_id
+			FROM pos_config group by promotion_discount_product_id) and
+			pol1.product_id not in ( SELECT vip_discount_product_id
+			FROM pos_config group by vip_discount_product_id))
+			and po1.is_return_order <> True
+			and pb1.id = $P{branch_id}::integer
+
+		) as temp
+
+	) as june_sub_total,
+
+	(
+
+		select sum_total
+		from
+		(
+			select sum(round(((pol1.price_unit*pol1.qty)*(1-(pol1.discount)/100)),2)) as sum_total
+			from pos_order po1
+			left join pos_order_line pol1 on po1.id=pol1.order_id
+			LEFT JOIN pos_session ps1 ON po1.session_id = ps1.id
+			LEFT JOIN pos_config pf1 ON ps1.config_id = pf1.id
+			LEFT JOIN pos_branch pb1 ON pf1.branch_id = pb1.id
+			where date_part('month',date(po1.date_order))=7
+			and date_part('year',date(po1.date_order))=$P{year_input}::integer
+			and date_part('day',date(po1.date_order))=test.date_of_month
+			and
+			(pol1.product_id not in ( SELECT promotion_discount_product_id
+			FROM pos_config group by promotion_discount_product_id) and
+			pol1.product_id not in ( SELECT vip_discount_product_id
+			FROM pos_config group by vip_discount_product_id))
+			and po1.is_return_order <> True
+			and pb1.id = $P{branch_id}::integer
+
+		) as temp
+
+	) as july_sub_total,
+		(
+
+		select sum_total
+		from
+		(
+			select  sum(round(((pol1.price_unit*pol1.qty)*(1-(pol1.discount)/100)),2)) as sum_total
+			from pos_order po1
+			left join pos_order_line pol1 on po1.id=pol1.order_id
+			LEFT JOIN pos_session ps1 ON po1.session_id = ps1.id
+			LEFT JOIN pos_config pf1 ON ps1.config_id = pf1.id
+			LEFT JOIN pos_branch pb1 ON pf1.branch_id = pb1.id
+			where date_part('month',date(po1.date_order))=8
+			and date_part('year',date(po1.date_order))=$P{year_input}::integer
+			and date_part('day',date(po1.date_order))=test.date_of_month
+			and
+			(pol1.product_id not in ( SELECT promotion_discount_product_id
+			FROM pos_config group by promotion_discount_product_id) and
+			pol1.product_id not in ( SELECT vip_discount_product_id
+			FROM pos_config group by vip_discount_product_id))
+			and po1.is_return_order <> True
+			and pb1.id = $P{branch_id}::integer
+
+		) as temp
+
+	) as august_sub_total,
+		(
+
+		select sum_total
+		from
+		(
+			select  sum(round(((pol1.price_unit*pol1.qty)*(1-(pol1.discount)/100)),2)) as sum_total
+			from pos_order po1
+			left join pos_order_line pol1 on po1.id=pol1.order_id
+			LEFT JOIN pos_session ps1 ON po1.session_id = ps1.id
+			LEFT JOIN pos_config pf1 ON ps1.config_id = pf1.id
+			LEFT JOIN pos_branch pb1 ON pf1.branch_id = pb1.id
+			where date_part('month',date(po1.date_order))=9
+			and date_part('year',date(po1.date_order))=$P{year_input}::integer
+			and date_part('day',date(po1.date_order))=test.date_of_month
+			and
+			(pol1.product_id not in ( SELECT promotion_discount_product_id
+			FROM pos_config group by promotion_discount_product_id) and
+			pol1.product_id not in ( SELECT vip_discount_product_id
+			FROM pos_config group by vip_discount_product_id))
+			and po1.is_return_order <> True
+			and pb1.id = $P{branch_id}::integer
+
+		) as temp
+
+	) as september_sub_total,
+	(
+
+		select sum_total
+		from
+		(
+			select  sum(round(((pol1.price_unit*pol1.qty)*(1-(pol1.discount)/100)),2)) as sum_total
+			from pos_order po1
+			left join pos_order_line pol1 on po1.id=pol1.order_id
+			LEFT JOIN pos_session ps1 ON po1.session_id = ps1.id
+			LEFT JOIN pos_config pf1 ON ps1.config_id = pf1.id
+			LEFT JOIN pos_branch pb1 ON pf1.branch_id = pb1.id
+			where date_part('month',date(po1.date_order))=10
+			and date_part('year',date(po1.date_order))=$P{year_input}::integer
+			and date_part('day',date(po1.date_order))=test.date_of_month
+			and
+			(pol1.product_id not in ( SELECT promotion_discount_product_id
+			FROM pos_config group by promotion_discount_product_id) and
+			pol1.product_id not in ( SELECT vip_discount_product_id
+			FROM pos_config group by vip_discount_product_id))
+			and po1.is_return_order <> True
+			and pb1.id = $P{branch_id}::integer
+
+		) as temp
+
+	) as october_sub_total,
+
+		(
+
+		select sum_total
+		from
+		(
+			select sum(round(((pol1.price_unit*pol1.qty)*(1-(pol1.discount)/100)),2)) as sum_total
+			from pos_order po1
+			left join pos_order_line pol1 on po1.id=pol1.order_id
+			LEFT JOIN pos_session ps1 ON po1.session_id = ps1.id
+			LEFT JOIN pos_config pf1 ON ps1.config_id = pf1.id
+			LEFT JOIN pos_branch pb1 ON pf1.branch_id = pb1.id
+			where date_part('month',date(po1.date_order))=11
+			and date_part('year',date(po1.date_order))=$P{year_input}::integer
+			and date_part('day',date(po1.date_order))=test.date_of_month
+			and
+			(pol1.product_id not in ( SELECT promotion_discount_product_id
+			FROM pos_config group by promotion_discount_product_id) and
+			pol1.product_id not in ( SELECT vip_discount_product_id
+			FROM pos_config group by vip_discount_product_id))
+			and po1.is_return_order <> True
+			and pb1.id = $P{branch_id}::integer
+
+		) as temp
+
+	) as november_sub_total,
+		(
+
+		select sum_total
+		from
+		(
+			select  sum(round(((pol1.price_unit*pol1.qty)*(1-(pol1.discount)/100)),2)) as sum_total
+			from pos_order po1
+			left join pos_order_line pol1 on po1.id=pol1.order_id
+			LEFT JOIN pos_session ps1 ON po1.session_id = ps1.id
+			LEFT JOIN pos_config pf1 ON ps1.config_id = pf1.id
+			LEFT JOIN pos_branch pb1 ON pf1.branch_id = pb1.id
+			where date_part('month',date(po1.date_order))=12
+			and date_part('year',date(po1.date_order))=$P{year_input}::integer
+			and date_part('day',date(po1.date_order))=test.date_of_month
+			and
+			(pol1.product_id not in ( SELECT promotion_discount_product_id
+			FROM pos_config group by promotion_discount_product_id) and
+			pol1.product_id not in ( SELECT vip_discount_product_id
+			FROM pos_config group by vip_discount_product_id))
+			and po1.is_return_order <> True
+			and pb1.id = $P{branch_id}::integer
+
+		) as temp
+
+	) as december_sub_total,
+(
+
+		select sum_total
+		from
+		(
+			select  sum(round(((pol1.price_unit*pol1.qty)*(1-(pol1.discount)/100)),2)) as sum_total
+			from pos_order po1
+			left join pos_order_line pol1 on po1.id=pol1.order_id
+			LEFT JOIN pos_session ps1 ON po1.session_id = ps1.id
+			LEFT JOIN pos_config pf1 ON ps1.config_id = pf1.id
+			LEFT JOIN pos_branch pb1 ON pf1.branch_id = pb1.id
+			where  date_part('year',date(po1.date_order))=$P{year_input}::integer
+			and
+			(pol1.product_id not in ( SELECT promotion_discount_product_id
+			FROM pos_config group by promotion_discount_product_id) and
+			pol1.product_id not in ( SELECT vip_discount_product_id
+			FROM pos_config group by vip_discount_product_id))
+			and po1.is_return_order = false
+			and pb1.id = $P{branch_id}::integer
+
+		) as temp
+
+	) as total_of_year
+
+
+
+
+from
+(SELECT  1  as date_of_month
+UNION
+SELECT 	 2
+UNION
+SELECT   3
+UNION
+SELECT 4
+UNION
+SELECT 5
+UNION
+SELECT 6
+UNION
+SELECT 7
+UNION
+SELECT 8
+UNION
+SELECT 9
+UNION
+SELECT 10
+UNION
+SELECT 11
+UNION
+SELECT 12
+UNION
+SELECT 13
+UNION
+SELECT 14
+UNION
+SELECT 15
+UNION
+SELECT 16
+UNION
+SELECT 17
+UNION
+SELECT 18
+UNION
+SELECT 19
+UNION
+SELECT 20
+UNION
+SELECT 21
+UNION
+SELECT 22
+UNION
+SELECT 23
+UNION
+SELECT 24
+UNION
+SELECT 25
+UNION
+SELECT 26
+UNION
+SELECT 27
+UNION
+SELECT 28
+UNION
+SELECT 29
+UNION
+SELECT 30
+UNION
+SELECT 31) as test
+order by test]]>
+		</queryString>
+		<field name="date_of_month" class="java.lang.Integer"/>
+		<field name="january_sub_total" class="java.math.BigDecimal"/>
+		<field name="febuary_sub_total" class="java.math.BigDecimal"/>
+		<field name="march_sub_total" class="java.math.BigDecimal"/>
+		<field name="april_sub_total" class="java.math.BigDecimal"/>
+		<field name="may_sub_total" class="java.math.BigDecimal"/>
+		<field name="june_sub_total" class="java.math.BigDecimal"/>
+		<field name="july_sub_total" class="java.math.BigDecimal"/>
+		<field name="august_sub_total" class="java.math.BigDecimal"/>
+		<field name="september_sub_total" class="java.math.BigDecimal"/>
+		<field name="october_sub_total" class="java.math.BigDecimal"/>
+		<field name="november_sub_total" class="java.math.BigDecimal"/>
+		<field name="december_sub_total" class="java.math.BigDecimal"/>
+		<field name="total_of_year" class="java.math.BigDecimal"/>
+		<variable name="jan" class="java.lang.String">
+			<variableExpression><![CDATA[$F{january_sub_total}]]></variableExpression>
+		</variable>
+		<variable name="feb" class="java.lang.String">
+			<variableExpression><![CDATA[$F{febuary_sub_total}]]></variableExpression>
+		</variable>
+		<variable name="mar" class="java.lang.String">
+			<variableExpression><![CDATA[$F{march_sub_total}]]></variableExpression>
+		</variable>
+		<variable name="apr" class="java.lang.String">
+			<variableExpression><![CDATA[$F{april_sub_total}]]></variableExpression>
+		</variable>
+		<variable name="may" class="java.lang.String">
+			<variableExpression><![CDATA[$F{may_sub_total}]]></variableExpression>
+		</variable>
+		<variable name="june" class="java.lang.String">
+			<variableExpression><![CDATA[$F{june_sub_total}]]></variableExpression>
+		</variable>
+		<variable name="july" class="java.lang.String">
+			<variableExpression><![CDATA[$F{july_sub_total}]]></variableExpression>
+		</variable>
+		<variable name="aug" class="java.lang.String">
+			<variableExpression><![CDATA[$F{august_sub_total}]]></variableExpression>
+		</variable>
+		<variable name="sep" class="java.lang.String">
+			<variableExpression><![CDATA[$F{september_sub_total}]]></variableExpression>
+		</variable>
+		<variable name="oct" class="java.lang.String">
+			<variableExpression><![CDATA[$F{october_sub_total}]]></variableExpression>
+		</variable>
+		<variable name="nov" class="java.lang.String">
+			<variableExpression><![CDATA[$F{november_sub_total}]]></variableExpression>
+		</variable>
+		<variable name="dec" class="java.lang.String">
+			<variableExpression><![CDATA[$F{december_sub_total}]]></variableExpression>
+		</variable>
+		<variable name="sum_jan_per_day" class="java.math.BigDecimal" calculation="Sum">
+			<variableExpression><![CDATA[$F{january_sub_total}]]></variableExpression>
+		</variable>
+		<variable name="sum_feb_per_day" class="java.math.BigDecimal" calculation="Sum">
+			<variableExpression><![CDATA[$F{febuary_sub_total}]]></variableExpression>
+		</variable>
+		<variable name="sum_mar_per_day" class="java.math.BigDecimal" calculation="Sum">
+			<variableExpression><![CDATA[$F{march_sub_total}]]></variableExpression>
+		</variable>
+		<variable name="sum_april_per_day" class="java.math.BigDecimal" calculation="Sum">
+			<variableExpression><![CDATA[$F{april_sub_total}]]></variableExpression>
+		</variable>
+		<variable name="sum_may_per_day" class="java.math.BigDecimal" calculation="Sum">
+			<variableExpression><![CDATA[$F{may_sub_total}]]></variableExpression>
+		</variable>
+		<variable name="sum_june_per_day" class="java.math.BigDecimal" calculation="Sum">
+			<variableExpression><![CDATA[$F{june_sub_total}]]></variableExpression>
+		</variable>
+		<variable name="sum_july_per_day" class="java.math.BigDecimal" calculation="Sum">
+			<variableExpression><![CDATA[$F{july_sub_total}]]></variableExpression>
+		</variable>
+		<variable name="sum_aug_per_day" class="java.math.BigDecimal" calculation="Sum">
+			<variableExpression><![CDATA[$F{august_sub_total}]]></variableExpression>
+		</variable>
+		<variable name="sum_sep_per_day" class="java.math.BigDecimal" calculation="Sum">
+			<variableExpression><![CDATA[$F{september_sub_total}]]></variableExpression>
+		</variable>
+		<variable name="sum_oct_per_day" class="java.math.BigDecimal" calculation="Sum">
+			<variableExpression><![CDATA[$F{october_sub_total}]]></variableExpression>
+		</variable>
+		<variable name="sum_nov_per_day" class="java.math.BigDecimal" calculation="Sum">
+			<variableExpression><![CDATA[$F{november_sub_total}]]></variableExpression>
+		</variable>
+		<variable name="sum_dec_per_day" class="java.math.BigDecimal" calculation="Sum">
+			<variableExpression><![CDATA[$F{december_sub_total}]]></variableExpression>
+		</variable>
+		<variable name="count_day_in_jan" class="java.math.BigDecimal" calculation="Count">
+			<variableExpression><![CDATA[$F{january_sub_total}]]></variableExpression>
+		</variable>
+		<variable name="count_day_in_feb" class="java.math.BigDecimal" calculation="Count">
+			<variableExpression><![CDATA[$F{febuary_sub_total}]]></variableExpression>
+		</variable>
+		<variable name="count_day_in_mar" class="java.math.BigDecimal" calculation="Count">
+			<variableExpression><![CDATA[$F{march_sub_total}]]></variableExpression>
+		</variable>
+		<variable name="count_day_in_april" class="java.math.BigDecimal" calculation="Count">
+			<variableExpression><![CDATA[$F{april_sub_total}]]></variableExpression>
+		</variable>
+		<variable name="count_day_in_may" class="java.math.BigDecimal" calculation="Count">
+			<variableExpression><![CDATA[$F{may_sub_total}]]></variableExpression>
+		</variable>
+		<variable name="count_day_in_june" class="java.math.BigDecimal" calculation="Count">
+			<variableExpression><![CDATA[$F{june_sub_total}]]></variableExpression>
+		</variable>
+		<variable name="count_day_in_july" class="java.math.BigDecimal" calculation="Count">
+			<variableExpression><![CDATA[$F{july_sub_total}]]></variableExpression>
+		</variable>
+		<variable name="count_day_in_aug" class="java.math.BigDecimal" calculation="Count">
+			<variableExpression><![CDATA[$F{august_sub_total}]]></variableExpression>
+		</variable>
+		<variable name="count_day_in_sep" class="java.math.BigDecimal" calculation="Count">
+			<variableExpression><![CDATA[$F{september_sub_total}]]></variableExpression>
+		</variable>
+		<variable name="count_day_in_oct" class="java.math.BigDecimal" calculation="Count">
+			<variableExpression><![CDATA[$F{october_sub_total}]]></variableExpression>
+		</variable>
+		<variable name="count_day_in_nov" class="java.math.BigDecimal" calculation="Count">
+			<variableExpression><![CDATA[$F{november_sub_total}]]></variableExpression>
+		</variable>
+		<variable name="count_day_in_dec" class="java.math.BigDecimal" calculation="Count">
+			<variableExpression><![CDATA[$F{december_sub_total}]]></variableExpression>
+		</variable>
+		<variable name="avg_per_day_jan" class="java.math.BigDecimal">
+			<variableExpression><![CDATA[($V{sum_jan_per_day})/($V{count_day_in_jan})]]></variableExpression>
+		</variable>
+		<variable name="avg_per_day_feb" class="java.math.BigDecimal">
+			<variableExpression><![CDATA[($V{sum_feb_per_day})/$V{count_day_in_feb}]]></variableExpression>
+		</variable>
+		<variable name="avg_per_day_mar" class="java.math.BigDecimal">
+			<variableExpression><![CDATA[($V{sum_mar_per_day})/$V{count_day_in_mar}]]></variableExpression>
+		</variable>
+		<variable name="avg_per_day_april" class="java.math.BigDecimal">
+			<variableExpression><![CDATA[($V{sum_april_per_day})/$V{count_day_in_april}]]></variableExpression>
+		</variable>
+		<variable name="avg_per_day_may" class="java.math.BigDecimal">
+			<variableExpression><![CDATA[($V{sum_may_per_day})/$V{count_day_in_may}]]></variableExpression>
+		</variable>
+		<variable name="avg_per_day_june" class="java.math.BigDecimal">
+			<variableExpression><![CDATA[($V{sum_june_per_day})/$V{count_day_in_june}]]></variableExpression>
+		</variable>
+		<variable name="avg_per_day_july" class="java.math.BigDecimal">
+			<variableExpression><![CDATA[($V{sum_july_per_day})/$V{count_day_in_july}]]></variableExpression>
+		</variable>
+		<variable name="avg_per_day_aug" class="java.math.BigDecimal">
+			<variableExpression><![CDATA[($V{sum_aug_per_day})/$V{count_day_in_aug}]]></variableExpression>
+		</variable>
+		<variable name="avg_per_day_sep" class="java.math.BigDecimal">
+			<variableExpression><![CDATA[($V{sum_sep_per_day})/$V{count_day_in_sep}]]></variableExpression>
+		</variable>
+		<variable name="avg_per_day_oct" class="java.math.BigDecimal">
+			<variableExpression><![CDATA[($V{sum_oct_per_day})/$V{count_day_in_oct}]]></variableExpression>
+		</variable>
+		<variable name="avg_per_day_nov" class="java.math.BigDecimal">
+			<variableExpression><![CDATA[($V{sum_nov_per_day})/$V{count_day_in_nov}]]></variableExpression>
+		</variable>
+		<variable name="avg_per_day_dec" class="java.math.BigDecimal">
+			<variableExpression><![CDATA[($V{sum_dec_per_day})/$V{count_day_in_dec}]]></variableExpression>
+		</variable>
+		<variable name="jan/year%" class="java.math.BigDecimal">
+			<variableExpression><![CDATA[($V{sum_jan_per_day}/$F{total_of_year})*100]]></variableExpression>
+		</variable>
+		<variable name="feb/year%" class="java.math.BigDecimal">
+			<variableExpression><![CDATA[($V{sum_feb_per_day}/$F{total_of_year})*100]]></variableExpression>
+		</variable>
+		<variable name="mar/year%" class="java.math.BigDecimal">
+			<variableExpression><![CDATA[($V{sum_mar_per_day}/$F{total_of_year})*100]]></variableExpression>
+		</variable>
+		<variable name="april/year%" class="java.math.BigDecimal">
+			<variableExpression><![CDATA[($V{sum_april_per_day}/$F{total_of_year})*100]]></variableExpression>
+		</variable>
+		<variable name="may/year%" class="java.math.BigDecimal">
+			<variableExpression><![CDATA[($V{sum_may_per_day}/$F{total_of_year})*100]]></variableExpression>
+		</variable>
+		<variable name="june/year%" class="java.math.BigDecimal">
+			<variableExpression><![CDATA[($V{sum_june_per_day}/$F{total_of_year})*100]]></variableExpression>
+		</variable>
+		<variable name="july/year%" class="java.math.BigDecimal">
+			<variableExpression><![CDATA[($V{sum_july_per_day}/$F{total_of_year})*100]]></variableExpression>
+		</variable>
+		<variable name="aug/year%" class="java.math.BigDecimal">
+			<variableExpression><![CDATA[($V{sum_aug_per_day}/$F{total_of_year})*100]]></variableExpression>
+		</variable>
+		<variable name="sep/year%" class="java.math.BigDecimal">
+			<variableExpression><![CDATA[($V{sum_sep_per_day}/$F{total_of_year})*100]]></variableExpression>
+		</variable>
+		<variable name="oct/year%" class="java.math.BigDecimal">
+			<variableExpression><![CDATA[($V{sum_oct_per_day}/$F{total_of_year})*100]]></variableExpression>
+		</variable>
+		<variable name="nov/year%" class="java.math.BigDecimal">
+			<variableExpression><![CDATA[($V{sum_nov_per_day}/$F{total_of_year})*100]]></variableExpression>
+		</variable>
+		<variable name="dec/year%" class="java.math.BigDecimal">
+			<variableExpression><![CDATA[($V{sum_dec_per_day}/$F{total_of_year})*100]]></variableExpression>
+		</variable>
+		<variable name="null_sum_jan" class="java.lang.String">
+			<variableExpression><![CDATA[$V{sum_jan_per_day}]]></variableExpression>
+		</variable>
+		<variable name="null_sum_feb" class="java.lang.String">
+			<variableExpression><![CDATA[$V{sum_feb_per_day}]]></variableExpression>
+		</variable>
+		<variable name="null_sum_mar" class="java.lang.String">
+			<variableExpression><![CDATA[$V{sum_mar_per_day}]]></variableExpression>
+		</variable>
+		<variable name="null_sum_april" class="java.lang.String">
+			<variableExpression><![CDATA[$V{sum_april_per_day}]]></variableExpression>
+		</variable>
+		<variable name="null_sum_may" class="java.lang.String">
+			<variableExpression><![CDATA[$V{sum_may_per_day}]]></variableExpression>
+		</variable>
+		<variable name="null_sum_june" class="java.lang.String">
+			<variableExpression><![CDATA[$V{sum_june_per_day}]]></variableExpression>
+		</variable>
+		<variable name="null_sum_july" class="java.lang.String">
+			<variableExpression><![CDATA[$V{sum_july_per_day}]]></variableExpression>
+		</variable>
+		<variable name="null_sum_aug" class="java.lang.String">
+			<variableExpression><![CDATA[$V{sum_aug_per_day}]]></variableExpression>
+		</variable>
+		<variable name="null_sum_sep" class="java.lang.String">
+			<variableExpression><![CDATA[$V{sum_sep_per_day}]]></variableExpression>
+		</variable>
+		<variable name="null_sum_oct" class="java.lang.String">
+			<variableExpression><![CDATA[$V{sum_oct_per_day}]]></variableExpression>
+		</variable>
+		<variable name="null_sum_nov" class="java.lang.String">
+			<variableExpression><![CDATA[$V{sum_nov_per_day}]]></variableExpression>
+		</variable>
+		<variable name="null_sum_dec" class="java.lang.String">
+			<variableExpression><![CDATA[$V{sum_dec_per_day}]]></variableExpression>
+		</variable>
+		<variable name="sum_per_year_jan" class="java.math.BigDecimal">
+			<variableExpression><![CDATA[$V{null_sum_jan}==null? 0.00 :$V{sum_jan_per_day}]]></variableExpression>
+		</variable>
+		<variable name="sum_per_year_feb" class="java.math.BigDecimal">
+			<variableExpression><![CDATA[($V{null_sum_jan}==null? 0.00 :$V{sum_jan_per_day})
++($V{null_sum_feb}==null? 0.00 :$V{sum_feb_per_day})]]></variableExpression>
+		</variable>
+		<variable name="sum_per_year_mar" class="java.math.BigDecimal">
+			<variableExpression><![CDATA[($V{null_sum_jan}==null? 0.00 :$V{sum_jan_per_day})
++($V{null_sum_feb}==null? 0.00 :$V{sum_feb_per_day})
++($V{null_sum_mar}==null? 0.00 :$V{sum_mar_per_day})]]></variableExpression>
+		</variable>
+		<variable name="sum_per_year_april" class="java.math.BigDecimal">
+			<variableExpression><![CDATA[($V{null_sum_jan}==null? 0.00 :$V{sum_jan_per_day})
++($V{null_sum_feb}==null? 0.00 :$V{sum_feb_per_day})
++($V{null_sum_mar}==null? 0.00 :$V{sum_mar_per_day})
++($V{null_sum_april}==null? 0.00 :$V{sum_april_per_day})]]></variableExpression>
+		</variable>
+		<variable name="sum_per_year_may" class="java.math.BigDecimal">
+			<variableExpression><![CDATA[($V{null_sum_jan}==null? 0.00 :$V{sum_jan_per_day})
++($V{null_sum_feb}==null? 0.00 :$V{sum_feb_per_day})
++($V{null_sum_mar}==null? 0.00 :$V{sum_mar_per_day})
++($V{null_sum_april}==null? 0.00 :$V{sum_april_per_day})
++($V{null_sum_may}==null? 0.00 :$V{sum_may_per_day})]]></variableExpression>
+		</variable>
+		<variable name="sum_per_year_june" class="java.math.BigDecimal">
+			<variableExpression><![CDATA[($V{null_sum_jan}==null? 0.00 :$V{sum_jan_per_day})
++($V{null_sum_feb}==null? 0.00 :$V{sum_feb_per_day})
++($V{null_sum_mar}==null? 0.00 :$V{sum_mar_per_day})
++($V{null_sum_april}==null? 0.00 :$V{sum_april_per_day})
++($V{null_sum_may}==null? 0.00 :$V{sum_may_per_day})
++($V{null_sum_june}==null? 0.00 :$V{sum_june_per_day})]]></variableExpression>
+		</variable>
+		<variable name="sum_per_year_july" class="java.math.BigDecimal">
+			<variableExpression><![CDATA[($V{null_sum_jan}==null? 0.00 :$V{sum_jan_per_day})
++($V{null_sum_feb}==null? 0.00 :$V{sum_feb_per_day})
++($V{null_sum_mar}==null? 0.00 :$V{sum_mar_per_day})
++($V{null_sum_april}==null? 0.00 :$V{sum_april_per_day})
++($V{null_sum_may}==null? 0.00 :$V{sum_may_per_day})
++($V{null_sum_june}==null? 0.00 :$V{sum_june_per_day})
++($V{null_sum_july}==null? 0.00 :$V{sum_july_per_day})]]></variableExpression>
+		</variable>
+		<variable name="sum_per_year_aug" class="java.math.BigDecimal">
+			<variableExpression><![CDATA[($V{null_sum_jan}==null? 0.00 :$V{sum_jan_per_day})
++($V{null_sum_feb}==null? 0.00 :$V{sum_feb_per_day})
++($V{null_sum_mar}==null? 0.00 :$V{sum_mar_per_day})
++($V{null_sum_april}==null? 0.00 :$V{sum_april_per_day})
++($V{null_sum_may}==null? 0.00 :$V{sum_may_per_day})
++($V{null_sum_june}==null? 0.00 :$V{sum_june_per_day})
++($V{null_sum_july}==null? 0.00 :$V{sum_july_per_day})
++($V{null_sum_aug}==null? 0.00 :$V{sum_aug_per_day})]]></variableExpression>
+		</variable>
+		<variable name="sum_per_year_sep" class="java.math.BigDecimal">
+			<variableExpression><![CDATA[($V{null_sum_jan}==null? 0.00 :$V{sum_jan_per_day})
++($V{null_sum_feb}==null? 0.00 :$V{sum_feb_per_day})
++($V{null_sum_mar}==null? 0.00 :$V{sum_mar_per_day})
++($V{null_sum_april}==null? 0.00 :$V{sum_april_per_day})
++($V{null_sum_may}==null? 0.00 :$V{sum_may_per_day})
++($V{null_sum_june}==null? 0.00 :$V{sum_june_per_day})
++($V{null_sum_july}==null? 0.00 :$V{sum_july_per_day})
++($V{null_sum_aug}==null? 0.00 :$V{sum_aug_per_day})
++($V{null_sum_sep}==null? 0.00 :$V{sum_sep_per_day})]]></variableExpression>
+		</variable>
+		<variable name="sum_per_year_oct" class="java.math.BigDecimal">
+			<variableExpression><![CDATA[($V{null_sum_jan}==null? 0.00 :$V{sum_jan_per_day})
++($V{null_sum_feb}==null? 0.00 :$V{sum_feb_per_day})
++($V{null_sum_mar}==null? 0.00 :$V{sum_mar_per_day})
++($V{null_sum_april}==null? 0.00 :$V{sum_april_per_day})
++($V{null_sum_may}==null? 0.00 :$V{sum_may_per_day})
++($V{null_sum_june}==null? 0.00 :$V{sum_june_per_day})
++($V{null_sum_july}==null? 0.00 :$V{sum_july_per_day})
++($V{null_sum_aug}==null? 0.00 :$V{sum_aug_per_day})
++($V{null_sum_sep}==null? 0.00 :$V{sum_sep_per_day})
++($V{null_sum_oct}==null? 0.00 :$V{sum_oct_per_day})]]></variableExpression>
+		</variable>
+		<variable name="sum_per_year_nov" class="java.math.BigDecimal">
+			<variableExpression><![CDATA[($V{null_sum_jan}==null? 0.00 :$V{sum_jan_per_day})
++($V{null_sum_feb}==null? 0.00 :$V{sum_feb_per_day})
++($V{null_sum_mar}==null? 0.00 :$V{sum_mar_per_day})
++($V{null_sum_april}==null? 0.00 :$V{sum_april_per_day})
++($V{null_sum_may}==null? 0.00 :$V{sum_may_per_day})
++($V{null_sum_june}==null? 0.00 :$V{sum_june_per_day})
++($V{null_sum_july}==null? 0.00 :$V{sum_july_per_day})
++($V{null_sum_aug}==null? 0.00 :$V{sum_aug_per_day})
++($V{null_sum_sep}==null? 0.00 :$V{sum_sep_per_day})
++($V{null_sum_oct}==null? 0.00 :$V{sum_oct_per_day})
++($V{null_sum_nov}==null? 0.00 :$V{sum_nov_per_day})]]></variableExpression>
+		</variable>
+		<variable name="sum_per_year_dec" class="java.math.BigDecimal">
+			<variableExpression><![CDATA[($V{null_sum_jan}==null? 0.00 :$V{sum_jan_per_day})
++($V{null_sum_feb}==null? 0.00 :$V{sum_feb_per_day})
++($V{null_sum_mar}==null? 0.00 :$V{sum_mar_per_day})
++($V{null_sum_april}==null? 0.00 :$V{sum_april_per_day})
++($V{null_sum_may}==null? 0.00 :$V{sum_may_per_day})
++($V{null_sum_june}==null? 0.00 :$V{sum_june_per_day})
++($V{null_sum_july}==null? 0.00 :$V{sum_july_per_day})
++($V{null_sum_aug}==null? 0.00 :$V{sum_aug_per_day})
++($V{null_sum_sep}==null? 0.00 :$V{sum_sep_per_day})
++($V{null_sum_oct}==null? 0.00 :$V{sum_oct_per_day})
++($V{null_sum_nov}==null? 0.00 :$V{sum_nov_per_day})
++($V{null_sum_dec}==null? 0.00 :$V{sum_dec_per_day})]]></variableExpression>
+		</variable>
+		<variable name="day_per_year_jan" class="java.math.BigDecimal">
+			<variableExpression><![CDATA[$V{count_day_in_jan}]]></variableExpression>
+		</variable>
+		<variable name="day_per_year_feb" class="java.math.BigDecimal">
+			<variableExpression><![CDATA[$V{count_day_in_jan}
++$V{count_day_in_feb}]]></variableExpression>
+		</variable>
+		<variable name="day_per_year_mar" class="java.math.BigDecimal">
+			<variableExpression><![CDATA[$V{count_day_in_jan}
++$V{count_day_in_feb}
++$V{count_day_in_mar}]]></variableExpression>
+		</variable>
+		<variable name="day_per_year_april" class="java.math.BigDecimal">
+			<variableExpression><![CDATA[$V{count_day_in_jan}
++$V{count_day_in_feb}
++$V{count_day_in_mar}
++$V{count_day_in_april}]]></variableExpression>
+		</variable>
+		<variable name="day_per_year_may" class="java.math.BigDecimal">
+			<variableExpression><![CDATA[$V{count_day_in_jan}
++$V{count_day_in_feb}
++$V{count_day_in_mar}
++$V{count_day_in_april}
++$V{count_day_in_may}]]></variableExpression>
+		</variable>
+		<variable name="day_per_year_june" class="java.math.BigDecimal">
+			<variableExpression><![CDATA[$V{count_day_in_jan}
++$V{count_day_in_feb}
++$V{count_day_in_mar}
++$V{count_day_in_april}
++$V{count_day_in_may}
++$V{count_day_in_june}]]></variableExpression>
+		</variable>
+		<variable name="day_per_year_july" class="java.math.BigDecimal">
+			<variableExpression><![CDATA[$V{count_day_in_jan}
++$V{count_day_in_feb}
++$V{count_day_in_mar}
++$V{count_day_in_april}
++$V{count_day_in_may}
++$V{count_day_in_june}
++$V{count_day_in_july}]]></variableExpression>
+		</variable>
+		<variable name="day_per_year_aug" class="java.math.BigDecimal">
+			<variableExpression><![CDATA[$V{count_day_in_jan}
++$V{count_day_in_feb}
++$V{count_day_in_mar}
++$V{count_day_in_april}
++$V{count_day_in_may}
++$V{count_day_in_june}
++$V{count_day_in_july}
++$V{count_day_in_aug}]]></variableExpression>
+		</variable>
+		<variable name="day_per_year_sep" class="java.math.BigDecimal">
+			<variableExpression><![CDATA[$V{count_day_in_jan}
++$V{count_day_in_feb}
++$V{count_day_in_mar}
++$V{count_day_in_april}
++$V{count_day_in_may}
++$V{count_day_in_june}
++$V{count_day_in_july}
++$V{count_day_in_aug}
++$V{count_day_in_sep}]]></variableExpression>
+		</variable>
+		<variable name="day_per_year_oct" class="java.math.BigDecimal">
+			<variableExpression><![CDATA[$V{count_day_in_jan}
++$V{count_day_in_feb}
++$V{count_day_in_mar}
++$V{count_day_in_april}
++$V{count_day_in_may}
++$V{count_day_in_june}
++$V{count_day_in_july}
++$V{count_day_in_aug}
++$V{count_day_in_sep}
++$V{count_day_in_oct}]]></variableExpression>
+		</variable>
+		<variable name="day_per_year_nov" class="java.math.BigDecimal">
+			<variableExpression><![CDATA[$V{count_day_in_jan}
++$V{count_day_in_feb}
++$V{count_day_in_mar}
++$V{count_day_in_april}
++$V{count_day_in_may}
++$V{count_day_in_june}
++$V{count_day_in_july}
++$V{count_day_in_aug}
++$V{count_day_in_sep}
++$V{count_day_in_oct}
++$V{count_day_in_nov}]]></variableExpression>
+		</variable>
+		<variable name="day_per_year_dec" class="java.math.BigDecimal">
+			<variableExpression><![CDATA[$V{count_day_in_jan}
++$V{count_day_in_feb}
++$V{count_day_in_mar}
++$V{count_day_in_april}
++$V{count_day_in_may}
++$V{count_day_in_june}
++$V{count_day_in_july}
++$V{count_day_in_aug}
++$V{count_day_in_sep}
++$V{count_day_in_oct}
++$V{count_day_in_nov}
++$V{count_day_in_dec}]]></variableExpression>
+		</variable>
+		<variable name="avg_per_year_jan" class="java.math.BigDecimal">
+			<variableExpression><![CDATA[$V{day_per_year_jan}==0.00? 0.00 :($V{sum_per_year_jan}/$V{day_per_year_jan})]]></variableExpression>
+		</variable>
+		<variable name="avg_per_year_feb" class="java.math.BigDecimal">
+			<variableExpression><![CDATA[$V{day_per_year_feb}==0.00? 0.00 :($V{sum_per_year_feb}/$V{day_per_year_feb})]]></variableExpression>
+		</variable>
+		<variable name="avg_per_year_mar" class="java.math.BigDecimal">
+			<variableExpression><![CDATA[$V{day_per_year_mar}==0.00? 0.00 :($V{sum_per_year_mar}/$V{day_per_year_mar})]]></variableExpression>
+		</variable>
+		<variable name="avg_per_year_april" class="java.math.BigDecimal">
+			<variableExpression><![CDATA[$V{day_per_year_april}==0.00? 0.00 :($V{sum_per_year_april}/$V{day_per_year_april})]]></variableExpression>
+		</variable>
+		<variable name="avg_per_year_may" class="java.math.BigDecimal">
+			<variableExpression><![CDATA[$V{day_per_year_may}==0.00? 0.00 :($V{sum_per_year_may}/$V{day_per_year_may})]]></variableExpression>
+		</variable>
+		<variable name="avg_per_year_june" class="java.math.BigDecimal">
+			<variableExpression><![CDATA[$V{day_per_year_june}==0.00? 0.00 :($V{sum_per_year_june}/$V{day_per_year_june})]]></variableExpression>
+		</variable>
+		<variable name="avg_per_year_july" class="java.math.BigDecimal">
+			<variableExpression><![CDATA[$V{day_per_year_july}==0.00? 0.00 :($V{sum_per_year_july}/$V{day_per_year_july})]]></variableExpression>
+		</variable>
+		<variable name="avg_per_year_aug" class="java.math.BigDecimal">
+			<variableExpression><![CDATA[$V{day_per_year_aug}==0.00? 0.00 :($V{sum_per_year_aug}/$V{day_per_year_aug})]]></variableExpression>
+		</variable>
+		<variable name="avg_per_year_sep" class="java.math.BigDecimal">
+			<variableExpression><![CDATA[$V{day_per_year_sep}==0.00? 0.00 :($V{sum_per_year_sep}/$V{day_per_year_sep})]]></variableExpression>
+		</variable>
+		<variable name="avg_per_year_oct" class="java.math.BigDecimal">
+			<variableExpression><![CDATA[$V{day_per_year_oct}==0.00? 0.00 :($V{sum_per_year_oct}/$V{day_per_year_oct})]]></variableExpression>
+		</variable>
+		<variable name="avg_per_year_nov" class="java.math.BigDecimal">
+			<variableExpression><![CDATA[$V{day_per_year_nov}==0.00? 0.00 :($V{sum_per_year_nov}/$V{day_per_year_nov})]]></variableExpression>
+		</variable>
+		<variable name="avg_per_year_dec" class="java.math.BigDecimal">
+			<variableExpression><![CDATA[$V{day_per_year_dec}==0.00? 0.00 :($V{sum_per_year_dec}/$V{day_per_year_dec})]]></variableExpression>
+		</variable>
+		<variable name="null_avg_per_day_jan" class="java.lang.String">
+			<variableExpression><![CDATA[$V{avg_per_day_jan}]]></variableExpression>
+		</variable>
+		<variable name="null_avg_per_day_feb" class="java.lang.String">
+			<variableExpression><![CDATA[$V{avg_per_day_feb}]]></variableExpression>
+		</variable>
+		<variable name="null_avg_per_day_mar" class="java.lang.String">
+			<variableExpression><![CDATA[$V{avg_per_day_mar}]]></variableExpression>
+		</variable>
+		<variable name="null_avg_per_day_april" class="java.lang.String">
+			<variableExpression><![CDATA[$V{avg_per_day_april}]]></variableExpression>
+		</variable>
+		<variable name="null_avg_per_day_may" class="java.lang.String">
+			<variableExpression><![CDATA[$V{avg_per_day_may}]]></variableExpression>
+		</variable>
+		<variable name="null_avg_per_day_june" class="java.lang.String">
+			<variableExpression><![CDATA[$V{avg_per_day_june}]]></variableExpression>
+		</variable>
+		<variable name="null_avg_per_day_july" class="java.lang.String">
+			<variableExpression><![CDATA[$V{avg_per_day_july}]]></variableExpression>
+		</variable>
+		<variable name="null_avg_per_day_aug" class="java.lang.String">
+			<variableExpression><![CDATA[$V{avg_per_day_aug}]]></variableExpression>
+		</variable>
+		<variable name="null_avg_per_day_sep" class="java.lang.String">
+			<variableExpression><![CDATA[$V{avg_per_day_sep}]]></variableExpression>
+		</variable>
+		<variable name="null_avg_per_day_oct" class="java.lang.String">
+			<variableExpression><![CDATA[$V{avg_per_day_oct}]]></variableExpression>
+		</variable>
+		<variable name="null_avg_per_day_nov" class="java.lang.String">
+			<variableExpression><![CDATA[$V{avg_per_day_nov}]]></variableExpression>
+		</variable>
+		<variable name="null_avg_per_day_dec" class="java.lang.String">
+			<variableExpression><![CDATA[$V{avg_per_day_dec}]]></variableExpression>
+		</variable>
+		<variable name="null_jan/year%" class="java.lang.String">
+			<variableExpression><![CDATA[$V{jan/year%}]]></variableExpression>
+		</variable>
+		<variable name="null_feb/year%" class="java.lang.String">
+			<variableExpression><![CDATA[$V{feb/year%}]]></variableExpression>
+		</variable>
+		<variable name="null_mar/year%" class="java.lang.String">
+			<variableExpression><![CDATA[$V{mar/year%}]]></variableExpression>
+		</variable>
+		<variable name="null_april/year%" class="java.lang.String">
+			<variableExpression><![CDATA[$V{april/year%}]]></variableExpression>
+		</variable>
+		<variable name="null_may/year%" class="java.lang.String">
+			<variableExpression><![CDATA[$V{may/year%}]]></variableExpression>
+		</variable>
+		<variable name="null_june/year%" class="java.lang.String">
+			<variableExpression><![CDATA[$V{june/year%}]]></variableExpression>
+		</variable>
+		<variable name="null_july/year%" class="java.lang.String">
+			<variableExpression><![CDATA[$V{july/year%}]]></variableExpression>
+		</variable>
+		<variable name="null_aug/year%" class="java.lang.String">
+			<variableExpression><![CDATA[$V{aug/year%}]]></variableExpression>
+		</variable>
+		<variable name="null_sep/year%" class="java.lang.String">
+			<variableExpression><![CDATA[$V{sep/year%}]]></variableExpression>
+		</variable>
+		<variable name="null_oct/year%" class="java.lang.String">
+			<variableExpression><![CDATA[$V{oct/year%}]]></variableExpression>
+		</variable>
+		<variable name="null_nov/year%" class="java.lang.String">
+			<variableExpression><![CDATA[$V{nov/year%}]]></variableExpression>
+		</variable>
+		<variable name="null_dec/year%" class="java.lang.String">
+			<variableExpression><![CDATA[$V{dec/year%}]]></variableExpression>
+		</variable>
+		<variable name="sum_jan/year%" class="java.math.BigDecimal">
+			<variableExpression><![CDATA[$V{null_jan/year%}==null? 0.00 :$V{jan/year%}]]></variableExpression>
+		</variable>
+		<variable name="sum_feb/year%" class="java.math.BigDecimal">
+			<variableExpression><![CDATA[($V{null_feb/year%}==null? 0.00 :$V{feb/year%})]]></variableExpression>
+		</variable>
+		<variable name="sum_mar/year%" class="java.math.BigDecimal">
+			<variableExpression><![CDATA[($V{null_mar/year%}==null? 0.00 :$V{mar/year%})]]></variableExpression>
+		</variable>
+		<variable name="sum_april/year%" class="java.math.BigDecimal">
+			<variableExpression><![CDATA[($V{null_april/year%}==null? 0.00 :$V{april/year%})]]></variableExpression>
+		</variable>
+		<variable name="sum_may/year%" class="java.math.BigDecimal">
+			<variableExpression><![CDATA[($V{null_may/year%}==null? 0.00 :$V{may/year%})]]></variableExpression>
+		</variable>
+		<variable name="sum_june/year%" class="java.math.BigDecimal">
+			<variableExpression><![CDATA[($V{null_june/year%}==null? 0.00 :$V{june/year%})]]></variableExpression>
+		</variable>
+		<variable name="sum_july/year%" class="java.math.BigDecimal">
+			<variableExpression><![CDATA[($V{null_july/year%}==null? 0.00 :$V{july/year%})]]></variableExpression>
+		</variable>
+		<variable name="sum_aug/year%" class="java.math.BigDecimal">
+			<variableExpression><![CDATA[($V{null_aug/year%}==null? 0.00 :$V{aug/year%})]]></variableExpression>
+		</variable>
+		<variable name="sum_sep/year%" class="java.math.BigDecimal">
+			<variableExpression><![CDATA[($V{null_sep/year%}==null? 0.00 :$V{sep/year%})]]></variableExpression>
+		</variable>
+		<variable name="sum_oct/year%" class="java.math.BigDecimal">
+			<variableExpression><![CDATA[($V{null_oct/year%}==null? 0.00 :$V{oct/year%})]]></variableExpression>
+		</variable>
+		<variable name="sum_nov/year%" class="java.math.BigDecimal">
+			<variableExpression><![CDATA[($V{null_nov/year%}==null? 0.00 :$V{nov/year%})]]></variableExpression>
+		</variable>
+		<variable name="sum_dec/year%" class="java.math.BigDecimal">
+			<variableExpression><![CDATA[(double)Math.round(($V{null_jan/year%}==null? 0.00 :$V{jan/year%})+
+($V{null_feb/year%}==null? 0.00 :$V{feb/year%})+
+($V{null_mar/year%}==null? 0.00 :$V{mar/year%})+
+($V{null_april/year%}==null? 0.00 :$V{april/year%})+
+($V{null_may/year%}==null? 0.00 :$V{may/year%})+
+($V{null_june/year%}==null? 0.00 :$V{june/year%})+
+($V{null_july/year%}==null? 0.00 :$V{july/year%})+
+($V{null_aug/year%}==null? 0.00 :$V{aug/year%})+
+($V{null_sep/year%}==null? 0.00 :$V{sep/year%})+
+($V{null_oct/year%}==null? 0.00 :$V{oct/year%})+
+($V{null_nov/year%}==null? 0.00 :$V{nov/year%})+
+($V{null_dec/year%}==null? 0.00 :$V{dec/year%}))]]></variableExpression>
+		</variable>
+	</subDataset>
+	<parameter name="year_input" class="java.lang.String">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<parameter name="branch_id" class="java.lang.String">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<parameter name="start_branch" class="java.lang.String">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<parameter name="end_branch" class="java.lang.String">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[select
+company_name,
+branch_name,
+branch_id,
+street,
+street2,
+city,
+zip,
+phone,
+province ,
+phone,
+time_order,
+(now()+interval '7 hour')::date as print_date,
+(now()+interval '7 hour')::time as print_time,
+start_branch_name,
+end_branch_name,
+start_branch_id,
+end_branch_id,
+pb_id
+
+
+
+from(
+	select
+	pb.branch_name,
+	pb.branch_id,
+	pb.id as pb_id,
+	date_part('year',po.date_order) as time_order,
+	rpc.name as company_name,
+	rpc.street,
+	rpc.street2,
+	rpc.city,
+	rpc.zip,
+	rpc.phone,
+	rcs.name as province,
+	(
+		select branch_name
+		from
+		(
+			select pb1.branch_name as branch_name
+			from  pos_branch pb1
+			where pb1.sequence = $P{start_branch}::integer
+			) as temp
+		) as start_branch_name,
+	(
+		select branch_name
+		from
+		(
+			select pb1.branch_name as branch_name
+			from  pos_branch pb1
+			where pb1.sequence = $P{end_branch}::integer
+			) as temp
+		) as end_branch_name,
+	(
+		select branch_id
+		from
+		(
+			select pb1.branch_id as branch_id
+			from  pos_branch pb1
+			where pb1.sequence = $P{start_branch}::integer
+			) as temp
+		) as start_branch_id,
+	(
+		select branch_id
+		from
+		(
+			select pb1.branch_id as branch_id
+			from  pos_branch pb1
+			where pb1.sequence = $P{end_branch}::integer
+			) as temp
+		) as end_branch_id
+	from pos_order po
+	LEFT JOIN pos_session ps ON po.session_id = ps.id
+	LEFT JOIN pos_config pf ON ps.config_id = pf.id
+	LEFT JOIN pos_branch pb ON pf.branch_id = pb.id
+	LEFT JOIN res_company pc ON pb.pos_company_id = pc.id
+	LEFT JOIN res_partner rpc ON pc.partner_id = rpc.id
+	left join pos_order_line pol on po.id=pol.order_id
+	left join res_users ru on ru.id=po.company_id
+	left join res_country_state rcs on rpc.state_id=rcs.id
+	left join res_partner rp on rp.id=rpc.id
+	left JOIN product_product pp ON pol.product_id = pp.id
+	left JOIN product_template pt ON pp.product_tmpl_id = pt.id
+	left JOIN pos_category pcg ON pt.pos_categ_id = pcg.id
+	where date_part('year',po.date_order)=$P{year_input}::integer
+	and pb.sequence BETWEEN $P{start_branch}::integer and $P{end_branch}::integer
+	and pol.qty>0
+	and po.is_return_order = False
+	group by
+	date_part('year',po.date_order),
+	rpc.id,
+	pb.branch_name,
+	rcs.name,
+	pb.branch_id,
+	pb.id
+
+
+
+
+
+
+	) as p
+group by
+company_name,
+branch_name,
+phone,
+time_order,
+street,
+street2,
+city,
+zip,
+phone,
+province,
+branch_id,
+start_branch_name,
+end_branch_name,
+start_branch_id,
+end_branch_id,
+pb_id
+order by  pb_id]]>
+	</queryString>
+	<field name="company_name" class="java.lang.String">
+		<fieldDescription><![CDATA[Company Name]]></fieldDescription>
+	</field>
+	<field name="branch_name" class="java.lang.String">
+		<fieldDescription><![CDATA[Branch Name]]></fieldDescription>
+	</field>
+	<field name="branch_id" class="java.lang.String">
+		<fieldDescription><![CDATA[Branch]]></fieldDescription>
+	</field>
+	<field name="street" class="java.lang.String">
+		<fieldDescription><![CDATA[Street]]></fieldDescription>
+	</field>
+	<field name="street2" class="java.lang.String">
+		<fieldDescription><![CDATA[Street2]]></fieldDescription>
+	</field>
+	<field name="city" class="java.lang.String">
+		<fieldDescription><![CDATA[City]]></fieldDescription>
+	</field>
+	<field name="zip" class="java.lang.String">
+		<fieldDescription><![CDATA[Zip]]></fieldDescription>
+	</field>
+	<field name="phone" class="java.lang.String">
+		<fieldDescription><![CDATA[Phone]]></fieldDescription>
+	</field>
+	<field name="province" class="java.lang.String"/>
+	<field name="time_order" class="java.lang.Double"/>
+	<field name="print_date" class="java.sql.Date"/>
+	<field name="print_time" class="java.sql.Time"/>
+	<field name="start_branch_name" class="java.lang.String"/>
+	<field name="end_branch_name" class="java.lang.String"/>
+	<field name="start_branch_id" class="java.lang.String"/>
+	<field name="end_branch_id" class="java.lang.String"/>
+	<field name="pb_id" class="java.lang.Integer"/>
+	<group name="branch" isStartNewPage="true">
+		<groupExpression><![CDATA[$F{branch_id}]]></groupExpression>
+	</group>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<pageHeader>
+		<band height="77" splitType="Stretch">
+			<staticText>
+				<reportElement mode="Transparent" x="0" y="61" width="802" height="16" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="14" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<text><![CDATA[Annual Sales Report]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="678" y="0" width="63" height="14" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Left" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="12" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<text><![CDATA[วันที่พิมพ์:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="678" y="28" width="63" height="17" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Left" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="12" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<text><![CDATA[หน้า:]]></text>
+			</staticText>
+			<textField pattern="HH:mm:ss">
+				<reportElement mode="Transparent" x="741" y="14" width="61" height="14" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Left" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="12" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<textFieldExpression class="java.util.Date"><![CDATA[$F{print_time}]]></textFieldExpression>
+			</textField>
+			<textField pattern="" isBlankWhenNull="false">
+				<reportElement mode="Transparent" x="120" y="0" width="558" height="28" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Center" verticalAlignment="Bottom" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="18" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{company_name}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement mode="Transparent" x="678" y="14" width="63" height="14" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Left" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="12" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<text><![CDATA[เวลาที่พิมพ์:]]></text>
+			</staticText>
+			<textField pattern="dd/MM/yyyy">
+				<reportElement mode="Transparent" x="741" y="0" width="61" height="14" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Left" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="12" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<textFieldExpression class="java.util.Date"><![CDATA[$F{print_date}]]></textFieldExpression>
+			</textField>
+			<textField pattern="" isBlankWhenNull="false">
+				<reportElement mode="Transparent" x="0" y="45" width="802" height="16" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Center" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="14" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA["รายงานการขายประจำปี "+" "+$P{year_input}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement mode="Transparent" x="741" y="28" width="8" height="17" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="12" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$V{PAGE_NUMBER}+"/"]]></textFieldExpression>
+			</textField>
+			<textField evaluationTime="Report">
+				<reportElement mode="Transparent" x="749" y="28" width="53" height="17" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Left" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="12" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$V{PAGE_NUMBER}]]></textFieldExpression>
+			</textField>
+			<textField pattern="" isBlankWhenNull="false">
+				<reportElement mode="Transparent" x="120" y="28" width="558" height="17" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Center" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="14" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[($P{start_branch} == $P{end_branch})? ("สาขาที่"+" "+String.format("%05d",Integer.parseInt($F{start_branch_id}))
++" "+$F{start_branch_name}):("สาขาที่"+" "+String.format("%05d",Integer.parseInt($F{start_branch_id}))
++" "+$F{start_branch_name}+" "
++" - "+"สาขาที่"+" "+String.format("%05d",Integer.parseInt($F{end_branch_id}))+" "+$F{end_branch_name}
+)]]></textFieldExpression>
+			</textField>
+			<textField pattern="" isBlankWhenNull="false">
+				<reportElement mode="Transparent" x="0" y="61" width="244" height="16" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="10" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA["สาขาที่"+" "+String.format("%05d",Integer.parseInt($F{branch_id}))+" "+$F{branch_name}]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageHeader>
+	<columnHeader>
+		<band height="21">
+			<staticText>
+				<reportElement mode="Transparent" x="0" y="6" width="58" height="13" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="11" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<text><![CDATA[วัน/เดือน/ปี]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="58" y="6" width="62" height="13" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="11" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<text><![CDATA[มกราคม]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="120" y="6" width="62" height="13" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="11" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<text><![CDATA[กุมภาพันธ์]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="182" y="6" width="62" height="13" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="11" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<text><![CDATA[มีนาคม]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="244" y="6" width="62" height="13" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="11" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<text><![CDATA[เมษายน]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="306" y="6" width="62" height="13" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="11" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<text><![CDATA[พฤษภาคม]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="368" y="6" width="62" height="13" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="11" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<text><![CDATA[มิถุนายน]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="430" y="6" width="62" height="13" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="11" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<text><![CDATA[กรกฏาคม]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="492" y="6" width="62" height="13" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="11" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<text><![CDATA[สิงหาคม]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="554" y="6" width="62" height="13" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="11" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<text><![CDATA[กันยายน]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="616" y="6" width="62" height="13" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="11" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<text><![CDATA[ตุลาคม]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="678" y="6" width="62" height="13" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="11" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<text><![CDATA[พฤศจิกายน]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="740" y="6" width="62" height="13" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="11" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<text><![CDATA[ธันวาคม]]></text>
+			</staticText>
+			<line>
+				<reportElement mode="Transparent" x="0" y="4" width="802" height="1" forecolor="#000000" backcolor="#FFFFFF"/>
+			</line>
+			<line>
+				<reportElement mode="Transparent" x="0" y="20" width="802" height="1" forecolor="#000000" backcolor="#FFFFFF"/>
+				<graphicElement>
+					<pen lineWidth="1.0" lineStyle="Solid"/>
+				</graphicElement>
+			</line>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="15" splitType="Stretch">
+			<componentElement>
+				<reportElement key="table" x="0" y="0" width="802" height="15" printWhenGroupChanges="branch"/>
+				<jr:table xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd">
+					<datasetRun subDataset="sale_by_day">
+						<datasetParameter name="year_input">
+							<datasetParameterExpression><![CDATA[$P{year_input}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="branch_id">
+							<datasetParameterExpression><![CDATA[$F{pb_id}]]></datasetParameterExpression>
+						</datasetParameter>
+						<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					</datasetRun>
+					<jr:column width="58">
+						<jr:detailCell height="12" rowSpan="1">
+							<textField pattern="" isBlankWhenNull="false">
+								<reportElement mode="Transparent" x="0" y="0" width="58" height="12" forecolor="#000000" backcolor="#FFFFFF"/>
+								<textElement textAlignment="Center" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+									<font fontName="TH SarabunPSK" size="10" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+								</textElement>
+								<textFieldExpression class="java.lang.Integer"><![CDATA[$F{date_of_month}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="62">
+						<jr:detailCell height="12" rowSpan="1">
+							<textField pattern="#,##0.00;-#,##0.00" isBlankWhenNull="false">
+								<reportElement mode="Transparent" x="0" y="0" width="62" height="12" forecolor="#000000" backcolor="#FFFFFF"/>
+								<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+									<font fontName="TH SarabunPSK" size="10" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+								</textElement>
+								<textFieldExpression class="java.lang.String"><![CDATA[$V{jan}==null?"--" :new DecimalFormat( "###,###.00" ).format($F{january_sub_total})]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="62">
+						<jr:detailCell height="12" rowSpan="1">
+							<textField pattern="#,##0.00;-#,##0.00" isBlankWhenNull="false">
+								<reportElement mode="Transparent" x="0" y="0" width="62" height="12" forecolor="#000000" backcolor="#FFFFFF"/>
+								<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+									<font fontName="TH SarabunPSK" size="10" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+								</textElement>
+								<textFieldExpression class="java.lang.String"><![CDATA[$V{feb}==null?"--" :
+new DecimalFormat( "###,###.00" ).format($F{febuary_sub_total})]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="62">
+						<jr:detailCell height="12" rowSpan="1">
+							<textField pattern="#,##0.00;-#,##0.00" isBlankWhenNull="false">
+								<reportElement mode="Transparent" x="0" y="0" width="62" height="12" forecolor="#000000" backcolor="#FFFFFF"/>
+								<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+									<font fontName="TH SarabunPSK" size="10" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+								</textElement>
+								<textFieldExpression class="java.lang.String"><![CDATA[$V{mar}==null?"--" :
+new DecimalFormat( "###,###.00" ).format($F{march_sub_total})]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="62">
+						<jr:detailCell height="12" rowSpan="1">
+							<textField pattern="#,##0.00;-#,##0.00" isBlankWhenNull="false">
+								<reportElement mode="Transparent" x="0" y="0" width="62" height="12" forecolor="#000000" backcolor="#FFFFFF"/>
+								<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+									<font fontName="TH SarabunPSK" size="10" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+								</textElement>
+								<textFieldExpression class="java.lang.String"><![CDATA[$V{apr}==null?"--" :
+new DecimalFormat( "###,###.00" ).format($F{april_sub_total})]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="62">
+						<jr:detailCell height="12" rowSpan="1">
+							<textField pattern="#,##0.00;-#,##0.00" isBlankWhenNull="false">
+								<reportElement mode="Transparent" x="0" y="0" width="62" height="12" forecolor="#000000" backcolor="#FFFFFF"/>
+								<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+									<font fontName="TH SarabunPSK" size="10" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+								</textElement>
+								<textFieldExpression class="java.lang.String"><![CDATA[$V{may}==null?"--" :
+new DecimalFormat( "###,###.00" ).format($F{may_sub_total})]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="62">
+						<jr:detailCell height="12" rowSpan="1">
+							<textField pattern="#,##0.00;-#,##0.00" isBlankWhenNull="false">
+								<reportElement mode="Transparent" x="0" y="0" width="62" height="12" forecolor="#000000" backcolor="#FFFFFF"/>
+								<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+									<font fontName="TH SarabunPSK" size="10" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+								</textElement>
+								<textFieldExpression class="java.lang.String"><![CDATA[$V{june}==null?"--" :
+new DecimalFormat( "###,###.00" ).format($F{june_sub_total})]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="62">
+						<jr:detailCell height="12" rowSpan="1">
+							<textField pattern="#,##0.00;-#,##0.00" isBlankWhenNull="false">
+								<reportElement mode="Transparent" x="0" y="0" width="62" height="12" forecolor="#000000" backcolor="#FFFFFF"/>
+								<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+									<font fontName="TH SarabunPSK" size="10" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+								</textElement>
+								<textFieldExpression class="java.lang.String"><![CDATA[$V{july}==null?"--" :
+new DecimalFormat( "###,###.00" ).format($F{july_sub_total})]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="62">
+						<jr:detailCell height="12" rowSpan="1">
+							<textField pattern="#,##0.00;-#,##0.00" isBlankWhenNull="false">
+								<reportElement mode="Transparent" x="0" y="0" width="62" height="12" forecolor="#000000" backcolor="#FFFFFF"/>
+								<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+									<font fontName="TH SarabunPSK" size="10" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+								</textElement>
+								<textFieldExpression class="java.lang.String"><![CDATA[$V{aug}==null?"--" :
+new DecimalFormat( "###,###.00" ).format($F{august_sub_total})]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="62">
+						<jr:detailCell height="12" rowSpan="1">
+							<textField pattern="#,##0.00;-#,##0.00" isBlankWhenNull="false">
+								<reportElement mode="Transparent" x="0" y="0" width="62" height="12" forecolor="#000000" backcolor="#FFFFFF"/>
+								<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+									<font fontName="TH SarabunPSK" size="10" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+								</textElement>
+								<textFieldExpression class="java.lang.String"><![CDATA[$V{sep}==null?"--" :
+new DecimalFormat( "###,###.00" ).format($F{september_sub_total})]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="62">
+						<jr:detailCell height="12" rowSpan="1">
+							<textField pattern="#,##0.00;-#,##0.00" isBlankWhenNull="false">
+								<reportElement mode="Transparent" x="0" y="0" width="62" height="12" forecolor="#000000" backcolor="#FFFFFF"/>
+								<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+									<font fontName="TH SarabunPSK" size="10" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+								</textElement>
+								<textFieldExpression class="java.lang.String"><![CDATA[$V{oct}==null?"--" :
+new DecimalFormat( "###,###.00" ).format($F{october_sub_total})]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="62">
+						<jr:detailCell height="12" rowSpan="1">
+							<textField pattern="#,##0.00;-#,##0.00" isBlankWhenNull="false">
+								<reportElement mode="Transparent" x="0" y="0" width="62" height="12" forecolor="#000000" backcolor="#FFFFFF"/>
+								<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+									<font fontName="TH SarabunPSK" size="10" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+								</textElement>
+								<textFieldExpression class="java.lang.String"><![CDATA[$V{nov}==null?"--" :
+new DecimalFormat( "###,###.00" ).format($F{november_sub_total})]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="62">
+						<jr:detailCell height="12" rowSpan="1">
+							<textField pattern="#,##0.00;-#,##0.00" isBlankWhenNull="false">
+								<reportElement mode="Transparent" x="0" y="0" width="62" height="12" forecolor="#000000" backcolor="#FFFFFF"/>
+								<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+									<font fontName="TH SarabunPSK" size="10" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+								</textElement>
+								<textFieldExpression class="java.lang.String"><![CDATA[$V{dec}==null?"--" :
+new DecimalFormat( "###,###.00" ).format($F{december_sub_total})]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+				</jr:table>
+			</componentElement>
+		</band>
+		<band height="32">
+			<componentElement>
+				<reportElement key="table" x="0" y="0" width="802" height="32" printWhenGroupChanges="branch"/>
+				<jr:table xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd">
+					<datasetRun subDataset="sale_by_day">
+						<datasetParameter name="year_input">
+							<datasetParameterExpression><![CDATA[$P{year_input}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="branch_id">
+							<datasetParameterExpression><![CDATA[$F{pb_id}]]></datasetParameterExpression>
+						</datasetParameter>
+						<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					</datasetRun>
+					<jr:column width="58">
+						<jr:tableFooter height="91" rowSpan="1">
+							<staticText>
+								<reportElement mode="Transparent" x="0" y="0" width="58" height="13" forecolor="#000000" backcolor="#FFFFFF"/>
+								<box>
+									<topPen lineWidth="1.0"/>
+								</box>
+								<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+									<font fontName="TH SarabunPSK" size="10" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+								</textElement>
+								<text><![CDATA[รวมเดือนต่อวัน]]></text>
+							</staticText>
+							<staticText>
+								<reportElement mode="Transparent" x="0" y="13" width="58" height="13" forecolor="#000000" backcolor="#FFFFFF"/>
+								<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+									<font fontName="TH SarabunPSK" size="10" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+								</textElement>
+								<text><![CDATA[จำนวนวัน]]></text>
+							</staticText>
+							<staticText>
+								<reportElement mode="Transparent" x="0" y="26" width="58" height="13" forecolor="#000000" backcolor="#FFFFFF"/>
+								<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+									<font fontName="TH SarabunPSK" size="10" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+								</textElement>
+								<text><![CDATA[เฉลี่ยต่อวัน]]></text>
+							</staticText>
+							<staticText>
+								<reportElement mode="Transparent" x="0" y="39" width="58" height="13" forecolor="#000000" backcolor="#FFFFFF"/>
+								<box>
+									<topPen lineWidth="1.0"/>
+									<bottomPen lineWidth="1.0"/>
+								</box>
+								<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+									<font fontName="TH SarabunPSK" size="10" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+								</textElement>
+								<text><![CDATA[ด/ป %]]></text>
+							</staticText>
+							<staticText>
+								<reportElement mode="Transparent" x="0" y="52" width="58" height="13" forecolor="#000000" backcolor="#FFFFFF"/>
+								<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+									<font fontName="TH SarabunPSK" size="10" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+								</textElement>
+								<text><![CDATA[รวมปีต่อวัน]]></text>
+							</staticText>
+							<staticText>
+								<reportElement mode="Transparent" x="0" y="65" width="58" height="13" forecolor="#000000" backcolor="#FFFFFF"/>
+								<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+									<font fontName="TH SarabunPSK" size="10" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+								</textElement>
+								<text><![CDATA[จำนวนวันต่อปี]]></text>
+							</staticText>
+							<staticText>
+								<reportElement mode="Transparent" x="0" y="78" width="58" height="13" forecolor="#000000" backcolor="#FFFFFF"/>
+								<box>
+									<bottomPen lineWidth="2.0" lineStyle="Double"/>
+								</box>
+								<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+									<font fontName="TH SarabunPSK" size="10" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+								</textElement>
+								<text><![CDATA[เฉลี่ยต่อปี]]></text>
+							</staticText>
+						</jr:tableFooter>
+						<jr:detailCell height="0" rowSpan="1"/>
+					</jr:column>
+					<jr:column width="62">
+						<jr:tableFooter height="91" rowSpan="1">
+							<textField pattern="#,##0.00;-#,##0.00" isBlankWhenNull="false">
+								<reportElement mode="Transparent" x="0" y="0" width="62" height="13" forecolor="#000000" backcolor="#FFFFFF"/>
+								<box>
+									<topPen lineWidth="1.0"/>
+								</box>
+								<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+									<font fontName="TH SarabunPSK" size="10" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+								</textElement>
+								<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{null_sum_jan}==null? 0.00 :$V{sum_jan_per_day}]]></textFieldExpression>
+							</textField>
+							<textField pattern="###0.00;-###0.00" isBlankWhenNull="false">
+								<reportElement mode="Transparent" x="0" y="13" width="62" height="13" forecolor="#000000" backcolor="#FFFFFF"/>
+								<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+									<font fontName="TH SarabunPSK" size="10" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+								</textElement>
+								<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{count_day_in_jan}]]></textFieldExpression>
+							</textField>
+							<textField pattern="#,##0.00;-#,##0.00" isBlankWhenNull="false">
+								<reportElement mode="Transparent" x="0" y="26" width="62" height="13" forecolor="#000000" backcolor="#FFFFFF"/>
+								<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+									<font fontName="TH SarabunPSK" size="10" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+								</textElement>
+								<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{null_avg_per_day_jan}==null? 0.00 :$V{avg_per_day_jan}]]></textFieldExpression>
+							</textField>
+							<textField pattern="###0.00;-###0.00" isBlankWhenNull="false">
+								<reportElement mode="Transparent" x="0" y="39" width="62" height="13" forecolor="#000000" backcolor="#FFFFFF"/>
+								<box>
+									<topPen lineWidth="1.0"/>
+									<bottomPen lineWidth="1.0"/>
+								</box>
+								<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+									<font fontName="TH SarabunPSK" size="10" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+								</textElement>
+								<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{sum_jan/year%}]]></textFieldExpression>
+							</textField>
+							<textField pattern="#,##0.00;-#,##0.00" isBlankWhenNull="false">
+								<reportElement mode="Transparent" x="0" y="52" width="62" height="13" forecolor="#000000" backcolor="#FFFFFF"/>
+								<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+									<font fontName="TH SarabunPSK" size="10" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+								</textElement>
+								<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{sum_per_year_jan}]]></textFieldExpression>
+							</textField>
+							<textField pattern="###0.00;-###0.00" isBlankWhenNull="false">
+								<reportElement mode="Transparent" x="0" y="65" width="62" height="13" forecolor="#000000" backcolor="#FFFFFF"/>
+								<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+									<font fontName="TH SarabunPSK" size="10" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+								</textElement>
+								<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{day_per_year_jan}]]></textFieldExpression>
+							</textField>
+							<textField pattern="#,##0.00;-#,##0.00" isBlankWhenNull="false">
+								<reportElement mode="Transparent" x="0" y="78" width="62" height="13" forecolor="#000000" backcolor="#FFFFFF"/>
+								<box>
+									<bottomPen lineWidth="2.0" lineStyle="Double"/>
+								</box>
+								<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+									<font fontName="TH SarabunPSK" size="10" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+								</textElement>
+								<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{avg_per_year_jan}]]></textFieldExpression>
+							</textField>
+						</jr:tableFooter>
+						<jr:detailCell height="0" rowSpan="1"/>
+					</jr:column>
+					<jr:column width="62">
+						<jr:tableFooter height="91" rowSpan="1">
+							<textField pattern="#,##0.00;-#,##0.00" isBlankWhenNull="false">
+								<reportElement mode="Transparent" x="0" y="0" width="62" height="13" forecolor="#000000" backcolor="#FFFFFF"/>
+								<box>
+									<topPen lineWidth="1.0"/>
+								</box>
+								<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+									<font fontName="TH SarabunPSK" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+								</textElement>
+								<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{null_sum_feb}==null? 0.00 :$V{sum_feb_per_day}]]></textFieldExpression>
+							</textField>
+							<textField pattern="###0.00;-###0.00" isBlankWhenNull="false">
+								<reportElement mode="Transparent" x="0" y="13" width="62" height="13" forecolor="#000000" backcolor="#FFFFFF"/>
+								<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+									<font fontName="TH SarabunPSK" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+								</textElement>
+								<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{count_day_in_feb}]]></textFieldExpression>
+							</textField>
+							<textField pattern="#,##0.00;-#,##0.00" isBlankWhenNull="false">
+								<reportElement mode="Transparent" x="0" y="26" width="62" height="13" forecolor="#000000" backcolor="#FFFFFF"/>
+								<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+									<font fontName="TH SarabunPSK" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+								</textElement>
+								<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{null_avg_per_day_feb}==null? 0.00 :$V{avg_per_day_feb}]]></textFieldExpression>
+							</textField>
+							<textField pattern="###0.00;-###0.00" isBlankWhenNull="false">
+								<reportElement mode="Transparent" x="0" y="39" width="62" height="13" forecolor="#000000" backcolor="#FFFFFF"/>
+								<box>
+									<topPen lineWidth="1.0"/>
+									<bottomPen lineWidth="1.0"/>
+								</box>
+								<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+									<font fontName="TH SarabunPSK" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+								</textElement>
+								<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{sum_feb/year%}]]></textFieldExpression>
+							</textField>
+							<textField pattern="#,##0.00;-#,##0.00" isBlankWhenNull="false">
+								<reportElement mode="Transparent" x="0" y="52" width="62" height="13" forecolor="#000000" backcolor="#FFFFFF"/>
+								<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+									<font fontName="TH SarabunPSK" size="10" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+								</textElement>
+								<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{sum_per_year_feb}]]></textFieldExpression>
+							</textField>
+							<textField pattern="###0.00;-###0.00" isBlankWhenNull="false">
+								<reportElement mode="Transparent" x="0" y="65" width="62" height="13" forecolor="#000000" backcolor="#FFFFFF"/>
+								<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+									<font fontName="TH SarabunPSK" size="10" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+								</textElement>
+								<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{day_per_year_feb}]]></textFieldExpression>
+							</textField>
+							<textField pattern="#,##0.00;-#,##0.00" isBlankWhenNull="false">
+								<reportElement mode="Transparent" x="0" y="78" width="62" height="13" forecolor="#000000" backcolor="#FFFFFF"/>
+								<box>
+									<bottomPen lineWidth="2.0" lineStyle="Double"/>
+								</box>
+								<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+									<font fontName="TH SarabunPSK" size="10" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+								</textElement>
+								<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{avg_per_year_feb}]]></textFieldExpression>
+							</textField>
+						</jr:tableFooter>
+						<jr:detailCell height="0" rowSpan="1"/>
+					</jr:column>
+					<jr:column width="62">
+						<jr:tableFooter height="91" rowSpan="1">
+							<textField pattern="#,##0.00;-#,##0.00" isBlankWhenNull="false">
+								<reportElement mode="Transparent" x="0" y="0" width="62" height="13" forecolor="#000000" backcolor="#FFFFFF"/>
+								<box>
+									<topPen lineWidth="1.0"/>
+								</box>
+								<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+									<font fontName="TH SarabunPSK" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+								</textElement>
+								<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{null_sum_mar}==null? 0.00 :$V{sum_mar_per_day}]]></textFieldExpression>
+							</textField>
+							<textField pattern="###0.00;-###0.00" isBlankWhenNull="false">
+								<reportElement mode="Transparent" x="0" y="13" width="62" height="13" forecolor="#000000" backcolor="#FFFFFF"/>
+								<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+									<font fontName="TH SarabunPSK" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+								</textElement>
+								<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{count_day_in_mar}]]></textFieldExpression>
+							</textField>
+							<textField pattern="#,##0.00;-#,##0.00" isBlankWhenNull="false">
+								<reportElement mode="Transparent" x="0" y="26" width="62" height="13" forecolor="#000000" backcolor="#FFFFFF"/>
+								<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+									<font fontName="TH SarabunPSK" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+								</textElement>
+								<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{null_avg_per_day_mar}==null? 0.00 :$V{avg_per_day_mar}]]></textFieldExpression>
+							</textField>
+							<textField pattern="###0.00;-###0.00" isBlankWhenNull="false">
+								<reportElement mode="Transparent" x="0" y="39" width="62" height="13" forecolor="#000000" backcolor="#FFFFFF"/>
+								<box>
+									<topPen lineWidth="1.0"/>
+									<bottomPen lineWidth="1.0"/>
+								</box>
+								<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+									<font fontName="TH SarabunPSK" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+								</textElement>
+								<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{sum_mar/year%}]]></textFieldExpression>
+							</textField>
+							<textField pattern="#,##0.00;-#,##0.00" isBlankWhenNull="false">
+								<reportElement mode="Transparent" x="0" y="52" width="62" height="13" forecolor="#000000" backcolor="#FFFFFF"/>
+								<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+									<font fontName="TH SarabunPSK" size="10" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+								</textElement>
+								<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{sum_per_year_mar}]]></textFieldExpression>
+							</textField>
+							<textField pattern="###0.00;-###0.00" isBlankWhenNull="false">
+								<reportElement mode="Transparent" x="0" y="65" width="62" height="13" forecolor="#000000" backcolor="#FFFFFF"/>
+								<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+									<font fontName="TH SarabunPSK" size="10" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+								</textElement>
+								<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{day_per_year_mar}]]></textFieldExpression>
+							</textField>
+							<textField pattern="#,##0.00;-#,##0.00" isBlankWhenNull="false">
+								<reportElement mode="Transparent" x="0" y="78" width="62" height="13" forecolor="#000000" backcolor="#FFFFFF"/>
+								<box>
+									<bottomPen lineWidth="2.0" lineStyle="Double"/>
+								</box>
+								<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+									<font fontName="TH SarabunPSK" size="10" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+								</textElement>
+								<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{avg_per_year_mar}]]></textFieldExpression>
+							</textField>
+						</jr:tableFooter>
+						<jr:detailCell height="0" rowSpan="1"/>
+					</jr:column>
+					<jr:column width="62">
+						<jr:tableFooter height="91" rowSpan="1">
+							<textField pattern="#,##0.00;-#,##0.00" isBlankWhenNull="false">
+								<reportElement mode="Transparent" x="0" y="0" width="62" height="13" forecolor="#000000" backcolor="#FFFFFF"/>
+								<box>
+									<topPen lineWidth="1.0"/>
+								</box>
+								<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+									<font fontName="TH SarabunPSK" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+								</textElement>
+								<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{null_sum_april}==null? 0.00 :$V{sum_april_per_day}]]></textFieldExpression>
+							</textField>
+							<textField pattern="###0.00;-###0.00" isBlankWhenNull="false">
+								<reportElement mode="Transparent" x="0" y="13" width="62" height="13" forecolor="#000000" backcolor="#FFFFFF"/>
+								<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+									<font fontName="TH SarabunPSK" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+								</textElement>
+								<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{count_day_in_april}]]></textFieldExpression>
+							</textField>
+							<textField pattern="#,##0.00;-#,##0.00" isBlankWhenNull="false">
+								<reportElement mode="Transparent" x="0" y="26" width="62" height="13" forecolor="#000000" backcolor="#FFFFFF"/>
+								<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+									<font fontName="TH SarabunPSK" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+								</textElement>
+								<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{null_avg_per_day_april}==null? 0.00 :$V{avg_per_day_april}]]></textFieldExpression>
+							</textField>
+							<textField pattern="###0.00;-###0.00" isBlankWhenNull="false">
+								<reportElement mode="Transparent" x="0" y="39" width="62" height="13" forecolor="#000000" backcolor="#FFFFFF"/>
+								<box>
+									<topPen lineWidth="1.0"/>
+									<bottomPen lineWidth="1.0"/>
+								</box>
+								<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+									<font fontName="TH SarabunPSK" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+								</textElement>
+								<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{sum_april/year%}]]></textFieldExpression>
+							</textField>
+							<textField pattern="#,##0.00;-#,##0.00" isBlankWhenNull="false">
+								<reportElement mode="Transparent" x="0" y="52" width="62" height="13" forecolor="#000000" backcolor="#FFFFFF"/>
+								<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+									<font fontName="TH SarabunPSK" size="10" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+								</textElement>
+								<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{sum_per_year_april}]]></textFieldExpression>
+							</textField>
+							<textField pattern="###0.00;-###0.00" isBlankWhenNull="false">
+								<reportElement mode="Transparent" x="0" y="65" width="62" height="13" forecolor="#000000" backcolor="#FFFFFF"/>
+								<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+									<font fontName="TH SarabunPSK" size="10" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+								</textElement>
+								<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{day_per_year_april}]]></textFieldExpression>
+							</textField>
+							<textField pattern="#,##0.00;-#,##0.00" isBlankWhenNull="false">
+								<reportElement mode="Transparent" x="0" y="78" width="62" height="13" forecolor="#000000" backcolor="#FFFFFF"/>
+								<box>
+									<bottomPen lineWidth="2.0" lineStyle="Double"/>
+								</box>
+								<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+									<font fontName="TH SarabunPSK" size="10" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+								</textElement>
+								<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{avg_per_year_april}]]></textFieldExpression>
+							</textField>
+						</jr:tableFooter>
+						<jr:detailCell height="0" rowSpan="1"/>
+					</jr:column>
+					<jr:column width="62">
+						<jr:tableFooter height="91" rowSpan="1">
+							<textField pattern="#,##0.00;-#,##0.00" isBlankWhenNull="false">
+								<reportElement mode="Transparent" x="0" y="0" width="62" height="13" forecolor="#000000" backcolor="#FFFFFF"/>
+								<box>
+									<topPen lineWidth="1.0"/>
+								</box>
+								<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+									<font fontName="TH SarabunPSK" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+								</textElement>
+								<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{null_sum_may}==null? 0.00 :$V{sum_may_per_day}]]></textFieldExpression>
+							</textField>
+							<textField pattern="###0.00;-###0.00" isBlankWhenNull="false">
+								<reportElement mode="Transparent" x="0" y="13" width="62" height="13" forecolor="#000000" backcolor="#FFFFFF"/>
+								<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+									<font fontName="TH SarabunPSK" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+								</textElement>
+								<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{count_day_in_may}]]></textFieldExpression>
+							</textField>
+							<textField pattern="#,##0.00;-#,##0.00" isBlankWhenNull="false">
+								<reportElement mode="Transparent" x="0" y="26" width="62" height="13" forecolor="#000000" backcolor="#FFFFFF"/>
+								<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+									<font fontName="TH SarabunPSK" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+								</textElement>
+								<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{null_avg_per_day_may}==null? 0.00 :$V{avg_per_day_may}]]></textFieldExpression>
+							</textField>
+							<textField pattern="###0.00;-###0.00" isBlankWhenNull="false">
+								<reportElement mode="Transparent" x="0" y="39" width="62" height="13" forecolor="#000000" backcolor="#FFFFFF"/>
+								<box>
+									<topPen lineWidth="1.0"/>
+									<bottomPen lineWidth="1.0"/>
+								</box>
+								<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+									<font fontName="TH SarabunPSK" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+								</textElement>
+								<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{sum_may/year%}]]></textFieldExpression>
+							</textField>
+							<textField pattern="#,##0.00;-#,##0.00" isBlankWhenNull="false">
+								<reportElement mode="Transparent" x="0" y="52" width="62" height="13" forecolor="#000000" backcolor="#FFFFFF"/>
+								<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+									<font fontName="TH SarabunPSK" size="10" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+								</textElement>
+								<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{sum_per_year_may}]]></textFieldExpression>
+							</textField>
+							<textField pattern="###0.00;-###0.00" isBlankWhenNull="false">
+								<reportElement mode="Transparent" x="0" y="65" width="62" height="13" forecolor="#000000" backcolor="#FFFFFF"/>
+								<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+									<font fontName="TH SarabunPSK" size="10" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+								</textElement>
+								<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{day_per_year_may}]]></textFieldExpression>
+							</textField>
+							<textField pattern="#,##0.00;-#,##0.00" isBlankWhenNull="false">
+								<reportElement mode="Transparent" x="0" y="78" width="62" height="13" forecolor="#000000" backcolor="#FFFFFF"/>
+								<box>
+									<bottomPen lineWidth="2.0" lineStyle="Double"/>
+								</box>
+								<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+									<font fontName="TH SarabunPSK" size="10" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+								</textElement>
+								<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{avg_per_year_may}]]></textFieldExpression>
+							</textField>
+						</jr:tableFooter>
+						<jr:detailCell height="0" rowSpan="1"/>
+					</jr:column>
+					<jr:column width="62">
+						<jr:tableFooter height="91" rowSpan="1">
+							<textField pattern="#,##0.00;-#,##0.00" isBlankWhenNull="false">
+								<reportElement mode="Transparent" x="0" y="0" width="62" height="13" forecolor="#000000" backcolor="#FFFFFF"/>
+								<box>
+									<topPen lineWidth="1.0"/>
+								</box>
+								<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+									<font fontName="TH SarabunPSK" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+								</textElement>
+								<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{null_sum_june}==null? 0.00 :$V{sum_june_per_day}]]></textFieldExpression>
+							</textField>
+							<textField pattern="###0.00;-###0.00" isBlankWhenNull="false">
+								<reportElement mode="Transparent" x="0" y="13" width="62" height="13" forecolor="#000000" backcolor="#FFFFFF"/>
+								<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+									<font fontName="TH SarabunPSK" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+								</textElement>
+								<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{count_day_in_june}]]></textFieldExpression>
+							</textField>
+							<textField pattern="#,##0.00;-#,##0.00" isBlankWhenNull="false">
+								<reportElement mode="Transparent" x="0" y="26" width="62" height="13" forecolor="#000000" backcolor="#FFFFFF"/>
+								<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+									<font fontName="TH SarabunPSK" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+								</textElement>
+								<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{null_avg_per_day_june}==null? 0.00 :$V{avg_per_day_june}]]></textFieldExpression>
+							</textField>
+							<textField pattern="###0.00;-###0.00" isBlankWhenNull="false">
+								<reportElement mode="Transparent" x="0" y="39" width="62" height="13" forecolor="#000000" backcolor="#FFFFFF"/>
+								<box>
+									<topPen lineWidth="1.0"/>
+									<bottomPen lineWidth="1.0"/>
+								</box>
+								<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+									<font fontName="TH SarabunPSK" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+								</textElement>
+								<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{sum_june/year%}]]></textFieldExpression>
+							</textField>
+							<textField pattern="#,##0.00;-#,##0.00" isBlankWhenNull="false">
+								<reportElement mode="Transparent" x="0" y="52" width="62" height="13" forecolor="#000000" backcolor="#FFFFFF"/>
+								<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+									<font fontName="TH SarabunPSK" size="10" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+								</textElement>
+								<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{sum_per_year_june}]]></textFieldExpression>
+							</textField>
+							<textField pattern="###0.00;-###0.00" isBlankWhenNull="false">
+								<reportElement mode="Transparent" x="0" y="65" width="62" height="13" forecolor="#000000" backcolor="#FFFFFF"/>
+								<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+									<font fontName="TH SarabunPSK" size="10" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+								</textElement>
+								<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{day_per_year_june}]]></textFieldExpression>
+							</textField>
+							<textField pattern="#,##0.00;-#,##0.00" isBlankWhenNull="false">
+								<reportElement mode="Transparent" x="0" y="78" width="62" height="13" forecolor="#000000" backcolor="#FFFFFF"/>
+								<box>
+									<bottomPen lineWidth="2.0" lineStyle="Double"/>
+								</box>
+								<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+									<font fontName="TH SarabunPSK" size="10" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+								</textElement>
+								<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{avg_per_year_june}]]></textFieldExpression>
+							</textField>
+						</jr:tableFooter>
+						<jr:detailCell height="0" rowSpan="1"/>
+					</jr:column>
+					<jr:column width="62">
+						<jr:tableFooter height="91" rowSpan="1">
+							<textField pattern="#,##0.00;-#,##0.00" isBlankWhenNull="false">
+								<reportElement mode="Transparent" x="0" y="0" width="62" height="13" forecolor="#000000" backcolor="#FFFFFF"/>
+								<box>
+									<topPen lineWidth="1.0"/>
+								</box>
+								<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+									<font fontName="TH SarabunPSK" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+								</textElement>
+								<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{null_sum_july}==null? 0.00 :$V{sum_july_per_day}]]></textFieldExpression>
+							</textField>
+							<textField pattern="###0.00;-###0.00" isBlankWhenNull="false">
+								<reportElement mode="Transparent" x="0" y="13" width="62" height="13" forecolor="#000000" backcolor="#FFFFFF"/>
+								<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+									<font fontName="TH SarabunPSK" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+								</textElement>
+								<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{count_day_in_july}]]></textFieldExpression>
+							</textField>
+							<textField pattern="#,##0.00;-#,##0.00" isBlankWhenNull="false">
+								<reportElement mode="Transparent" x="0" y="26" width="62" height="13" forecolor="#000000" backcolor="#FFFFFF"/>
+								<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+									<font fontName="TH SarabunPSK" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+								</textElement>
+								<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{null_avg_per_day_july}==null? 0.00 :$V{avg_per_day_july}]]></textFieldExpression>
+							</textField>
+							<textField pattern="###0.00;-###0.00" isBlankWhenNull="false">
+								<reportElement mode="Transparent" x="0" y="39" width="62" height="13" forecolor="#000000" backcolor="#FFFFFF"/>
+								<box>
+									<topPen lineWidth="1.0"/>
+									<bottomPen lineWidth="1.0"/>
+								</box>
+								<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+									<font fontName="TH SarabunPSK" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+								</textElement>
+								<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{sum_july/year%}]]></textFieldExpression>
+							</textField>
+							<textField pattern="#,##0.00;-#,##0.00" isBlankWhenNull="false">
+								<reportElement mode="Transparent" x="0" y="52" width="62" height="13" forecolor="#000000" backcolor="#FFFFFF"/>
+								<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+									<font fontName="TH SarabunPSK" size="10" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+								</textElement>
+								<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{sum_per_year_july}]]></textFieldExpression>
+							</textField>
+							<textField pattern="###0.00;-###0.00" isBlankWhenNull="false">
+								<reportElement mode="Transparent" x="0" y="65" width="62" height="13" forecolor="#000000" backcolor="#FFFFFF"/>
+								<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+									<font fontName="TH SarabunPSK" size="10" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+								</textElement>
+								<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{day_per_year_july}]]></textFieldExpression>
+							</textField>
+							<textField pattern="#,##0.00;-#,##0.00" isBlankWhenNull="false">
+								<reportElement mode="Transparent" x="0" y="78" width="62" height="13" forecolor="#000000" backcolor="#FFFFFF"/>
+								<box>
+									<bottomPen lineWidth="2.0" lineStyle="Double"/>
+								</box>
+								<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+									<font fontName="TH SarabunPSK" size="10" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+								</textElement>
+								<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{avg_per_year_july}]]></textFieldExpression>
+							</textField>
+						</jr:tableFooter>
+						<jr:detailCell height="0" rowSpan="1"/>
+					</jr:column>
+					<jr:column width="62">
+						<jr:tableFooter height="91" rowSpan="1">
+							<textField pattern="#,##0.00;-#,##0.00" isBlankWhenNull="false">
+								<reportElement mode="Transparent" x="0" y="0" width="62" height="13" forecolor="#000000" backcolor="#FFFFFF"/>
+								<box>
+									<topPen lineWidth="1.0"/>
+								</box>
+								<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+									<font fontName="TH SarabunPSK" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+								</textElement>
+								<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{null_sum_aug}==null? 0.00 :$V{sum_aug_per_day}]]></textFieldExpression>
+							</textField>
+							<textField pattern="###0.00;-###0.00" isBlankWhenNull="false">
+								<reportElement mode="Transparent" x="0" y="13" width="62" height="13" forecolor="#000000" backcolor="#FFFFFF"/>
+								<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+									<font fontName="TH SarabunPSK" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+								</textElement>
+								<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{count_day_in_aug}]]></textFieldExpression>
+							</textField>
+							<textField pattern="#,##0.00;-#,##0.00" isBlankWhenNull="false">
+								<reportElement mode="Transparent" x="0" y="26" width="62" height="13" forecolor="#000000" backcolor="#FFFFFF"/>
+								<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+									<font fontName="TH SarabunPSK" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+								</textElement>
+								<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{null_avg_per_day_aug}==null? 0.00 :$V{avg_per_day_aug}]]></textFieldExpression>
+							</textField>
+							<textField pattern="###0.00;-###0.00" isBlankWhenNull="false">
+								<reportElement mode="Transparent" x="0" y="39" width="62" height="13" forecolor="#000000" backcolor="#FFFFFF"/>
+								<box>
+									<topPen lineWidth="1.0"/>
+									<bottomPen lineWidth="1.0"/>
+								</box>
+								<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+									<font fontName="TH SarabunPSK" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+								</textElement>
+								<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{sum_aug/year%}]]></textFieldExpression>
+							</textField>
+							<textField pattern="#,##0.00;-#,##0.00" isBlankWhenNull="false">
+								<reportElement mode="Transparent" x="0" y="52" width="62" height="13" forecolor="#000000" backcolor="#FFFFFF"/>
+								<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+									<font fontName="TH SarabunPSK" size="10" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+								</textElement>
+								<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{sum_per_year_aug}]]></textFieldExpression>
+							</textField>
+							<textField pattern="###0.00;-###0.00" isBlankWhenNull="false">
+								<reportElement mode="Transparent" x="0" y="65" width="62" height="13" forecolor="#000000" backcolor="#FFFFFF"/>
+								<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+									<font fontName="TH SarabunPSK" size="10" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+								</textElement>
+								<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{day_per_year_aug}]]></textFieldExpression>
+							</textField>
+							<textField pattern="#,##0.00;-#,##0.00" isBlankWhenNull="false">
+								<reportElement mode="Transparent" x="0" y="78" width="62" height="13" forecolor="#000000" backcolor="#FFFFFF"/>
+								<box>
+									<bottomPen lineWidth="2.0" lineStyle="Double"/>
+								</box>
+								<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+									<font fontName="TH SarabunPSK" size="10" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+								</textElement>
+								<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{avg_per_year_aug}]]></textFieldExpression>
+							</textField>
+						</jr:tableFooter>
+						<jr:detailCell height="0" rowSpan="1"/>
+					</jr:column>
+					<jr:column width="62">
+						<jr:tableFooter height="91" rowSpan="1">
+							<textField pattern="#,##0.00;-#,##0.00" isBlankWhenNull="false">
+								<reportElement mode="Transparent" x="0" y="0" width="62" height="13" forecolor="#000000" backcolor="#FFFFFF"/>
+								<box>
+									<topPen lineWidth="1.0"/>
+								</box>
+								<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+									<font fontName="TH SarabunPSK" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+								</textElement>
+								<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{null_sum_sep}==null? 0.00 :$V{sum_sep_per_day}]]></textFieldExpression>
+							</textField>
+							<textField pattern="###0.00;-###0.00" isBlankWhenNull="false">
+								<reportElement mode="Transparent" x="0" y="13" width="62" height="13" forecolor="#000000" backcolor="#FFFFFF"/>
+								<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+									<font fontName="TH SarabunPSK" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+								</textElement>
+								<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{count_day_in_sep}]]></textFieldExpression>
+							</textField>
+							<textField pattern="#,##0.00;-#,##0.00" isBlankWhenNull="false">
+								<reportElement mode="Transparent" x="0" y="26" width="62" height="13" forecolor="#000000" backcolor="#FFFFFF"/>
+								<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+									<font fontName="TH SarabunPSK" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+								</textElement>
+								<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{null_avg_per_day_sep}==null? 0.00 :$V{avg_per_day_sep}]]></textFieldExpression>
+							</textField>
+							<textField pattern="###0.00;-###0.00" isBlankWhenNull="false">
+								<reportElement mode="Transparent" x="0" y="39" width="62" height="13" forecolor="#000000" backcolor="#FFFFFF"/>
+								<box>
+									<topPen lineWidth="1.0"/>
+									<bottomPen lineWidth="1.0"/>
+								</box>
+								<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+									<font fontName="TH SarabunPSK" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+								</textElement>
+								<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{sum_sep/year%}]]></textFieldExpression>
+							</textField>
+							<textField pattern="#,##0.00;-#,##0.00" isBlankWhenNull="false">
+								<reportElement mode="Transparent" x="0" y="52" width="62" height="13" forecolor="#000000" backcolor="#FFFFFF"/>
+								<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+									<font fontName="TH SarabunPSK" size="10" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+								</textElement>
+								<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{sum_per_year_sep}]]></textFieldExpression>
+							</textField>
+							<textField pattern="###0.00;-###0.00" isBlankWhenNull="false">
+								<reportElement mode="Transparent" x="0" y="65" width="62" height="13" forecolor="#000000" backcolor="#FFFFFF"/>
+								<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+									<font fontName="TH SarabunPSK" size="10" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+								</textElement>
+								<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{day_per_year_sep}]]></textFieldExpression>
+							</textField>
+							<textField pattern="#,##0.00;-#,##0.00" isBlankWhenNull="false">
+								<reportElement mode="Transparent" x="0" y="78" width="62" height="13" forecolor="#000000" backcolor="#FFFFFF"/>
+								<box>
+									<bottomPen lineWidth="2.0" lineStyle="Double"/>
+								</box>
+								<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+									<font fontName="TH SarabunPSK" size="10" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+								</textElement>
+								<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{avg_per_year_sep}]]></textFieldExpression>
+							</textField>
+						</jr:tableFooter>
+						<jr:detailCell height="0" rowSpan="1"/>
+					</jr:column>
+					<jr:column width="62">
+						<jr:tableFooter height="91" rowSpan="1">
+							<textField pattern="#,##0.00;-#,##0.00" isBlankWhenNull="false">
+								<reportElement mode="Transparent" x="0" y="0" width="62" height="13" forecolor="#000000" backcolor="#FFFFFF"/>
+								<box>
+									<topPen lineWidth="1.0"/>
+								</box>
+								<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+									<font fontName="TH SarabunPSK" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+								</textElement>
+								<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{null_sum_oct}==null? 0.00 :$V{sum_oct_per_day}]]></textFieldExpression>
+							</textField>
+							<textField pattern="###0.00;-###0.00" isBlankWhenNull="false">
+								<reportElement mode="Transparent" x="0" y="13" width="62" height="13" forecolor="#000000" backcolor="#FFFFFF"/>
+								<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+									<font fontName="TH SarabunPSK" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+								</textElement>
+								<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{count_day_in_oct}]]></textFieldExpression>
+							</textField>
+							<textField pattern="#,##0.00;-#,##0.00" isBlankWhenNull="false">
+								<reportElement mode="Transparent" x="0" y="26" width="62" height="13" forecolor="#000000" backcolor="#FFFFFF"/>
+								<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+									<font fontName="TH SarabunPSK" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+								</textElement>
+								<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{null_avg_per_day_oct}==null? 0.00 :$V{avg_per_day_oct}]]></textFieldExpression>
+							</textField>
+							<textField pattern="###0.00;-###0.00" isBlankWhenNull="false">
+								<reportElement mode="Transparent" x="0" y="39" width="62" height="13" forecolor="#000000" backcolor="#FFFFFF"/>
+								<box>
+									<topPen lineWidth="1.0"/>
+									<bottomPen lineWidth="1.0"/>
+								</box>
+								<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+									<font fontName="TH SarabunPSK" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+								</textElement>
+								<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{sum_oct/year%}]]></textFieldExpression>
+							</textField>
+							<textField pattern="#,##0.00;-#,##0.00" isBlankWhenNull="false">
+								<reportElement mode="Transparent" x="0" y="52" width="62" height="13" forecolor="#000000" backcolor="#FFFFFF"/>
+								<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+									<font fontName="TH SarabunPSK" size="10" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+								</textElement>
+								<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{sum_per_year_oct}]]></textFieldExpression>
+							</textField>
+							<textField pattern="###0.00;-###0.00" isBlankWhenNull="false">
+								<reportElement mode="Transparent" x="0" y="65" width="62" height="13" forecolor="#000000" backcolor="#FFFFFF"/>
+								<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+									<font fontName="TH SarabunPSK" size="10" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+								</textElement>
+								<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{day_per_year_oct}]]></textFieldExpression>
+							</textField>
+							<textField pattern="#,##0.00;-#,##0.00" isBlankWhenNull="false">
+								<reportElement mode="Transparent" x="0" y="78" width="62" height="13" forecolor="#000000" backcolor="#FFFFFF"/>
+								<box>
+									<bottomPen lineWidth="2.0" lineStyle="Double"/>
+								</box>
+								<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+									<font fontName="TH SarabunPSK" size="10" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+								</textElement>
+								<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{avg_per_year_oct}]]></textFieldExpression>
+							</textField>
+						</jr:tableFooter>
+						<jr:detailCell height="0" rowSpan="1"/>
+					</jr:column>
+					<jr:column width="62">
+						<jr:tableFooter height="91" rowSpan="1">
+							<textField pattern="#,##0.00;-#,##0.00" isBlankWhenNull="false">
+								<reportElement mode="Transparent" x="0" y="0" width="62" height="13" forecolor="#000000" backcolor="#FFFFFF"/>
+								<box>
+									<topPen lineWidth="1.0"/>
+								</box>
+								<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+									<font fontName="TH SarabunPSK" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+								</textElement>
+								<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{null_sum_nov}==null? 0.00 :$V{sum_nov_per_day}]]></textFieldExpression>
+							</textField>
+							<textField pattern="###0.00;-###0.00" isBlankWhenNull="false">
+								<reportElement mode="Transparent" x="0" y="13" width="62" height="13" forecolor="#000000" backcolor="#FFFFFF"/>
+								<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+									<font fontName="TH SarabunPSK" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+								</textElement>
+								<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{count_day_in_nov}]]></textFieldExpression>
+							</textField>
+							<textField pattern="#,##0.00;-#,##0.00" isBlankWhenNull="false">
+								<reportElement mode="Transparent" x="0" y="26" width="62" height="13" forecolor="#000000" backcolor="#FFFFFF"/>
+								<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+									<font fontName="TH SarabunPSK" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+								</textElement>
+								<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{null_avg_per_day_nov}==null? 0.00 :$V{avg_per_day_nov}]]></textFieldExpression>
+							</textField>
+							<textField pattern="###0.00;-###0.00" isBlankWhenNull="false">
+								<reportElement mode="Transparent" x="0" y="39" width="62" height="13" forecolor="#000000" backcolor="#FFFFFF"/>
+								<box>
+									<topPen lineWidth="1.0"/>
+									<bottomPen lineWidth="1.0"/>
+								</box>
+								<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+									<font fontName="TH SarabunPSK" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+								</textElement>
+								<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{sum_nov/year%}]]></textFieldExpression>
+							</textField>
+							<textField pattern="#,##0.00;-#,##0.00" isBlankWhenNull="false">
+								<reportElement mode="Transparent" x="0" y="52" width="62" height="13" forecolor="#000000" backcolor="#FFFFFF"/>
+								<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+									<font fontName="TH SarabunPSK" size="10" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+								</textElement>
+								<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{sum_per_year_nov}]]></textFieldExpression>
+							</textField>
+							<textField pattern="###0.00;-###0.00" isBlankWhenNull="false">
+								<reportElement mode="Transparent" x="0" y="65" width="62" height="13" forecolor="#000000" backcolor="#FFFFFF"/>
+								<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+									<font fontName="TH SarabunPSK" size="10" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+								</textElement>
+								<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{day_per_year_nov}]]></textFieldExpression>
+							</textField>
+							<textField pattern="#,##0.00;-#,##0.00" isBlankWhenNull="false">
+								<reportElement mode="Transparent" x="0" y="78" width="62" height="13" forecolor="#000000" backcolor="#FFFFFF"/>
+								<box>
+									<bottomPen lineWidth="2.0" lineStyle="Double"/>
+								</box>
+								<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+									<font fontName="TH SarabunPSK" size="10" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+								</textElement>
+								<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{avg_per_year_nov}]]></textFieldExpression>
+							</textField>
+						</jr:tableFooter>
+						<jr:detailCell height="0" rowSpan="1"/>
+					</jr:column>
+					<jr:column width="62">
+						<jr:tableFooter height="91" rowSpan="1">
+							<textField pattern="#,##0.00;-#,##0.00" isBlankWhenNull="false">
+								<reportElement mode="Transparent" x="0" y="0" width="62" height="13" forecolor="#000000" backcolor="#FFFFFF"/>
+								<box>
+									<topPen lineWidth="1.0"/>
+								</box>
+								<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+									<font fontName="TH SarabunPSK" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+								</textElement>
+								<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{null_sum_dec}==null? 0.00 :$V{sum_dec_per_day}]]></textFieldExpression>
+							</textField>
+							<textField pattern="###0.00;-###0.00" isBlankWhenNull="false">
+								<reportElement mode="Transparent" x="0" y="13" width="62" height="13" forecolor="#000000" backcolor="#FFFFFF"/>
+								<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+									<font fontName="TH SarabunPSK" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+								</textElement>
+								<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{count_day_in_dec}]]></textFieldExpression>
+							</textField>
+							<textField pattern="#,##0.00;-#,##0.00" isBlankWhenNull="false">
+								<reportElement mode="Transparent" x="0" y="26" width="62" height="13" forecolor="#000000" backcolor="#FFFFFF"/>
+								<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+									<font fontName="TH SarabunPSK" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+								</textElement>
+								<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{null_avg_per_day_dec}==null? 0.00 :$V{avg_per_day_dec}]]></textFieldExpression>
+							</textField>
+							<textField pattern="###0.00;-###0.00" isBlankWhenNull="false">
+								<reportElement mode="Transparent" x="0" y="39" width="62" height="13" forecolor="#000000" backcolor="#FFFFFF"/>
+								<box>
+									<topPen lineWidth="1.0"/>
+									<bottomPen lineWidth="1.0"/>
+								</box>
+								<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+									<font fontName="TH SarabunPSK" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+								</textElement>
+								<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{sum_dec/year%}]]></textFieldExpression>
+							</textField>
+							<textField pattern="#,##0.00;-#,##0.00" isBlankWhenNull="false">
+								<reportElement mode="Transparent" x="0" y="52" width="62" height="13" forecolor="#000000" backcolor="#FFFFFF"/>
+								<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+									<font fontName="TH SarabunPSK" size="10" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+								</textElement>
+								<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{sum_per_year_dec}]]></textFieldExpression>
+							</textField>
+							<textField pattern="###0.00;-###0.00" isBlankWhenNull="false">
+								<reportElement mode="Transparent" x="0" y="65" width="62" height="13" forecolor="#000000" backcolor="#FFFFFF"/>
+								<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+									<font fontName="TH SarabunPSK" size="10" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+								</textElement>
+								<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{day_per_year_dec}]]></textFieldExpression>
+							</textField>
+							<textField pattern="#,##0.00;-#,##0.00" isBlankWhenNull="false">
+								<reportElement mode="Transparent" x="0" y="78" width="62" height="13" forecolor="#000000" backcolor="#FFFFFF"/>
+								<box>
+									<bottomPen lineWidth="2.0" lineStyle="Double"/>
+								</box>
+								<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+									<font fontName="TH SarabunPSK" size="10" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+								</textElement>
+								<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{avg_per_year_dec}]]></textFieldExpression>
+							</textField>
+						</jr:tableFooter>
+						<jr:detailCell height="0" rowSpan="1"/>
+					</jr:column>
+				</jr:table>
+			</componentElement>
+		</band>
+	</detail>
+	<summary>
+		<band height="12">
+			<staticText>
+				<reportElement mode="Transparent" x="0" y="0" width="182" height="12" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="10" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<text><![CDATA[ด/ป% = (รวมเดือนต่อวัน / รวมปีต่อวัน)*100]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="0" y="0" width="802" height="12" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="10" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<text><![CDATA[<สิ้นสุดรายงาน>]]></text>
+			</staticText>
+		</band>
+	</summary>
+	<noData>
+		<band height="20">
+			<staticText>
+				<reportElement x="0" y="0" width="802" height="20"/>
+				<textElement textAlignment="Center" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="14" isBold="true"/>
+				</textElement>
+				<text><![CDATA[No Data]]></text>
+			</staticText>
+		</band>
+	</noData>
+</jasperReport>

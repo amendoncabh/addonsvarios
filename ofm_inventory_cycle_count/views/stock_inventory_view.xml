@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="view_inventory_tree" model="ir.ui.view">
+            <field name="name">stock.inventory.tree.inherit</field>
+            <field name="model">stock.inventory</field>
+            <field name="inherit_id" ref="stock.view_inventory_tree"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='number']" position="before">
+                    <field name="branch_id"/>
+                </xpath>
+            </field>
+        </record>
+        <record id="view_inventory_form" model="ir.ui.view">
+            <field name="name">stock.inventory.form.inherit</field>
+            <field name="model">stock.inventory</field>
+            <field name="inherit_id" ref="stock.view_inventory_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='filter']" position="before">
+                    <field name="type"/>
+                    <field name="template_id" 
+                        attrs="{
+                            'invisible': [('type', '=', 'full')], 
+                        }"/>
+                    <field name="is_template" invisible="True"/>
+                    <field name="inventory_of" 
+                        widget="radio" 
+                        attrs="{
+                            'readonly': [('state', '!=', 'draft')], 
+                            'invisible':[('is_template', '=', False)] 
+                        }"/>
+                </xpath>
+                <xpath expr="//field[@name='filter']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//field[@name='location_id']" position="after">
+                    <field name="product_dept" 
+                            attrs="{
+                                'invisible': [('inventory_of', '!=', 'dept')], 
+                                'required': [('inventory_of', '=', 'dept')]
+                            }"
+                            widget='many2many_tags'/>
+                        <field name="product_sub_dept" 
+                            attrs="{
+                                'invisible': [('inventory_of', '!=', 'sub_dept')], 
+                                'required': [('inventory_of', '=', 'sub_dept')]
+                            }"
+                            widget='many2many_tags'/>
+                </xpath>
+                <xpath expr="//field[@name='date']" position="before">
+                    <field name="date_now"/>
+                    <field name="finish_date"/>
+                </xpath>
+                <xpath expr="//field[@name='category_id']" position="attributes">
+                    <attribute name="attrs">{'invisible': [('inventory_of', 'not in','category')], 'required': [('inventory_of', 'in', 'category')]}</attribute>
+                </xpath>
+                <xpath expr="//field[@name='product_id']" position="attributes">
+                    <attribute name="attrs">{'invisible': [('inventory_of', 'not in','product')], 'required': [('inventory_of', 'in', 'product')]}</attribute>
+                </xpath>
+                <xpath expr="//button[@name='prepare_inventory']" position="replace">
+                    <button name="prepare_inventory_manual" states="draft" string="Start" type="object" class="oe_highlight" groups="stock.group_stock_user"/>
+                </xpath>
+                <xpath expr="//field[@name='exhausted']" position="replace">
+                    <field name="exhausted"/>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

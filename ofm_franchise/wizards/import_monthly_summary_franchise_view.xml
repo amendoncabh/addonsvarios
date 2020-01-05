@@ -1,0 +1,102 @@
+<?xml version="1.0"?>
+<odoo>
+   <data>
+       <record id="view_import_monthly_summary_franchises" model="ir.ui.view">
+           <field name="name">Import (.xls)</field>
+           <field name="model">import.monthly.summary.franchise</field>
+           <field name="arch" type="xml">
+               <form string="Import (.xls) สรุปยอดประจำเดือน">
+                   <group>
+                   </group>
+                   <group>
+                       <field name="binary_data" filename="filename"/>
+                       <field name="filename" invisible="1"/>
+                   </group>
+                   <footer>
+                       <button name="action_import_monthly_summary_franchises"
+                               string="Confirm" type="object"
+                               class="oe_highlight"
+                               context="{'many_store': True}"/>
+                       or
+                       <button string="Cancel" class="oe_link"
+                               special="cancel"/>
+                   </footer>
+               </form>
+           </field>
+       </record>
+
+       <record id="action_open_import_monthly_summary_franchises" model="ir.actions.act_window">
+            <field name="name">Import (.xls) สรุปยอดประจำเดือน</field>
+            <field name="res_model">import.monthly.summary.franchise</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+            <field name="view_id" ref="ofm_franchise.view_import_monthly_summary_franchises"/>
+        </record>
+
+       <record id="view_import_monthly_summary_fran" model="ir.ui.view">
+           <field name="name">Import (.xls)</field>
+           <field name="model">import.monthly.summary.franchise</field>
+           <field name="arch" type="xml">
+               <form string="Import (.xls) สรุปยอดประจำเดือน">
+                   <group>
+                   </group>
+                   <group>
+                       <field name="binary_data" filename="filename"/>
+                       <field name="filename" invisible="1"/>
+                   </group>
+                   <footer>
+                       <button name="action_import_monthly_summary_franchises"
+                               string="Confirm" type="object"
+                               class="oe_highlight"
+                               context="{'many_store': False}"/>
+                       or
+                       <button string="Cancel" class="oe_link"
+                               special="cancel"/>
+                   </footer>
+               </form>
+           </field>
+       </record>
+
+       <record id="action_open_import_monthly_summary_fran" model="ir.actions.act_window">
+            <field name="name">Import (.xls) สรุปยอดประจำเดือน</field>
+            <field name="res_model">import.monthly.summary.franchise</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+            <field name="view_id" ref="ofm_franchise.view_import_monthly_summary_fran"/>
+        </record>
+
+
+       <record id="view_upload_file_attachment" model="ir.ui.view">
+           <field name="name">Upload File</field>
+           <field name="model">import.monthly.summary.franchise</field>
+           <field name="arch" type="xml">
+               <form string="Upload File">
+                   <group>
+                       <field name="binary_data" filename="filename" string="Select File"/>
+                       <field name="filename" invisible="1"/>
+                   </group>
+                   <footer>
+                       <button name="action_upload_file_attachment"
+                               string="Confirm" type="object"
+                               class="oe_highlight"/>
+                       or
+                       <button string="Cancel" class="oe_link"
+                               special="cancel"/>
+                   </footer>
+               </form>
+           </field>
+       </record>
+
+       <record id="action_open_upload_file_attachment" model="ir.actions.act_window">
+            <field name="name">Upload File</field>
+            <field name="res_model">import.monthly.summary.franchise</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="ofm_franchise.view_upload_file_attachment"/>
+            <field name="target">new</field>
+        </record>
+
+   </data>
+</odoo>

@@ -1,0 +1,90 @@
+<?xml version="1.0"?>
+<odoo>
+    <record id="view_adjustment_report_wizard" model="ir.ui.view">
+        <field name="name">รายงานปรับปรุงสินค้า</field>
+        <field name="model">adjustment.report.wizard</field>
+        <field name="arch" type="xml">
+            <form string="รายงานปรับปรุงสินค้า">
+                <group>
+                    <group>
+                        <field name="company_id" 
+                            string="Company"
+                            options="{
+                                        'no_quick_create': True,
+                                        'no_create_edit': True,
+                                        'no_open': True
+                                    }"/>
+                        <field name="branch_id" 
+                            string="Branch"
+                            options="{
+                                        'no_quick_create': True,
+                                        'no_create_edit': True,
+                                        'no_open': True
+                                    }"/>
+                        <field name="jasper_output" widget="radio"/>
+                    </group>
+                    <group>
+                        <field name="start_date"/>
+                        <field name="end_date"/>
+                        <field name="start_pid"/>
+                        <field name="end_pid"/>
+                    </group>
+                </group>
+                <footer>
+                    <button name="action_print_report"
+                            string="Print" type="object"
+                            class="oe_highlight"/>
+                    or
+                    <button string="Cancel" class="oe_link"
+                            special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_open_adjustment_report_wizard" model="ir.actions.act_window">
+        <field name="name">รายงานปรับปรุงสินค้า</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">adjustment.report.wizard</field>
+        <field name="view_type">form</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="view_adjustment_report_wizard" />
+        <field name="target">new</field>
+    </record>
+
+    <menuitem id="menu_adjustment_report_wizard"
+                  parent="stock.menu_warehouse_report"
+                  action="action_open_adjustment_report_wizard"
+                  string="รายงานปรับปรุงสินค้า"
+                  sequence="5"/>
+
+    <record id="adjustment_pdf_jasper" model="ir.actions.report.xml">
+            <field name="string">รายงานปรับปรุงสินค้า</field>
+            <field name="auto">True</field>
+            <field name="model">adjustment.report.wizard</field>
+            <field name="jasper_model_id" ref="base.model_res_users"/>
+            <field name="name">adjustment Report</field>
+            <field name="report_name">adjustment.pdf.jasper</field>
+            <field name="rml">ofm_inventory_cycle_count/reports/adjustment.jrxml</field>
+            <field name="report_rml">ofm_inventory_cycle_count/reports/adjustment.jrxml</field>
+            <field name="menu">False</field>
+            <field name="header">False</field>
+            <field name="jasper_report">True</field>
+            <field name="jasper_output">pdf</field>
+        </record>
+
+    <record id="adjustment_xls_jasper" model="ir.actions.report.xml">
+            <field name="string">รายงานปรับปรุงสินค้า</field>
+            <field name="auto">True</field>
+            <field name="model">adjustment.report.wizard</field>
+            <field name="jasper_model_id" ref="base.model_res_users"/>
+            <field name="name">adjustment Report</field>
+            <field name="report_name">adjustment.xls.jasper</field>
+            <field name="rml">ofm_inventory_cycle_count/reports/adjustment.jrxml</field>
+            <field name="report_rml">ofm_inventory_cycle_count/reports/adjustment.jrxml</field>
+            <field name="menu">False</field>
+            <field name="header">False</field>
+            <field name="jasper_report">True</field>
+            <field name="jasper_output">xls</field>
+        </record>
+</odoo>

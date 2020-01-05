@@ -1,0 +1,1384 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.9.0.final using JasperReports Library version 4.0.0  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="sale_summary_for_all_pos_report" language="groovy" pageWidth="612" pageHeight="792" columnWidth="572" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20">
+	<property name="ireport.zoom" value="1.6105100000000008"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="559"/>
+	<parameter name="company_id" class="java.lang.String">
+		<defaultValueExpression><![CDATA[company_id]]></defaultValueExpression>
+	</parameter>
+	<parameter name="start_date" class="java.lang.String">
+		<parameterDescription><![CDATA[start_date]]></parameterDescription>
+		<defaultValueExpression><![CDATA[start_date]]></defaultValueExpression>
+	</parameter>
+	<parameter name="end_date" class="java.lang.String">
+		<defaultValueExpression><![CDATA[end_date]]></defaultValueExpression>
+	</parameter>
+	<parameter name="branch_id" class="java.lang.String">
+		<parameterDescription><![CDATA[branch_id]]></parameterDescription>
+		<defaultValueExpression><![CDATA[branch_id]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[select
+	(now()+interval '7 hour')::date as print_date,
+	coalesce(pos_vat.sale_vat_total,0) as pos_vat_total,
+	coalesce(pos_vat_discount.sale_vat_disccount_total,0) as pos_vat_disccount_total,
+	coalesce(pos_no_vat.sale_no_vat_total,0) as pos_no_vat_total,
+	coalesce(pos_no_vat_discount.sale_no_vat_disccount_total,0) as pos_no_vat_disccount_total,
+	coalesce(sale_vat.sale_order_vat,0) as sale_order_vat,
+	coalesce(sale_discount_vat.sale_discount_vat,0) as sale_discount_vat,
+	coalesce(deposit_vat.sale_deposit_total,0) as sale_deposit_vat_total,
+	coalesce(clear_deposit_vat.invoice_clear_deposit,0) as invoice_vat_clear_deposit,
+	coalesce(invoice_return_vat.return_amount_total,0) as invoice_vat_return_total,
+	coalesce(pos_return_vat.pos_return_total,0) as pos_vat_return_total,
+	coalesce(clear_deposit_refund_vat.clear_deposit_total,0) as clear_vat_deposit_total,
+	coalesce(sale_no_vat.sale_order_vat,0) as sale_order_no_vat,
+	coalesce(sale_discount_no_vat.sale_discount_no_vat,0) as sale_discount_no_vat,
+	coalesce(deposit_no_vat.sale_deposit_total,0) as sale_deposit_no_vat_total,
+	coalesce(clear_deposit_no_vat.invoice_clear_deposit,0) as invoice_no_vat_clear_deposit,
+	coalesce(invoice_return_no_vat.return_amount_total,0) as invoice_no_vat_return_total,
+	coalesce(pos_return_no_vat.pos_return_total,0) as pos_no_vat_return_total,
+	coalesce(clear_deposit_refund_no_vat.clear_deposit_total,0) as clear_no_vat_deposit_total,
+	coalesce(receive_total.cash_total,0) as cash_total,
+	coalesce(receive_total.credit_card_total,0) as credit_card_total,
+	coalesce(receive_total.cheque,0) as cheque_total,
+	coalesce(receive_total.t1cc,0) as t1cc,
+	coalesce(sale_credit_vat.sale_total,0) as sale_credit_vat,
+	coalesce(sale_credit_return_vat.return_total,0) as sale_credit_return_vat,
+	coalesce(invoice_rounding.invoice_rounding,0) as invoice_rounding,
+	coalesce(invoice_return_rounding.invoice_return_rounding,0) as invoice_return_rounding,
+	coalesce(deposit_rouding.deposit_rouding,0) as deposit_rouding,
+	coalesce(pos_rounding.pos_rounding,0) as pos_rounding,
+	coalesce(pos_return_rounding.pos_return_rounding,0) as pos_return_rounding,
+	branch.company_name,
+	branch.branch_id,
+	branch.name as branch_name,
+	branch.tax_id_company,
+	branch.name,
+	branch.adddress,
+	branch.adddress2,
+	branch.city,
+	branch.zip,
+	branch.company_logo
+from
+(
+	select sum(pol.price_subtotal_incl) as sale_vat_total
+			from pos_order_line pol
+				inner join pos_order po on pol.order_id = po.id
+			where
+				(po.is_return_order is false
+				or po.is_void_order is True)
+				and po.amount_tax <> 0
+				and pol.promotion_id is null
+				and DATE(po.date_order+interval '7 hours') BETWEEN $P{start_date}::date AND  $P{end_date}::date
+				and po.branch_id in ($P!{branch_id})
+) as pos_vat,
+(
+	select sum(abs(pol.price_subtotal)) as sale_vat_disccount_total
+			from pos_order_line pol
+				inner join pos_order po on pol.order_id = po.id
+			where
+				(po.is_return_order is false
+				or po.is_void_order is True)
+				and po.amount_tax <> 0
+				and pol.promotion_id is not null
+				and DATE(po.date_order+interval '7 hours') BETWEEN $P{start_date}::date AND  $P{end_date}::date
+				and po.branch_id in ($P!{branch_id})
+) as pos_vat_discount,
+(
+	select sum(pol.price_subtotal_incl) as sale_no_vat_total
+			from pos_order_line pol
+				inner join pos_order po on pol.order_id = po.id
+			where
+				(po.is_return_order is false
+				or po.is_void_order is True)
+				and po.amount_tax = 0
+				and pol.promotion_id is null
+				and DATE(po.date_order+interval '7 hours') BETWEEN $P{start_date}::date AND  $P{end_date}::date
+	--			and pol.company_id = 1
+				and po.branch_id in ($P!{branch_id})
+) as pos_no_vat,
+(
+	select sum(abs(pol.price_subtotal_incl)) as sale_no_vat_disccount_total
+			from pos_order_line pol
+				inner join pos_order po on pol.order_id = po.id
+			where
+				(po.is_return_order is false
+				or po.is_void_order is True)
+				and po.amount_tax = 0
+				and pol.promotion_id is not null
+				and DATE(po.date_order+interval '7 hours') BETWEEN $P{start_date}::date AND  $P{end_date}::date
+	--			and pol.company_id = 1
+				and po.branch_id in ($P!{branch_id})
+) as pos_no_vat_discount,
+(
+	select sum(sol.price_subtotal+sol.price_tax) as sale_order_vat
+		from sale_order_line sol
+			inner join sale_order so on sol.order_id = so.id
+		where so.state in ('sale','done')
+		and sol.promotion is false
+		and sol.price_tax > 0
+		and so.sale_payment_type <> 'deposit'
+		and so.branch_id in ($P!{branch_id})
+		and DATE(so.date_order+interval '7 hours') BETWEEN $P{start_date}::date AND  $P{end_date}::date
+) as sale_vat,
+(
+	select sum(abs(sol.price_subtotal+sol.price_tax)) as sale_discount_vat
+		from sale_order_line sol
+			inner join sale_order so on sol.order_id = so.id
+		where so.state in ('sale','done')
+		--	and so.company_id = 1
+			and so.branch_id in ($P!{branch_id})
+		and DATE(so.date_order+interval '7 hours') BETWEEN $P{start_date}::date AND  $P{end_date}::date
+		and sol.price_tax < 0
+		and sol.price_subtotal < 0
+) as sale_discount_vat,
+(
+	select sum(ad.amount_untaxed+ad.amount_tax) as sale_deposit_total
+	from account_deposit ad
+		inner join sale_order so on ad.sale_id = so.id
+	where
+	so.state in ('sale','done','cancel')
+	and ad.amount_tax <> 0
+          and so.sale_payment_type = 'deposit'
+	and so.branch_id in ($P!{branch_id})
+	and DATE(ad.date+interval '7 hours') BETWEEN $P{start_date}::date AND  $P{end_date}::date
+) as deposit_vat,
+(
+	select sum(ai.amount_deposit+ai.amount_tax_deposit) as invoice_clear_deposit
+	from account_invoice ai
+		inner join sale_order so on ai.so_id = so.id
+	where
+	so.state in ('sale','done')
+	and so.sale_payment_type = 'deposit'
+	and ai.state in ('open','paid')
+	and ai.type = 'out_invoice'
+	and ai.amount_tax <> 0
+	--and ai.company_id = 1
+	and ai.branch_id in ($P!{branch_id})
+	and DATE(ai.date_invoice+interval '7 hours') BETWEEN $P{start_date}::date AND  $P{end_date}::date
+) as clear_deposit_vat,
+(
+	select sum(ai.amount_total) as return_amount_total
+	from account_invoice ai
+		inner join sale_order so on ai.so_id = so.id
+	where
+	so.state in ('sale','done','cancel')
+	and so.sale_payment_type = 'deposit'
+	and ai.type = 'out_refund'
+	and ai.state = 'paid'
+	and ai.amount_deposit = 0
+	and ai.amount_tax < 0
+--	and ai.company_id = 1
+	and ai.branch_id in ($P!{branch_id})
+	and DATE(ai.date_invoice+interval '7 hours') BETWEEN $P{start_date}::date AND  $P{end_date}::date
+) as invoice_return_vat,
+(
+	select
+	sum(abs(pol.price_subtotal_incl)) as pos_return_total
+	from pos_order_line pol
+		inner join pos_order po on pol.order_id = po.id
+	where
+		po.is_return_order is true
+		and pol.promotion_id is null
+		and po.amount_tax < 0
+		and DATE(po.date_order+interval '7 hours') BETWEEN $P{start_date}::date AND  $P{end_date}::date
+	--	and pol.company_id = 1
+		and po.branch_id in ($P!{branch_id})
+) as pos_return_vat,
+(
+	select sum(abs(round(ai.amount_total_signed,2))) as clear_deposit_total
+	from account_invoice ai
+		inner join sale_order so on ai.so_id = so.id
+	where
+	so.state in ('sale','done','cancel')
+	and so.sale_payment_type = 'deposit'
+	and ai.type = 'out_refund'
+	and ai.state = 'paid'
+	and ai.parent_invoice_id is null
+	and ai.amount_deposit > 0
+	and ai.amount_tax <> 0
+	and DATE(ai.date_invoice+interval '7 hours') BETWEEN $P{start_date}::date AND  $P{end_date}::date
+	and ai.branch_id in ($P!{branch_id})
+) clear_deposit_refund_vat,
+(
+	select sum(sol.price_subtotal) as sale_order_vat
+		from sale_order_line sol
+			inner join sale_order so on sol.order_id = so.id
+		where so.state in ('sale','done')
+			and so.sale_payment_type <> 'deposit'
+			and so.branch_id  in ($P!{branch_id})
+		and DATE(so.date_order+interval '7 hours') BETWEEN $P{start_date}::date AND  $P{end_date}::date
+		and sol.promotion is false
+		and sol.price_tax = 0
+) as sale_no_vat,
+(
+	select sum(abs(sol.price_subtotal)) as sale_discount_no_vat
+		from sale_order_line sol
+			inner join sale_order so on sol.order_id = so.id
+		where so.state in ('sale','done')
+			and so.branch_id  in ($P!{branch_id})
+		and DATE(so.date_order+interval '7 hours') BETWEEN $P{start_date}::date AND  $P{end_date}::date
+		and sol.promotion is True
+		and sol.price_tax = 0
+		and sol.price_subtotal < 0
+) as sale_discount_no_vat,
+(
+	select sum(ad.amount_untaxed+ad.amount_tax) as sale_deposit_total
+	from account_deposit ad
+		inner join sale_order so on ad.sale_id = so.id
+	where
+	so.state in ('sale','done','cancel')
+	and ad.amount_tax = 0
+	and so.sale_payment_type = 'deposit'
+	and so.branch_id  in ($P!{branch_id})
+	and DATE(ad.date+interval '7 hours') BETWEEN $P{start_date}::date AND  $P{end_date}::date
+) as deposit_no_vat,
+(
+	select sum(ai.amount_deposit) as invoice_clear_deposit
+	from account_invoice ai
+		inner join sale_order so on ai.so_id = so.id
+	where
+	so.state in ('sale','done')
+	and so.sale_payment_type = 'deposit'
+	and ai.state in ('open','paid')
+	and ai.type = 'out_invoice'
+	and ai.amount_tax = 0
+	and ai.branch_id  in ($P!{branch_id})
+	and DATE(ai.date_invoice+interval '7 hours') BETWEEN $P{start_date}::date AND  $P{end_date}::date
+) as clear_deposit_no_vat,
+(
+	select sum(ai.amount_total) as return_amount_total
+	from account_invoice ai
+		inner join sale_order so on ai.so_id = so.id
+	where
+	so.state in ('sale','done','cancel')
+	and so.sale_payment_type = 'deposit'
+	and ai.type = 'out_refund'
+	and ai.state = 'paid'
+	and ai.amount_deposit = 0
+	and ai.amount_tax = 0
+	and ai.branch_id in ($P!{branch_id})
+	and DATE(ai.date_invoice+interval '7 hours') BETWEEN $P{start_date}::date AND  $P{end_date}::date
+) as invoice_return_no_vat,
+(
+	select
+	sum(abs(pol.price_subtotal_incl)) as pos_return_total
+	from pos_order_line pol
+		inner join pos_order po on pol.order_id = po.id
+	where
+		po.is_return_order is true
+		and pol.promotion_id is null
+		and po.amount_tax = 0
+		and DATE(po.date_order+interval '7 hours') BETWEEN $P{start_date}::date AND  $P{end_date}::date
+		and po.branch_id  in ($P!{branch_id})
+) as pos_return_no_vat,
+(
+	select sum(abs(round(ai.amount_total_signed,2))) as clear_deposit_total
+	from account_invoice ai
+		inner join sale_order so on ai.so_id = so.id
+	where
+	so.state in ('sale','done','cancel')
+	and so.sale_payment_type = 'deposit'
+	and ai.type = 'out_refund'
+	and ai.state = 'paid'
+	and ai.parent_invoice_id is null
+	and ai.amount_deposit > 0
+	and ai.amount_tax = 0
+	and DATE(ai.date_invoice+interval '7 hours') BETWEEN $P{start_date}::date AND  $P{end_date}::date
+	and ai.branch_id  in ($P!{branch_id})
+) clear_deposit_refund_no_vat,
+(
+select
+  coalesce(coalesce(pos_cash.cash_total,0) + coalesce(sale_order_cash.cash_total,0) + coalesce(receipt_cash.cash_total,0),0) as cash_total,
+  coalesce(coalesce(pos_credit_card.cash_total,0) + coalesce(sale_order_credit_card.cash_total,0) + coalesce(receipt_credit_card.cash_total,0),0) as credit_card_total,
+  0.00 as cheque,
+  0.00 as t1cc
+from
+(
+select
+	sum(absl.amount) as cash_total
+	from
+	account_bank_statement_line absl
+			inner join pos_order pos on absl.pos_statement_id = pos.id
+			inner join account_journal aj on absl.journal_id = aj.id
+			where
+			aj.type = 'cash'
+			and (pos.is_return_order is false or pos.is_void_order is True)
+			and aj.is_credit_card is false
+			and DATE(pos.date_order+interval '7 hours') BETWEEN $P{start_date}::date AND  $P{end_date}::date
+			and pos.branch_id  in ($P!{branch_id})
+) as pos_cash,
+(
+select
+	sum(adpt_line.paid_total) as cash_total
+from account_deposit_payment_line as adpt_line
+	inner join account_journal as aj on adpt_line.journal_id = aj.id
+	inner join account_deposit ad on adpt_line.payment_id = ad.id
+	inner join sale_order so on ad.sale_id = so.id
+	where
+	aj.type = 'cash'
+	and aj.is_credit_card is false
+	and ad.invoice_id is null
+	and ad.state = 'paid'
+	and DATE(ad.date+interval '7 hours') BETWEEN $P{start_date}::date AND  $P{end_date}::date
+	and ad.branch_id  in ($P!{branch_id})
+) as sale_order_cash,
+(
+select sum(apl.paid_total) as cash_total
+from account_payment_line apl
+inner join account_payment ap on apl.payment_id = ap.id
+inner join account_payment_method_multi apm on apl.payment_method_id = apm.id
+inner join account_journal aj on apm.journal_id = aj.id
+where
+	aj.type = 'cash'
+	and aj.is_credit_card is false
+	and ap.state = 'posted'
+	and ap.type_payment_to_customer = 'inbound'
+	and DATE(ap.payment_date+interval '7 hours') BETWEEN $P{start_date}::date AND  $P{end_date}::date
+	and ap.branch_id  in ($P!{branch_id})
+) as receipt_cash,
+(
+select
+	sum(absl.amount) as cash_total
+	from
+	account_bank_statement_line absl
+			inner join pos_order pos on absl.pos_statement_id = pos.id
+			inner join account_journal aj on absl.journal_id = aj.id
+			where
+			pos.is_return_order is false
+			and aj.is_credit_card is true
+			and DATE(pos.date_order+interval '7 hours') BETWEEN $P{start_date}::date AND  $P{end_date}::date
+			and pos.branch_id  in ($P!{branch_id})
+) as pos_credit_card,
+(
+select
+	sum(adpt_line.paid_total) as cash_total
+from account_deposit_payment_line as adpt_line
+	inner join account_journal as aj on adpt_line.journal_id = aj.id
+	inner join account_deposit ad on adpt_line.payment_id = ad.id
+	inner join sale_order so on ad.sale_id = so.id
+	where
+	aj.is_credit_card is true
+	and ad.invoice_id is null
+	and ad.state = 'paid'
+	and DATE(ad.date+interval '7 hours') BETWEEN $P{start_date}::date AND  $P{end_date}::date
+	and ad.branch_id in ($P!{branch_id})
+) as sale_order_credit_card,
+(
+select sum(apl.paid_total) as cash_total
+from account_payment_line apl
+inner join account_payment ap on apl.payment_id = ap.id
+inner join account_payment_method_multi apm on apl.payment_method_id = apm.id
+inner join account_journal aj on apm.journal_id = aj.id
+where
+	 aj.is_credit_card is true
+	and ap.state = 'posted'
+	and ap.type_payment_to_customer = 'inbound'
+	and DATE(ap.payment_date+interval '7 hours') BETWEEN $P{start_date}::date AND  $P{end_date}::date
+	and ap.branch_id in ($P!{branch_id})
+) as receipt_credit_card
+) receive_total,
+(
+	select sum(sol.price_subtotal+sol.price_tax) as sale_total
+		from sale_order_line sol
+			inner join sale_order so on sol.order_id = so.id
+		where so.state in ('sale','done')
+		and sol.promotion is false
+		and sol.price_tax > 0
+		and so.sale_payment_type = 'credit'
+			and so.branch_id in ($P!{branch_id})
+		and DATE(so.date_order+interval '7 hours') BETWEEN $P{start_date}::date AND  $P{end_date}::date
+) as sale_credit_vat,
+(
+	select sum(ai.amount_total) as return_total
+	from account_invoice ai
+		inner join account_invoice ai_ref on ai.parent_invoice_id = ai_ref.id
+		inner join sale_order so on ai_ref.so_id = so.id
+	where
+	so.state in ('sale','done')
+	and so.sale_payment_type = 'credit'
+	and ai.type = 'out_refund'
+	and ai.state = 'paid'
+	and ai.amount_deposit = 0
+	and ai.amount_tax > 0
+	and ai.branch_id in ($P!{branch_id})
+	and DATE(ai.date_invoice+interval '7 hours') BETWEEN $P{start_date}::date AND  $P{end_date}::date
+) as sale_credit_return_vat,
+(
+select sum(ai.change_rounding) as invoice_rounding
+	from account_invoice ai
+		inner join sale_order so on ai.so_id = so.id
+	where
+	so.state in ('sale','done')
+	and so.sale_payment_type != 'credit'
+	and ai.state in ('open','paid')
+	and ai.type = 'out_invoice'
+	and ai.branch_id in ($P!{branch_id})
+	and DATE(ai.date_invoice+interval '7 hours') BETWEEN $P{start_date}::date AND  $P{end_date}::date
+) as invoice_rounding,
+(
+select sum(po.change_rounding) as pos_rounding
+	from pos_order po
+		inner join pos_session ps on po.session_id = ps.id
+	where
+	po.state in ('paid','done','invoiced')
+	and po.branch_id in ($P!{branch_id})
+	and po.is_return_order = False
+	and DATE(ps.stop_at+interval '7 hours') BETWEEN $P{start_date}::date AND  $P{end_date}::date
+) as pos_rounding,
+(
+select sum(ai.change_rounding) as invoice_return_rounding
+	from account_invoice ai
+		inner join sale_order so on ai.so_id = so.id
+	where
+	so.state in ('sale','done')
+	and so.sale_payment_type != 'credit'
+	and ai.state in ('open','paid')
+	and ai.type = 'out_refund'
+	and ai.branch_id in ($P!{branch_id})
+	and DATE(ai.date_invoice+interval '7 hours') BETWEEN $P{start_date}::date AND  $P{end_date}::date
+) as invoice_return_rounding,
+(
+select sum(po.change_rounding) as pos_return_rounding
+	from pos_order po
+		inner join pos_session ps on po.session_id = ps.id
+	where
+	po.state in ('paid','done','invoiced')
+	and po.branch_id in ($P!{branch_id})
+	and po.is_return_order = True
+	and DATE(ps.stop_at+interval '7 hours') BETWEEN $P{start_date}::date AND  $P{end_date}::date
+) as pos_return_rounding,
+(
+select sum(ad.change_rounding) as deposit_rouding
+	from account_deposit ad
+		inner join sale_order so on ad.sale_id = so.id
+	where
+	so.state in ('sale','done','cancel')
+	and so.sale_payment_type != 'credit'
+	and DATE(ad.date+interval '7 hours') BETWEEN $P{start_date}::date AND  $P{end_date}::date
+	and ad.branch_id in ($P!{branch_id})
+) as deposit_rouding,
+(
+select
+pc.name as company_name,
+rp.vat AS tax_id_company,
+	pb.branch_name as name,
+	pb.sequence AS sequence,
+	pb.branch_id as branch_id,
+	pb.street as adddress,
+	pb.street2 as adddress2,
+	pb.city as city,
+	pb.zip as zip,
+	COALESCE(pb.phone, '') as phone,(SELECT value || '/web/binary/company_logo?dbname=' || current_database()
+		FROM ir_config_parameter
+		WHERE key = 'web.base.url') as company_logo
+from
+    pos_branch pb
+	LEFT JOIN res_company pc ON pb.pos_company_id = pc.id
+	LEFT JOIN res_partner rpc ON pc.partner_id = rpc.id
+	LEFT JOIN province pro_com ON rpc.province_id = pro_com.id
+	LEFT JOIN res_country_state rcs ON pb.state_id=rcs.id
+	LEFT JOIN res_partner rp ON rp.id=pc.partner_id
+	LEFT JOIN province pro_cus ON rp.province_id = pro_cus.id
+	LEFT JOIN res_country_state rcs2 ON rp.state_id=rcs2.id
+	where pb.id in ($P!{branch_id})
+) as branch]]>
+	</queryString>
+	<field name="print_date" class="java.sql.Date"/>
+	<field name="pos_vat_total" class="java.math.BigDecimal"/>
+	<field name="pos_vat_disccount_total" class="java.math.BigDecimal"/>
+	<field name="pos_no_vat_total" class="java.math.BigDecimal"/>
+	<field name="pos_no_vat_disccount_total" class="java.math.BigDecimal"/>
+	<field name="sale_order_vat" class="java.math.BigDecimal"/>
+	<field name="sale_discount_vat" class="java.math.BigDecimal"/>
+	<field name="sale_deposit_vat_total" class="java.lang.Double"/>
+	<field name="invoice_vat_clear_deposit" class="java.math.BigDecimal"/>
+	<field name="invoice_vat_return_total" class="java.math.BigDecimal"/>
+	<field name="pos_vat_return_total" class="java.math.BigDecimal"/>
+	<field name="clear_vat_deposit_total" class="java.math.BigDecimal"/>
+	<field name="sale_order_no_vat" class="java.math.BigDecimal"/>
+	<field name="sale_discount_no_vat" class="java.math.BigDecimal"/>
+	<field name="sale_deposit_no_vat_total" class="java.lang.Double"/>
+	<field name="invoice_no_vat_clear_deposit" class="java.math.BigDecimal"/>
+	<field name="invoice_no_vat_return_total" class="java.math.BigDecimal"/>
+	<field name="pos_no_vat_return_total" class="java.math.BigDecimal"/>
+	<field name="clear_no_vat_deposit_total" class="java.math.BigDecimal"/>
+	<field name="cash_total" class="java.lang.Double"/>
+	<field name="credit_card_total" class="java.lang.Double"/>
+	<field name="cheque_total" class="java.math.BigDecimal"/>
+	<field name="t1cc" class="java.math.BigDecimal"/>
+	<field name="sale_credit_vat" class="java.math.BigDecimal"/>
+	<field name="sale_credit_return_vat" class="java.math.BigDecimal"/>
+	<field name="invoice_rounding" class="java.math.BigDecimal"/>
+	<field name="pos_rounding" class="java.math.BigDecimal"/>
+	<field name="invoice_return_rounding" class="java.math.BigDecimal"/>
+	<field name="pos_return_rounding" class="java.math.BigDecimal"/>
+	<field name="deposit_rouding" class="java.math.BigDecimal"/>
+	<field name="company_name" class="java.lang.String">
+		<fieldDescription><![CDATA[Company Name]]></fieldDescription>
+	</field>
+	<field name="branch_id" class="java.lang.String">
+		<fieldDescription><![CDATA[Branch]]></fieldDescription>
+	</field>
+	<field name="branch_name" class="java.lang.String">
+		<fieldDescription><![CDATA[Branch Name]]></fieldDescription>
+	</field>
+	<field name="tax_id_company" class="java.lang.String"/>
+	<field name="name" class="java.lang.String"/>
+	<field name="adddress" class="java.lang.String"/>
+	<field name="adddress2" class="java.lang.String"/>
+	<field name="city" class="java.lang.String">
+		<fieldDescription><![CDATA[City]]></fieldDescription>
+	</field>
+	<field name="zip" class="java.lang.String">
+		<fieldDescription><![CDATA[Zip]]></fieldDescription>
+	</field>
+	<field name="company_logo" class="java.lang.String"/>
+	<variable name="sale_vat_not_discount_total" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[($F{pos_vat_total} + $F{sale_order_vat}) - ($F{pos_vat_disccount_total}+$F{sale_discount_vat})]]></variableExpression>
+	</variable>
+	<variable name="sale_no_vat_not_discount_total" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[($F{pos_no_vat_total}+$F{sale_order_no_vat}) - ($F{pos_no_vat_disccount_total}+$F{sale_discount_no_vat})]]></variableExpression>
+	</variable>
+	<variable name="total_sale" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{pos_vat_total} + $F{pos_no_vat_total} + $F{sale_order_vat} + $F{sale_order_no_vat}]]></variableExpression>
+	</variable>
+	<variable name="total_discount" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{pos_vat_disccount_total} + $F{pos_no_vat_disccount_total} + $F{sale_discount_vat} + $F{sale_discount_no_vat}]]></variableExpression>
+	</variable>
+	<variable name="total_net_sale" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$V{sale_vat_not_discount_total} + $V{sale_no_vat_not_discount_total}]]></variableExpression>
+	</variable>
+	<variable name="total_sale_vat" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{sale_order_vat} + $F{sale_deposit_vat_total}]]></variableExpression>
+	</variable>
+	<variable name="total_vat_to_gov" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$V{total_sale_vat} - ($F{invoice_vat_clear_deposit} + $F{invoice_vat_return_total} + $F{pos_vat_return_total} + $F{clear_vat_deposit_total})]]></variableExpression>
+	</variable>
+	<variable name="total_vat_return" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{invoice_vat_clear_deposit} + $F{invoice_vat_return_total} + $F{pos_vat_return_total} + $F{clear_vat_deposit_total}]]></variableExpression>
+	</variable>
+	<variable name="total_value_product" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$V{total_vat_to_gov} / 1.07]]></variableExpression>
+	</variable>
+	<variable name="total_product_sale_vat" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$V{total_value_product} * (7 / 100)]]></variableExpression>
+	</variable>
+	<variable name="total_sale_no_vat" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{sale_order_no_vat} + $F{sale_deposit_no_vat_total}]]></variableExpression>
+	</variable>
+	<variable name="total_no_vat_return" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{invoice_no_vat_clear_deposit} + $F{invoice_no_vat_return_total} + $F{pos_no_vat_return_total} + $F{clear_no_vat_deposit_total}]]></variableExpression>
+	</variable>
+	<variable name="total_no_vat_to_gov" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[($F{pos_no_vat_total} + $F{sale_order_no_vat} + $F{sale_deposit_no_vat_total}) - $V{total_no_vat_return}]]></variableExpression>
+	</variable>
+	<variable name="total_sale_deposit" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$V{total_sale} + $F{sale_deposit_vat_total} + $F{sale_deposit_no_vat_total}]]></variableExpression>
+	</variable>
+	<variable name="date_start" class="java.util.Date" resetType="Page">
+		<initialValueExpression><![CDATA[new SimpleDateFormat("yyyy-MM-dd").parse($P{start_date})]]></initialValueExpression>
+	</variable>
+	<variable name="date_end" class="java.util.Date" resetType="Page">
+		<initialValueExpression><![CDATA[new SimpleDateFormat("yyyy-MM-dd").parse($P{end_date})]]></initialValueExpression>
+	</variable>
+	<variable name="total_return" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{invoice_vat_return_total}+$F{pos_vat_return_total}+$F{invoice_no_vat_return_total}+$F{pos_no_vat_return_total} + $F{clear_vat_deposit_total} + $F{clear_no_vat_deposit_total}]]></variableExpression>
+	</variable>
+	<variable name="total_receive_amt" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{cash_total} + $F{credit_card_total} + $F{cheque_total} + $F{t1cc}]]></variableExpression>
+	</variable>
+	<pageHeader>
+		<band height="112" splitType="Stretch">
+			<staticText>
+				<reportElement x="0" y="75" width="572" height="21"/>
+				<textElement textAlignment="Center" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="18" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Sales Summary For All POS]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="466" y="62" width="40" height="20"/>
+				<textElement lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[พิมพ์ :]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="466" y="82" width="22" height="20"/>
+				<textElement lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[หน้า]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="506" y="82" width="22" height="20"/>
+				<textElement textAlignment="Center" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[OF]]></text>
+			</staticText>
+			<textField pattern="" isBlankWhenNull="false">
+				<reportElement x="10" y="92" width="562" height="19"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[new SimpleDateFormat("dd/MM/yyyy").format($V{date_start}) + " - " +new SimpleDateFormat("dd/MM/yyyy").format($V{date_end})]]></textFieldExpression>
+			</textField>
+			<textField pattern="dd/MM/yyyy">
+				<reportElement mode="Transparent" x="506" y="62" width="66" height="20" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Left" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="12" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<textFieldExpression class="java.util.Date"><![CDATA[$F{print_date}]]></textFieldExpression>
+			</textField>
+			<textField evaluationTime="Report">
+				<reportElement mode="Transparent" x="528" y="82" width="19" height="19" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Left" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="12" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$V{PAGE_NUMBER}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement mode="Transparent" x="491" y="82" width="15" height="19" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="12" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$V{PAGE_NUMBER}]]></textFieldExpression>
+			</textField>
+			<textField pattern="" isBlankWhenNull="false">
+				<reportElement mode="Transparent" x="0" y="1" width="572" height="23" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Center" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="14" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{company_name}+" สาขา"+$F{name}+" "+($F{branch_id} == '00000' ? " สำนักงานใหญ่" : " สาขาที่ "+String.format("%05d",Integer.parseInt($F{branch_id})))]]></textFieldExpression>
+			</textField>
+			<textField pattern="" isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="0" y="24" width="572" height="23" isRemoveLineWhenBlank="true" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Center" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="12" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{adddress}]]></textFieldExpression>
+			</textField>
+			<textField pattern="" isBlankWhenNull="true">
+				<reportElement mode="Transparent" x="0" y="41" width="572" height="23" isRemoveLineWhenBlank="true" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Center" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="12" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{adddress2}]]></textFieldExpression>
+			</textField>
+			<textField pattern="" isBlankWhenNull="false">
+				<reportElement mode="Transparent" x="0" y="59" width="572" height="23" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Center" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="12" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA["เลขประจำตัวผู้เสียภาษี "+ $F{tax_id_company}]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageHeader>
+	<detail>
+		<band height="640">
+			<staticText>
+				<reportElement x="11" y="2" width="189" height="20"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="14" isBold="true"/>
+				</textElement>
+				<text><![CDATA[1. รายงานการขายสินค้าและเงินที่ได้รับสุทธิ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="11" y="204" width="189" height="20"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="14" isBold="true"/>
+				</textElement>
+				<text><![CDATA[2. ยอดขายที่ต้องนำส่ง VAT]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="287" y="3" width="189" height="20"/>
+				<textElement lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="14" isBold="true"/>
+				</textElement>
+				<text><![CDATA[4. รายงานยอดขายรวม]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="287" y="200" width="189" height="20"/>
+				<textElement lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="14" isBold="true"/>
+				</textElement>
+				<text><![CDATA[5. รายงานการรับเงินและลูกหนี้]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="22" y="22" width="124" height="19"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[ขาย VAT]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="22" y="42" width="124" height="19"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[หัก : ส่วนลด VAT]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="22" y="62" width="124" height="19"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[ขาย VAT สุทธิ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="22" y="82" width="124" height="19"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[ขาย NON VAT]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="22" y="101" width="124" height="19"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[หัก : ส่วนลด NON VAT]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="22" y="120" width="124" height="19"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[ขาย NON VAT สุทธิ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="22" y="144" width="124" height="19"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Total Sale]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="22" y="163" width="124" height="19"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Total DISC]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="22" y="182" width="124" height="19"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Total Net Sale]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="22" y="224" width="124" height="19"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[ขาย VAT สุทธิ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="22" y="243" width="124" height="19"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[บวก : DEPOSIT Sale]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="22" y="268" width="124" height="19"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[รวม]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="22" y="287" width="124" height="19"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[หัก : Deposit Clear]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="22" y="306" width="124" height="19"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[    Return Sale]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="22" y="325" width="124" height="19"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[    Return DEPOSIT]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="299" y="42" width="124" height="19"/>
+				<textElement verticalAlignment="Middle" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[บวก : DEPOSIT Sale]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="299" y="23" width="124" height="19"/>
+				<textElement verticalAlignment="Middle" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[ยอดขายรวม]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="299" y="165" width="124" height="19"/>
+				<textElement verticalAlignment="Middle" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[    Total Return]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="299" y="184" width="124" height="19"/>
+				<textElement verticalAlignment="Middle" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[    ยอดรวมทั้งหมด]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="299" y="262" width="124" height="19"/>
+				<textElement verticalAlignment="Middle" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Other Card]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="299" y="283" width="124" height="19"/>
+				<textElement verticalAlignment="Middle" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[T1CC]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="299" y="310" width="124" height="19"/>
+				<textElement verticalAlignment="Middle" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Total Received Amount]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="299" y="241" width="124" height="19"/>
+				<textElement verticalAlignment="Middle" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[CHCK]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="299" y="221" width="124" height="19"/>
+				<textElement verticalAlignment="Middle" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[CASH]]></text>
+			</staticText>
+			<textField pattern="#,##0.00" isBlankWhenNull="false">
+				<reportElement x="146" y="22" width="132" height="20"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{pos_vat_total} + $F{sale_order_vat}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00" isBlankWhenNull="false">
+				<reportElement x="146" y="42" width="132" height="19"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{pos_vat_disccount_total} + $F{sale_discount_vat}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00" isBlankWhenNull="false">
+				<reportElement x="146" y="62" width="132" height="19"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{sale_vat_not_discount_total}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00" isBlankWhenNull="false">
+				<reportElement x="146" y="82" width="132" height="19"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{pos_no_vat_total} + $F{sale_order_no_vat}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00" isBlankWhenNull="false">
+				<reportElement x="146" y="101" width="132" height="19"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{pos_no_vat_disccount_total} + $F{sale_discount_no_vat}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00" isBlankWhenNull="false">
+				<reportElement x="146" y="120" width="132" height="19"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{sale_no_vat_not_discount_total}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00" isBlankWhenNull="false">
+				<reportElement x="146" y="144" width="132" height="19"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{total_sale}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00" isBlankWhenNull="false">
+				<reportElement x="146" y="163" width="132" height="19"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{total_discount}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00" isBlankWhenNull="false">
+				<reportElement x="146" y="182" width="132" height="19"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{total_net_sale}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00" isBlankWhenNull="false">
+				<reportElement x="146" y="224" width="132" height="19"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{sale_vat_not_discount_total}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00" isBlankWhenNull="false">
+				<reportElement x="146" y="243" width="132" height="19"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{sale_deposit_vat_total}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00" isBlankWhenNull="false">
+				<reportElement x="146" y="268" width="132" height="19"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[($F{pos_vat_total} + $F{sale_order_vat}) - ($F{pos_vat_disccount_total}+$F{sale_discount_vat}) + $F{sale_deposit_vat_total}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00" isBlankWhenNull="false">
+				<reportElement x="146" y="287" width="132" height="19"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{invoice_vat_clear_deposit}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00" isBlankWhenNull="false">
+				<reportElement x="146" y="306" width="132" height="19"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{invoice_vat_return_total}+$F{pos_vat_return_total}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00" isBlankWhenNull="false">
+				<reportElement x="146" y="325" width="132" height="19"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{clear_vat_deposit_total}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00" isBlankWhenNull="false">
+				<reportElement x="423" y="23" width="132" height="19"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{total_sale}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00" isBlankWhenNull="false">
+				<reportElement x="423" y="42" width="132" height="19"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{sale_deposit_vat_total} + $F{sale_deposit_no_vat_total}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00" isBlankWhenNull="false">
+				<reportElement x="423" y="165" width="132" height="19"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{total_return}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00" isBlankWhenNull="false">
+				<reportElement x="423" y="184" width="132" height="19"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{total_sale_deposit} - $V{total_return}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00" isBlankWhenNull="false">
+				<reportElement x="423" y="221" width="132" height="19"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{cash_total}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00" isBlankWhenNull="false">
+				<reportElement x="423" y="241" width="132" height="19"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{cheque_total}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00" isBlankWhenNull="false">
+				<reportElement x="423" y="262" width="132" height="19"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{credit_card_total}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00" isBlankWhenNull="false">
+				<reportElement x="423" y="283" width="132" height="19"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{t1cc}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00" isBlankWhenNull="false">
+				<reportElement x="146" y="451" width="132" height="19"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{pos_no_vat_total} + $F{sale_order_no_vat}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00" isBlankWhenNull="false">
+				<reportElement x="146" y="522" width="132" height="19"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{invoice_no_vat_clear_deposit}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00" isBlankWhenNull="false">
+				<reportElement x="146" y="470" width="132" height="19"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{sale_deposit_no_vat_total}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="11" y="431" width="189" height="20"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="14" isBold="true"/>
+				</textElement>
+				<text><![CDATA[3. ยอดขายที่ NON VAT]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="22" y="495" width="124" height="19"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[รวม]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="22" y="451" width="124" height="19"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[ขาย Non VAT สุทธิ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="22" y="522" width="124" height="19"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[หัก : Deposit Clear]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="22" y="541" width="124" height="19"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[    Return Sale]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="22" y="470" width="124" height="19"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[บวก : DEPOSIT Sale]]></text>
+			</staticText>
+			<textField pattern="#,##0.00" isBlankWhenNull="false">
+				<reportElement x="146" y="541" width="132" height="19"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{invoice_no_vat_return_total}+$F{pos_no_vat_return_total}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00" isBlankWhenNull="false">
+				<reportElement x="146" y="495" width="132" height="19"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{pos_no_vat_total} + $F{sale_order_no_vat} + $F{sale_deposit_no_vat_total}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="22" y="560" width="124" height="19"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[    Return DEPOSIT]]></text>
+			</staticText>
+			<textField pattern="#,##0.00" isBlankWhenNull="false">
+				<reportElement x="146" y="560" width="132" height="19"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{clear_no_vat_deposit_total}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00" isBlankWhenNull="false">
+				<reportElement x="146" y="369" width="132" height="19"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{total_vat_to_gov}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="22" y="369" width="124" height="19"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[จำนวนเงินที่ต้องนำส่ง VAT]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="22" y="388" width="124" height="19"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[มูลค่าสินค้า]]></text>
+			</staticText>
+			<textField pattern="#,##0.00" isBlankWhenNull="false">
+				<reportElement x="146" y="388" width="132" height="19"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{total_value_product}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="22" y="407" width="124" height="19"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[ภาษีขาย]]></text>
+			</staticText>
+			<textField pattern="#,##0.00" isBlankWhenNull="false">
+				<reportElement x="146" y="407" width="132" height="19"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{total_product_sale_vat}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00" isBlankWhenNull="false">
+				<reportElement x="146" y="599" width="132" height="19"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{total_no_vat_to_gov}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="22" y="599" width="124" height="19"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[จำนวนเงินที่ไม่ต้องนำส่ง VAT]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="620" width="124" height="19"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[*** End Report ***]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="22" y="344" width="124" height="19"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[    Total Return]]></text>
+			</staticText>
+			<textField pattern="#,##0.00" isBlankWhenNull="false">
+				<reportElement x="146" y="344" width="132" height="19"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{total_vat_return}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="22" y="580" width="124" height="19"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[    Total Return]]></text>
+			</staticText>
+			<textField pattern="#,##0.00" isBlankWhenNull="false">
+				<reportElement x="146" y="580" width="132" height="19"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{total_no_vat_return}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00" isBlankWhenNull="false">
+				<reportElement x="423" y="69" width="132" height="19"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{total_sale_deposit}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="299" y="69" width="124" height="19"/>
+				<textElement verticalAlignment="Middle" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[รวม]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="299" y="124" width="124" height="19"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[    Return Sale]]></text>
+			</staticText>
+			<textField pattern="#,##0.00" isBlankWhenNull="false">
+				<reportElement x="423" y="124" width="132" height="19"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{invoice_vat_return_total}+$F{pos_vat_return_total}+$F{invoice_no_vat_return_total}+$F{pos_no_vat_return_total}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="299" y="143" width="124" height="19"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[    Return DEPOSIT]]></text>
+			</staticText>
+			<textField pattern="#,##0.00" isBlankWhenNull="false">
+				<reportElement x="423" y="143" width="132" height="19"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{clear_vat_deposit_total} + $F{clear_no_vat_deposit_total}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00" isBlankWhenNull="false">
+				<reportElement x="423" y="103" width="132" height="19"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{invoice_vat_clear_deposit} + $F{invoice_no_vat_clear_deposit}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="299" y="103" width="124" height="19"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[หัก : DEPOSIT Clear]]></text>
+			</staticText>
+			<textField pattern="#,##0.00" isBlankWhenNull="false">
+				<reportElement x="423" y="310" width="132" height="19"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{cash_total} + $F{credit_card_total} + $F{cheque_total} + $F{t1cc}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="299" y="423" width="124" height="19"/>
+				<textElement verticalAlignment="Middle" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[บวกอื่นๆ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="312" y="442" width="111" height="19"/>
+				<textElement verticalAlignment="Middle" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Rounding Sale]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="312" y="461" width="111" height="19"/>
+				<textElement verticalAlignment="Middle" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Rounding Return]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="299" y="486" width="124" height="19"/>
+				<textElement verticalAlignment="Middle" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Grand Total Sale Amount]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="423" y="620" width="149" height="19"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[จำนวนเงินทั้งหมดเป็น สกุลเงินบาท THB]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="299" y="350" width="124" height="19"/>
+				<textElement verticalAlignment="Middle" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[บวก : ขายเชื่อ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="299" y="369" width="124" height="19"/>
+				<textElement verticalAlignment="Middle" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[หัก : ลดหนี้ ขายเชื่อ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="299" y="388" width="124" height="19"/>
+				<textElement verticalAlignment="Middle" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Total Sale as Amount]]></text>
+			</staticText>
+			<textField pattern="#,##0.00" isBlankWhenNull="false">
+				<reportElement x="423" y="350" width="132" height="19"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{sale_credit_vat}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00" isBlankWhenNull="false">
+				<reportElement x="423" y="369" width="132" height="19"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{sale_credit_return_vat}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00" isBlankWhenNull="false">
+				<reportElement x="423" y="388" width="132" height="19"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[($V{total_receive_amt} + $F{sale_credit_vat}) - $F{sale_credit_return_vat}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00" isBlankWhenNull="false">
+				<reportElement x="423" y="486" width="132" height="19"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[($V{total_receive_amt} + $F{sale_credit_vat}) - $F{sale_credit_return_vat}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00" isBlankWhenNull="false">
+				<reportElement x="423" y="461" width="132" height="19"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{invoice_return_rounding}+$F{pos_return_rounding}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00" isBlankWhenNull="false">
+				<reportElement x="423" y="442" width="132" height="19"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{invoice_rounding} + $F{deposit_rouding} + $F{pos_rounding}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+</jasperReport>

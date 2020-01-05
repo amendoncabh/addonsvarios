@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="rule_stock_internal_move_hq_admin" model="ir.rule">
+        <field name="name">Stock Internal Move HQ/Admin</field>
+        <field name="model_id" ref="ofm_stock_internal_move.model_ofm_stock_internal_move" />
+        <field name="groups" eval="[(4, ref('ofm_access_right_center.group_ofm_hq')),
+        (4, ref('ofm_access_right_center.group_ofm_admin'))]"/>
+        <field name="domain_force">[]</field>
+    </record>
+</odoo>

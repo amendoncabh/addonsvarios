@@ -1,0 +1,135 @@
+<?xml version="1.0"?>
+<odoo>
+   <data>
+       <record id="po_status_1" model="po.status">
+           <field name="value">draft</field>
+           <field name="name">PR</field>
+       </record>
+
+       <record id="po_status_2" model="po.status">
+           <field name="value">sent</field>
+           <field name="name">PR Sent</field>
+       </record>
+
+       <record id="po_status_3" model="po.status">
+           <field name="value">pending</field>
+           <field name="name">Pending</field>
+       </record>
+
+       <record id="po_status_4" model="po.status">
+           <field name="value">completed</field>
+           <field name="name">Completed</field>
+       </record>
+
+       <record id="po_status_5" model="po.status">
+           <field name="value">to approve</field>
+           <field name="name">To Approve</field>
+       </record>
+
+       <record id="po_status_6" model="po.status">
+           <field name="value">purchase</field>
+           <field name="name">Purchase Order</field>
+       </record>
+
+       <record id="po_status_7" model="po.status">
+           <field name="value">done</field>
+           <field name="name">Locked</field>
+       </record>
+
+       <record id="product_status_1" model="product.status">
+           <field name="value">All</field>
+           <field name="name">All</field>
+       </record>
+
+       <record id="product_status_2" model="product.status">
+           <field name="value">New</field>
+           <field name="name">New</field>
+       </record>
+
+       <record id="product_status_3" model="product.status">
+           <field name="value">Stock</field>
+           <field name="name">Stock</field>
+       </record>
+
+       <record id="product_status_4" model="product.status">
+           <field name="value">NonStock</field>
+           <field name="name">NonStock</field>
+       </record>
+
+       <record id="product_status_5" model="product.status">
+           <field name="value">Delete</field>
+           <field name="name">Delete</field>
+       </record>
+
+       <record id="product_status_6" model="product.status">
+           <field name="value">Free</field>
+           <field name="name">Free</field>
+       </record>
+
+       <record id="product_status_7" model="product.status">
+           <field name="value">Hold</field>
+           <field name="name">Hold</field>
+       </record>
+
+       <record id="product_status_8" model="product.status">
+           <field name="value">Clearance</field>
+           <field name="name">Clearance</field>
+       </record>
+
+       <record id="product_status_9" model="product.status">
+           <field name="value">ByOrder</field>
+           <field name="name">ByOrder</field>
+       </record>
+
+       <record id="product_status_10" model="product.status">
+           <field name="value">PreOrder</field>
+           <field name="name">PreOrder</field>
+       </record>
+
+       <record id="product_status_11" model="product.status">
+           <field name="value">Limited</field>
+           <field name="name">Limited</field>
+       </record>
+
+       <record id="product_status_12" model="product.status">
+           <field name="value">Control</field>
+           <field name="name">Control</field>
+       </record>
+
+       <record id="product_status_13" model="product.status">
+           <field name="value">Internal</field>
+           <field name="name">Internal</field>
+       </record>
+
+       <record id="product_status_14" model="product.status">
+           <field name="value">Special</field>
+           <field name="name">Special</field>
+       </record>
+
+       <record id="product_status_15" model="product.status">
+           <field name="value">InStore</field>
+           <field name="name">InStore</field>
+       </record>
+
+       <record id="product_status_16" model="product.status">
+           <field name="value">OutOfStock</field>
+           <field name="name">OutOfStock</field>
+       </record>
+
+       <record id="type_to_ofm_1" model="type.to.ofm">
+           <field name="value">fulfillment</field>
+           <field name="name">Fulfilment to Franchise</field>
+       </record>
+
+       <record id="type_to_ofm_2" model="type.to.ofm">
+           <field name="value">store</field>
+           <field name="name">Send to Store</field>
+       </record>
+
+       <record id="type_to_ofm_3" model="type.to.ofm">
+           <field name="value">customer</field>
+           <field name="name">Send to Customer</field>
+       </record>
+
+   </data>
+</odoo>

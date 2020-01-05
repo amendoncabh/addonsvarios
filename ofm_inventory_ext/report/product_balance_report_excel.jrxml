@@ -1,0 +1,766 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="product_balance_report_excel.jrxml" language="groovy" pageWidth="1518" pageHeight="842" whenNoDataType="NoDataSection" columnWidth="1478" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" isIgnorePagination="true">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="349"/>
+	<property name="ireport.y" value="0"/>
+	<subDataset name="ds_logo_and_print_date">
+		<queryString language="SQL">
+			<![CDATA[SELECT value || '/web/binary/company_logo?dbname=' || current_database() AS company_logo,
+(now() + INTERVAL '7 hour')::timestamp AS print_date
+	    FROM ir_config_parameter
+	    WHERE key = 'report.image.url']]>
+		</queryString>
+		<field name="company_logo" class="java.lang.String"/>
+		<field name="print_date" class="java.sql.Timestamp"/>
+	</subDataset>
+	<parameter name="month" class="java.lang.String">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<parameter name="year" class="java.lang.String">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<parameter name="product_cate_ids" class="java.lang.String"/>
+	<parameter name="product_ids" class="java.lang.String"/>
+	<parameter name="company_id" class="java.lang.String"/>
+	<parameter name="branch_id" class="java.lang.String"/>
+	<queryString>
+		<![CDATA[select distinct on (avp.id, branch_id, pdt.categ_id)
+       date_purchase.purchase_date,
+       date_sales.sales_date,
+       avp.*,
+       pdt.default_code,
+       pdt.name product_name,
+       pdu.name uom_name,
+       pdt.categ_id category_id,
+       date_purchase.vender_name,
+       date_purchase.vender_code,
+       pdc.name as category_name,
+       (
+        rcp.name ||
+        coalesce(
+                 case when pob.branch_id = '00000'
+		      then 'สำนักงานใหญ่'
+		      else ' สาขา ' || pob.name
+		 end, ''
+		) ||
+        coalesce(' สาขาที่ ' || pob.branch_id, '')
+       ) as company_name,
+       (
+        coalesce(pob.street,'') ||
+        coalesce(' ' || pob.alley,'') ||
+        coalesce(' ' || pob.street2,'') ||
+        coalesce(' ' || pob.moo,'') ||
+        coalesce('<br>' || case when pv.name like '%กรุงเทพ%'
+		                then 'แขวง'
+		                else 'ตำบล'
+		           end || tmb.name, '') ||
+        coalesce( ' ' || case when pv.name like '%กรุงเทพ%'
+		              then 'เขต'
+		              else 'อำเภอ'
+		         end || amp.name, '') ||
+        coalesce(' ' ||
+		        case when pv.name like '%กรุงเทพ%'
+		             then pv.name
+		             else ('จังหวัด' || pv.name)
+		        end, ''
+	        ) ||
+        coalesce(' ' || zp.name, '') ||
+        coalesce(' โทร: ' || pob.phone, '') ||
+        coalesce('<br>เลขประจำตัวผู้เสียภาษีอากร: ' || rpn.vat, '')
+       ) as head,
+       pob.branch_code,
+       (
+        case when vender_acc_t.amount > 0
+             then 'Yes'
+             else 'No'
+        end
+       ) as vat,
+       (
+        case when pdept.dept_parent_id is not null
+             then pdept.name
+        end
+       ) as sub_dept_name,
+       (
+        case when pdept.dept_parent_id is not null
+             then pdept.ofm_sub_dept_id
+        end
+       ) as sub_dept_id,
+       (
+        case when pdept.dept_parent_id is not null
+             then parent_pdept.name
+             else pdept.name
+        end
+       ) as dept_name,
+       (
+        case when pdept.dept_parent_id is not null
+             then parent_pdept.ofm_dept_id
+             else pdept.ofm_dept_id
+        end
+       ) as dept_id
+from (
+      select distinct on (product_id, branch_id)
+	     id,
+	     pos_id,
+	     po_id,
+	     move_date,
+	     branch_id,
+	     product_id,
+	     product_uom_id,
+	     remain_product_qty,
+	     remain_product_amount,
+	     case when product_average_price != 0
+	     	then product_average_price
+	     	else cost
+		end as product_average_price
+      from average_price avp
+      /* Parameter */
+      where (date_part('year', move_date) < $P{year}::integer
+             or (date_part('month', move_date) <= $P{month}::integer
+                 and date_part('year', move_date) = $P{year}::integer))
+      order by product_id, branch_id, id DESC, move_date DESC
+     ) avp
+inner join product_product pd on avp.product_id = pd.id
+inner join (
+            select *
+            from product_template
+            /* Parameter */
+	    where ($P!{product_ids}) IS NULL OR id IN ($P!{product_ids})
+	   ) pdt on pd.product_tmpl_id = pdt.id
+left join product_supplier_taxes_rel pstr on pstr.prod_id = pdt.id
+left join account_tax vender_acc_t on vender_acc_t.id = pstr.tax_id
+inner join product_uom pdu on pdu.id = avp.product_uom_id
+inner join (
+            select *
+            from product_category
+            /* Parameter */
+	    where id in ($P!{product_cate_ids})
+	          or ($P!{product_cate_ids}) is null
+	   ) pdc on pdt.categ_id = pdc.id
+left join (
+	   select distinct on (s_avp.product_id, s_avp.branch_id)
+		  s_avp.product_id,
+		  s_avp.branch_id,
+		  move_date purchase_date,
+		  rpn.name vender_name,
+		  rpn.ref vender_code
+	   from average_price s_avp
+	   inner join purchase_order po on po.id = s_avp.po_id
+	   inner join res_partner rpn on rpn.id = po.partner_id
+	   where po_id is not null
+		 /* Parameter */
+		 and (date_part('year', move_date) < $P{year}::integer
+		      or (date_part('month', move_date) <= $P{month}::integer
+			  and date_part('year', move_date) = $P{year}::integer))
+	   order by s_avp.product_id,
+		    s_avp.branch_id,
+		    s_avp.id DESC,
+		    s_avp.move_date DESC
+	  ) date_purchase on date_purchase.product_id = avp.product_id
+	                     and avp.branch_id = date_purchase.branch_id
+left join (
+           select distinct on (product_id, branch_id)
+		  product_id,
+		  branch_id,
+		  move_date sales_date
+	   from average_price
+	   where pos_id is not null
+	         /* Parameter */
+		 and (date_part('year', move_date) < $P{year}::integer
+                       or (date_part('month', move_date) <= $P{month}::integer
+                           and date_part('year', move_date) = $P{year}::integer))
+	   order by product_id,
+	            branch_id,
+	            id DESC,
+	            move_date DESC
+          ) date_sales on date_sales.product_id = avp.product_id
+                          and avp.branch_id = date_sales.branch_id
+left join (
+            select *
+            from pos_branch pob
+            /* Parameter */
+	    where pob.id = $P{branch_id}::integer
+	          or COALESCE($P{branch_id}, '') = ''
+	   ) pob on pob.id = avp.branch_id
+inner join (
+            select *
+            from res_company rcp
+            /* Parameter */
+	    where rcp.id = $P{company_id}::integer
+	          or COALESCE($P{company_id}, '') = ''
+	   ) rcp on rcp.id = pob.pos_company_id
+inner join province pv on pob.province_id = pv.id
+inner join amphur amp on pob.amphur_id = amp.id
+inner join tambon tmb on pob.tambon_id = tmb.id
+inner join zip zp ON pob.zip_id = zp.id
+inner join res_partner rpn on rpn.id = rcp.partner_id
+left join ofm_product_dept pdept on pdept.id = pdt.dept_ofm
+left join ofm_product_dept parent_pdept on parent_pdept.id = pdept.dept_parent_id
+order by branch_id,
+         pdt.categ_id,
+         avp.id]]>
+	</queryString>
+	<field name="purchase_date" class="java.sql.Timestamp"/>
+	<field name="sales_date" class="java.sql.Timestamp"/>
+	<field name="id" class="java.lang.Integer"/>
+	<field name="pos_id" class="java.lang.Integer">
+		<fieldDescription><![CDATA[POS ID]]></fieldDescription>
+	</field>
+	<field name="po_id" class="java.lang.Integer">
+		<fieldDescription><![CDATA[PO ID]]></fieldDescription>
+	</field>
+	<field name="move_date" class="java.sql.Timestamp">
+		<fieldDescription><![CDATA[Move Date]]></fieldDescription>
+	</field>
+	<field name="branch_id" class="java.lang.Integer">
+		<fieldDescription><![CDATA[Branch]]></fieldDescription>
+	</field>
+	<field name="product_id" class="java.lang.Integer">
+		<fieldDescription><![CDATA[Product]]></fieldDescription>
+	</field>
+	<field name="product_uom_id" class="java.lang.Integer">
+		<fieldDescription><![CDATA[Unit of Measure]]></fieldDescription>
+	</field>
+	<field name="remain_product_qty" class="java.lang.Integer">
+		<fieldDescription><![CDATA[Remain Product QTY]]></fieldDescription>
+	</field>
+	<field name="remain_product_amount" class="java.lang.Double">
+		<fieldDescription><![CDATA[Remain Product Amount]]></fieldDescription>
+	</field>
+	<field name="product_average_price" class="java.lang.Double">
+		<fieldDescription><![CDATA[Product Average Price]]></fieldDescription>
+	</field>
+	<field name="default_code" class="java.lang.String">
+		<fieldDescription><![CDATA[Internal Reference]]></fieldDescription>
+	</field>
+	<field name="product_name" class="java.lang.String">
+		<fieldDescription><![CDATA[Vendor Product Name]]></fieldDescription>
+	</field>
+	<field name="uom_name" class="java.lang.String"/>
+	<field name="category_id" class="java.lang.Integer">
+		<fieldDescription><![CDATA[Category]]></fieldDescription>
+	</field>
+	<field name="vender_name" class="java.lang.String"/>
+	<field name="vender_code" class="java.lang.String"/>
+	<field name="category_name" class="java.lang.String"/>
+	<field name="company_name" class="java.lang.String">
+		<fieldDescription><![CDATA[Company Name]]></fieldDescription>
+	</field>
+	<field name="head" class="java.lang.String"/>
+	<field name="branch_code" class="java.lang.String">
+		<fieldDescription><![CDATA[Branch Code]]></fieldDescription>
+	</field>
+	<field name="vat" class="java.lang.String">
+		<fieldDescription><![CDATA[TIN]]></fieldDescription>
+	</field>
+	<field name="sub_dept_name" class="java.lang.String"/>
+	<field name="sub_dept_id" class="java.lang.String"/>
+	<field name="dept_name" class="java.lang.String"/>
+	<field name="dept_id" class="java.lang.String"/>
+	<variable name="month" class="java.lang.String" resetType="Page">
+		<variableExpression><![CDATA[]]></variableExpression>
+		<initialValueExpression><![CDATA[$P{month}=="1"?"มกราคม":
+($P{month}=="2"?"กุมภาพันธ์":
+($P{month}=="3"?"มีนาคม":
+($P{month}=="4"?"เมษายน":
+($P{month}=="5"?"พฤษภาคม":
+($P{month}=="6"?"มิถุนายน":
+($P{month}=="7"?"กรกฎาคม":
+($P{month}=="8"?"สิงหาคม":
+($P{month}=="9"?"กันยายน":
+($P{month}=="10"?"ตุลาคม":
+($P{month}=="11"?"พฤศจิกายน":"ธันวาคม"))))))))))]]></initialValueExpression>
+	</variable>
+	<variable name="year" class="java.lang.String" resetType="Page">
+		<initialValueExpression><![CDATA[$P{year}]]></initialValueExpression>
+	</variable>
+	<variable name="product_cate_ids" class="java.lang.String" resetType="Page">
+		<initialValueExpression><![CDATA[$P{product_cate_ids}]]></initialValueExpression>
+	</variable>
+	<variable name="product_ids" class="java.lang.String" resetType="Page">
+		<initialValueExpression><![CDATA[$P{product_ids}]]></initialValueExpression>
+	</variable>
+	<variable name="countline" class="java.lang.Integer" resetType="Group" resetGroup="branch" calculation="Count">
+		<variableExpression><![CDATA[$V{COLUMN_NUMBER}]]></variableExpression>
+		<initialValueExpression><![CDATA[]]></initialValueExpression>
+	</variable>
+	<variable name="sum_remain_product_amount" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{remain_product_amount}]]></variableExpression>
+	</variable>
+	<group name="branch">
+		<groupExpression><![CDATA[$F{branch_id}]]></groupExpression>
+		<groupHeader>
+			<band height="123">
+				<staticText>
+					<reportElement mode="Transparent" x="0" y="97" width="36" height="26" forecolor="#000000" backcolor="#FFFFFF"/>
+					<box>
+						<topPen lineWidth="1.0"/>
+						<leftPen lineWidth="1.0"/>
+						<bottomPen lineWidth="1.0"/>
+						<rightPen lineWidth="1.0"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+						<font fontName="TH SarabunPSK" size="11" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					</textElement>
+					<text><![CDATA[ลำดับ]]></text>
+				</staticText>
+				<staticText>
+					<reportElement mode="Transparent" x="36" y="97" width="43" height="26" forecolor="#000000" backcolor="#FFFFFF"/>
+					<box>
+						<topPen lineWidth="1.0"/>
+						<leftPen lineWidth="1.0"/>
+						<bottomPen lineWidth="1.0"/>
+						<rightPen lineWidth="1.0"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+						<font fontName="TH SarabunPSK" size="11" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					</textElement>
+					<text><![CDATA[รหัสสินค้า]]></text>
+				</staticText>
+				<staticText>
+					<reportElement mode="Transparent" x="228" y="97" width="290" height="26" forecolor="#000000" backcolor="#FFFFFF"/>
+					<box>
+						<topPen lineWidth="1.0"/>
+						<leftPen lineWidth="1.0"/>
+						<bottomPen lineWidth="1.0"/>
+						<rightPen lineWidth="1.0"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+						<font fontName="TH SarabunPSK" size="11" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					</textElement>
+					<text><![CDATA[ชื่อสินค้า]]></text>
+				</staticText>
+				<staticText>
+					<reportElement mode="Transparent" x="79" y="97" width="149" height="26" forecolor="#000000" backcolor="#FFFFFF"/>
+					<box>
+						<topPen lineWidth="1.0"/>
+						<leftPen lineWidth="1.0"/>
+						<bottomPen lineWidth="1.0"/>
+						<rightPen lineWidth="1.0"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+						<font fontName="TH SarabunPSK" size="11" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					</textElement>
+					<text><![CDATA[ประเภทสินค้า]]></text>
+				</staticText>
+				<staticText>
+					<reportElement mode="Transparent" x="846" y="97" width="44" height="26" forecolor="#000000" backcolor="#FFFFFF"/>
+					<box>
+						<topPen lineWidth="1.0"/>
+						<leftPen lineWidth="1.0"/>
+						<bottomPen lineWidth="1.0"/>
+						<rightPen lineWidth="1.0"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+						<font fontName="TH SarabunPSK" size="11" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					</textElement>
+					<text><![CDATA[หน่วย]]></text>
+				</staticText>
+				<staticText>
+					<reportElement mode="Transparent" x="890" y="97" width="60" height="26" forecolor="#000000" backcolor="#FFFFFF"/>
+					<box rightPadding="5">
+						<topPen lineWidth="1.0"/>
+						<leftPen lineWidth="1.0"/>
+						<bottomPen lineWidth="1.0"/>
+						<rightPen lineWidth="1.0"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+						<font fontName="TH SarabunPSK" size="11" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					</textElement>
+					<text><![CDATA[ยอดคงเหลือ]]></text>
+				</staticText>
+				<staticText>
+					<reportElement mode="Transparent" x="950" y="97" width="47" height="26" forecolor="#000000" backcolor="#FFFFFF"/>
+					<box>
+						<topPen lineWidth="1.0"/>
+						<leftPen lineWidth="1.0"/>
+						<bottomPen lineWidth="1.0"/>
+						<rightPen lineWidth="1.0"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+						<font fontName="TH SarabunPSK" size="11" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					</textElement>
+					<text><![CDATA[Vat]]></text>
+				</staticText>
+				<staticText>
+					<reportElement mode="Transparent" x="997" y="97" width="82" height="26" forecolor="#000000" backcolor="#FFFFFF"/>
+					<box rightPadding="5">
+						<topPen lineWidth="1.0"/>
+						<leftPen lineWidth="1.0"/>
+						<bottomPen lineWidth="1.0"/>
+						<rightPen lineWidth="1.0"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+						<font fontName="TH SarabunPSK" size="11" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					</textElement>
+					<text><![CDATA[ยอดเงิน]]></text>
+				</staticText>
+				<staticText>
+					<reportElement mode="Transparent" x="1079" y="97" width="60" height="26" forecolor="#000000" backcolor="#FFFFFF"/>
+					<box rightPadding="5">
+						<topPen lineWidth="1.0"/>
+						<leftPen lineWidth="1.0"/>
+						<bottomPen lineWidth="1.0"/>
+						<rightPen lineWidth="1.0"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+						<font fontName="TH SarabunPSK" size="11" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					</textElement>
+					<text><![CDATA[ต้นทุนต่อหน่วย]]></text>
+				</staticText>
+				<staticText>
+					<reportElement mode="Transparent" x="1139" y="97" width="121" height="13" forecolor="#000000" backcolor="#FFFFFF"/>
+					<box>
+						<topPen lineWidth="1.0"/>
+						<leftPen lineWidth="1.0"/>
+						<bottomPen lineWidth="1.0"/>
+						<rightPen lineWidth="1.0"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+						<font fontName="TH SarabunPSK" size="11" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					</textElement>
+					<text><![CDATA[ว/ด/ป]]></text>
+				</staticText>
+				<staticText>
+					<reportElement mode="Transparent" x="1139" y="110" width="59" height="13" forecolor="#000000" backcolor="#FFFFFF"/>
+					<box>
+						<topPen lineWidth="1.0"/>
+						<leftPen lineWidth="1.0"/>
+						<bottomPen lineWidth="1.0"/>
+						<rightPen lineWidth="1.0"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+						<font fontName="TH SarabunPSK" size="11" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					</textElement>
+					<text><![CDATA[ซื้อล่าสุด]]></text>
+				</staticText>
+				<staticText>
+					<reportElement mode="Transparent" x="1198" y="110" width="62" height="13" forecolor="#000000" backcolor="#FFFFFF"/>
+					<box>
+						<topPen lineWidth="1.0"/>
+						<leftPen lineWidth="1.0"/>
+						<bottomPen lineWidth="1.0"/>
+						<rightPen lineWidth="1.0"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+						<font fontName="TH SarabunPSK" size="11" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					</textElement>
+					<text><![CDATA[ขายล่าสุด]]></text>
+				</staticText>
+				<staticText>
+					<reportElement mode="Transparent" x="1260" y="97" width="81" height="26" forecolor="#000000" backcolor="#FFFFFF"/>
+					<box>
+						<topPen lineWidth="1.0"/>
+						<leftPen lineWidth="1.0"/>
+						<bottomPen lineWidth="1.0"/>
+						<rightPen lineWidth="1.0"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+						<font fontName="TH SarabunPSK" size="11" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					</textElement>
+					<text><![CDATA[รหัสร้านค้า]]></text>
+				</staticText>
+				<staticText>
+					<reportElement mode="Transparent" x="1341" y="97" width="137" height="26" forecolor="#000000" backcolor="#FFFFFF"/>
+					<box>
+						<topPen lineWidth="1.0"/>
+						<leftPen lineWidth="1.0"/>
+						<bottomPen lineWidth="1.0"/>
+						<rightPen lineWidth="1.0"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+						<font fontName="TH SarabunPSK" size="11" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					</textElement>
+					<text><![CDATA[ชื่อร้านค้า]]></text>
+				</staticText>
+				<staticText>
+					<reportElement mode="Transparent" x="228" y="58" width="454" height="20" forecolor="#000000" backcolor="#FFFFFF"/>
+					<textElement textAlignment="Center" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+						<font fontName="TH SarabunPSK" size="16" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+					</textElement>
+					<text><![CDATA[รายงานสินค้าคงเหลือปลายงวด]]></text>
+				</staticText>
+				<textField pattern="" isBlankWhenNull="true">
+					<reportElement mode="Transparent" x="228" y="78" width="454" height="14" forecolor="#000000" backcolor="#FFFFFF"/>
+					<textElement textAlignment="Center" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+						<font fontName="TH SarabunPSK" size="12" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="false"/>
+					</textElement>
+					<textFieldExpression class="java.lang.String"><![CDATA["ประจำเดือน "+$V{month}+" "+$V{year}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement x="0" y="78" width="228" height="14"/>
+					<box leftPadding="7"/>
+					<textElement lineSpacing="Single">
+						<font fontName="TH SarabunPSK" size="12" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H"/>
+					</textElement>
+					<textFieldExpression class="java.lang.String"><![CDATA["Branch " + $F{branch_code}]]></textFieldExpression>
+				</textField>
+				<componentElement>
+					<reportElement key="table 2" x="0" y="17" width="228" height="41"/>
+					<jr:table xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd">
+						<datasetRun subDataset="ds_logo_and_print_date">
+							<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+						</datasetRun>
+						<jr:column width="228">
+							<jr:detailCell height="41" rowSpan="1">
+								<image>
+									<reportElement x="0" y="0" width="228" height="41"/>
+									<imageExpression class="java.lang.String"><![CDATA[$F{company_logo}]]></imageExpression>
+								</image>
+							</jr:detailCell>
+						</jr:column>
+					</jr:table>
+				</componentElement>
+				<componentElement>
+					<reportElement key="table 2" x="726" y="17" width="120" height="16"/>
+					<jr:table xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd">
+						<datasetRun subDataset="ds_logo_and_print_date">
+							<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+						</datasetRun>
+						<jr:column width="120">
+							<jr:detailCell height="16" rowSpan="1">
+								<textField pattern="dd/MM/yyyy HH:mm" isBlankWhenNull="false">
+									<reportElement positionType="Float" mode="Transparent" x="0" y="0" width="120" height="16" forecolor="#000000" backcolor="#FFFFFF"/>
+									<textElement verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+										<font fontName="TH SarabunPSK" size="12" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+									</textElement>
+									<textFieldExpression class="java.util.Date"><![CDATA[$F{print_date}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+					</jr:table>
+				</componentElement>
+				<staticText>
+					<reportElement mode="Transparent" x="682" y="17" width="44" height="16" forecolor="#000000" backcolor="#FFFFFF"/>
+					<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+						<font fontName="TH SarabunPSK" size="12" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="false"/>
+					</textElement>
+					<text><![CDATA[วันที่พิมพ์:]]></text>
+				</staticText>
+				<staticText>
+					<reportElement mode="Transparent" x="518" y="97" width="44" height="26" forecolor="#000000" backcolor="#FFFFFF"/>
+					<box>
+						<topPen lineWidth="1.0"/>
+						<leftPen lineWidth="1.0"/>
+						<bottomPen lineWidth="1.0"/>
+						<rightPen lineWidth="1.0"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+						<font fontName="TH SarabunPSK" size="11" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					</textElement>
+					<text><![CDATA[Dept ID]]></text>
+				</staticText>
+				<staticText>
+					<reportElement mode="Transparent" x="562" y="97" width="120" height="26" forecolor="#000000" backcolor="#FFFFFF"/>
+					<box>
+						<topPen lineWidth="1.0"/>
+						<leftPen lineWidth="1.0"/>
+						<bottomPen lineWidth="1.0"/>
+						<rightPen lineWidth="1.0"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+						<font fontName="TH SarabunPSK" size="11" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					</textElement>
+					<text><![CDATA[Dept Name]]></text>
+				</staticText>
+				<staticText>
+					<reportElement mode="Transparent" x="682" y="97" width="44" height="26" forecolor="#000000" backcolor="#FFFFFF"/>
+					<box>
+						<topPen lineWidth="1.0"/>
+						<leftPen lineWidth="1.0"/>
+						<bottomPen lineWidth="1.0"/>
+						<rightPen lineWidth="1.0"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+						<font fontName="TH SarabunPSK" size="11" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					</textElement>
+					<text><![CDATA[Sub Dept ID]]></text>
+				</staticText>
+				<staticText>
+					<reportElement mode="Transparent" x="726" y="97" width="120" height="26" forecolor="#000000" backcolor="#FFFFFF"/>
+					<box>
+						<topPen lineWidth="1.0"/>
+						<leftPen lineWidth="1.0"/>
+						<bottomPen lineWidth="1.0"/>
+						<rightPen lineWidth="1.0"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+						<font fontName="TH SarabunPSK" size="11" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					</textElement>
+					<text><![CDATA[Sub Dept Name]]></text>
+				</staticText>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement positionType="Float" mode="Transparent" x="228" y="0" width="454" height="17" forecolor="#000000" backcolor="#FFFFFF"/>
+					<textElement textAlignment="Center" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+						<font fontName="TH SarabunPSK" size="12" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+					</textElement>
+					<textFieldExpression class="java.lang.String"><![CDATA[$F{company_name}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+					<reportElement positionType="Float" mode="Transparent" x="228" y="17" width="454" height="41" forecolor="#000000" backcolor="#FFFFFF"/>
+					<textElement textAlignment="Center" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="html">
+						<font fontName="TH SarabunPSK" size="11" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+					</textElement>
+					<textFieldExpression class="java.lang.String"><![CDATA[$F{head}]]></textFieldExpression>
+				</textField>
+			</band>
+		</groupHeader>
+	</group>
+	<detail>
+		<band height="13">
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" x="1341" y="0" width="137" height="13" isPrintWhenDetailOverflows="true"/>
+				<textElement lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="11"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{vender_name}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" x="1260" y="0" width="81" height="13" isPrintWhenDetailOverflows="true"/>
+				<textElement lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="11"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{vender_code}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" mode="Transparent" x="0" y="0" width="36" height="13" isPrintWhenDetailOverflows="true" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Center" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="11" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+				</textElement>
+				<textFieldExpression class="java.lang.Integer"><![CDATA[$V{countline}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" mode="Transparent" x="846" y="0" width="44" height="13" isPrintWhenDetailOverflows="true" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="11" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{uom_name}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" mode="Transparent" x="228" y="0" width="290" height="13" isPrintWhenDetailOverflows="true" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Left" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="11" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{product_name}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" mode="Transparent" x="890" y="0" width="60" height="13" isPrintWhenDetailOverflows="true" forecolor="#000000" backcolor="#FFFFFF"/>
+				<box rightPadding="5"/>
+				<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="11" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+				</textElement>
+				<textFieldExpression class="java.lang.Integer"><![CDATA[$F{remain_product_qty}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" mode="Transparent" x="997" y="0" width="82" height="13" isPrintWhenDetailOverflows="true" forecolor="#000000" backcolor="#FFFFFF"/>
+				<box rightPadding="5"/>
+				<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="11" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+				</textElement>
+				<textFieldExpression class="java.lang.Double"><![CDATA[$F{remain_product_amount}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" mode="Transparent" x="1079" y="0" width="60" height="13" isPrintWhenDetailOverflows="true" forecolor="#000000" backcolor="#FFFFFF"/>
+				<box rightPadding="5"/>
+				<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="11" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+				</textElement>
+				<textFieldExpression class="java.lang.Double"><![CDATA[$F{product_average_price}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="dd/MM/yyyy" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" mode="Transparent" x="1198" y="0" width="62" height="13" isPrintWhenDetailOverflows="true" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Center" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="11" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+				</textElement>
+				<textFieldExpression class="java.util.Date"><![CDATA[$F{sales_date}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="dd/MM/yyyy" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" mode="Transparent" x="1139" y="0" width="59" height="13" isPrintWhenDetailOverflows="true" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Center" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="11" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+				</textElement>
+				<textFieldExpression class="java.util.Date"><![CDATA[$F{purchase_date}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" mode="Transparent" x="79" y="0" width="149" height="13" isPrintWhenDetailOverflows="true" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="11" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{category_name}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" mode="Transparent" x="36" y="0" width="43" height="13" isPrintWhenDetailOverflows="true" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Center" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="11" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{default_code}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" x="950" y="0" width="47" height="13" isPrintWhenDetailOverflows="true"/>
+				<textElement textAlignment="Center" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="11" pdfFontName="/usr/share/fonts/truetype/THSarabun.ttf" pdfEncoding="Identity-H"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{vat}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" mode="Transparent" x="518" y="0" width="44" height="13" isPrintWhenDetailOverflows="true" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Center" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="11" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{dept_id}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" mode="Transparent" x="562" y="0" width="120" height="13" isPrintWhenDetailOverflows="true" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="11" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{dept_name}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" mode="Transparent" x="682" y="0" width="44" height="13" isPrintWhenDetailOverflows="true" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Center" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="11" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{sub_dept_id}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToTallestObject" mode="Transparent" x="726" y="0" width="120" height="13" isPrintWhenDetailOverflows="true" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="11" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{sub_dept_name}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<summary>
+		<band height="13">
+			<staticText>
+				<reportElement x="950" y="0" width="47" height="13"/>
+				<textElement lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="11" isBold="true"/>
+				</textElement>
+				<text><![CDATA[รวมต้นทุน]]></text>
+			</staticText>
+			<textField pattern="#,##0.00" isBlankWhenNull="false">
+				<reportElement mode="Transparent" x="997" y="0" width="82" height="13" forecolor="#000000" backcolor="#FFFFFF"/>
+				<box rightPadding="5">
+					<bottomPen lineWidth="1.0" lineStyle="Double"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="11" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{sum_remain_product_amount}]]></textFieldExpression>
+			</textField>
+		</band>
+	</summary>
+	<noData>
+		<band height="20">
+			<staticText>
+				<reportElement x="0" y="0" width="1478" height="20"/>
+				<textElement textAlignment="Center" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="14" isBold="true"/>
+				</textElement>
+				<text><![CDATA[No Data]]></text>
+			</staticText>
+		</band>
+	</noData>
+</jasperReport>

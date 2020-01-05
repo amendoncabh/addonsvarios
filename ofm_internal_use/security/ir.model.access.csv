@@ -1,0 +1,9 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+
+internal_use,internal use,model_internal_use,stock.group_stock_manager,1,1,1,1
+internal_use_line,internal use line,model_internal_use_line,stock.group_stock_manager,1,1,1,1
+
+
+
+
+

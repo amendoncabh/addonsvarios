@@ -1,0 +1,8 @@
+.oe_header_bold{
+    font-weight: bold !important;
+    font-size: large !important;
+  }
+
+  .oe_header_nonbold{
+    font-size: large !important;
+  }

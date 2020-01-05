@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="tr_account_payment_method_view_tree_inherit" model="ir.ui.view">
+            <field name="name">Payment Method</field>
+            <field name="model">account.payment.method.multi</field>
+            <field name="inherit_id" ref="account_payment_method.tr_account_payment_method_view_tree"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='account_payment_method_id']" position="attributes">
+                    <attribute name="options">{
+                        'no_quick_create': True,
+                        'no_create_edit': True,
+                        'no_open': True
+                    }
+                    </attribute>
+                </xpath>
+                <xpath expr="//field[@name='property_account_payment_method_id']" position="attributes">
+                    <attribute name="options">{
+                        'no_quick_create': True,
+                        'no_create_edit': True,
+                        'no_open': True
+                    }
+                    </attribute>
+                </xpath>
+                <xpath expr="//field[@name='type']" position="after">
+                    <field name="journal_id"/>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

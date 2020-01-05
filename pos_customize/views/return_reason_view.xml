@@ -1,0 +1,51 @@
+<?xml version="1.0"?>
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_return_reason_form">
+            <field name="name">return.reason.form</field>
+            <field name="model">return.reason</field>
+            <field name="arch" type="xml">
+                <form string="Return Reason">
+                    <div class="oe_title">
+                        <label class="oe_edit_only" for="name" string="Return Reason"/>
+                    </div>
+                    <group>
+                        <field name="name" />
+                        <field name="model" />
+                    </group>
+                </form>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="view_return_reason_tree">
+            <field name="name">return.reason.tree</field>
+            <field name="model">return.reason</field>
+            <field name="arch" type="xml">
+                <tree string="Return Reason">
+                    <field name="name" />
+                    <field name="model" />
+                </tree>
+            </field>
+        </record>
+
+        <record model="ir.actions.act_window" id="action_return_reason_form">
+            <field name="name">Return Reason</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">return.reason</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="help" type="html">
+                <p class="oe_view_nocontent_create">
+                    Click to create a return reason.
+                </p>
+            </field>
+        </record>
+
+        <menuitem
+            parent="stock.menu_stock_config_settings"
+            action="action_return_reason_form"
+            id="menu_return_reason"
+            sequence="80"/>
+
+    </data>
+</odoo>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+        <record id="view_account_journal_pos_user_form" model="ir.ui.view">
+            <field name="name">account.journal.pos.user.form.inherit</field>
+            <field name="model">account.journal</field>
+            <field name="inherit_id" ref="account.view_account_journal_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='amount_authorized_diff']" position="after">
+                    <field name="flag_change"/>
+                </xpath>
+
+                <xpath expr="//field[@name='default_credit_account_id']" position="after">
+                    <field name="default_credit_rounding_account_id"/>
+                    <field name="default_debit_rounding_account_id"/>
+                </xpath>
+
+            </field>
+        </record>
+</odoo>

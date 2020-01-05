@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_receive_payment_approval_form" model="ir.ui.view">
+        <field name="name">receive.payment.approval.form</field>
+        <field name="model">receive.payment.approval</field>
+        <field name="arch" type="xml">
+
+            <form>
+                <group>
+                    <field
+                            name="return_reason_id"
+                            readonly="1"
+                            options="{
+                               'no_quick_create': True,
+                               'no_create_edit': True,
+                               'no_open': True
+                           }"
+                    />
+                    <field
+                            name="manager_id"
+                            options="{
+                               'no_quick_create': True,
+                               'no_create_edit': True,
+                               'no_open': True
+                           }"
+                    />
+                    <field
+                            name="pos_security_pin"
+                            widget="allow_number"
+                            password="1"
+                    />
+                </group>
+                <footer>
+                    <button name="action_post" string="Post" type="object" class="btn-primary"/>
+                    <button string="Cancel" class="btn-default" special="cancel"/>
+                </footer>
+            </form>
+
+        </field>
+    </record>
+</odoo>

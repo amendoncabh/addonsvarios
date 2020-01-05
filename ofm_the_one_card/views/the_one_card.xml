@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+
+        <template id="assets" inherit_id="point_of_sale.assets">
+            <xpath expr="." position="inside">
+                <script type="text/javascript" src="/ofm_the_one_card/static/src/js/load_models.js"/>
+                <script type="text/javascript" src="/ofm_the_one_card/static/src/js/api_request.js"/>
+                <script type="text/javascript" src="/ofm_the_one_card/static/src/js/the_one_card.js"/>
+                <script type="text/javascript" src="/ofm_the_one_card/static/src/js/t1cc_cash_coupon.js"/>
+                <script type="text/javascript" src="/ofm_the_one_card/static/src/js/t1c_otp.js"/>
+                <script type="text/javascript" src="/ofm_the_one_card/static/src/js/t1ac_ecash_coupon.js"/>
+                <script type="text/javascript" src="/ofm_the_one_card/static/src/js/t1cp_redeem_tender.js"/>
+                <script type="text/javascript" src="/ofm_the_one_card/static/src/js/t1c_payment_screen.js"/>
+            </xpath>
+
+            <xpath expr="//link[@id='pos-stylesheet']" position="after">
+                <link rel="stylesheet" href="/ofm_the_one_card/static/src/css/the_one_card.css"/>
+            </xpath>
+        </template>
+
+    </data>
+</openerp>

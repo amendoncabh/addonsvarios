@@ -1,0 +1,1236 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.8.0.final using JasperReports Library version 4.0.0  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="daily_summary_franchise" language="groovy" pageWidth="1544" pageHeight="500" whenNoDataType="NoDataSection" columnWidth="1204" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" isIgnorePagination="true">
+	<property name="ireport.zoom" value="2.0"/>
+	<property name="ireport.x" value="791"/>
+	<property name="ireport.y" value="0"/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="ofm_live_20191209"/>
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<parameter name="end_date" class="java.lang.String"/>
+	<parameter name="company_id" class="java.lang.String">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<parameter name="branch_id" class="java.lang.String">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<parameter name="start_date" class="java.lang.String">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[with temp_daily_summary_franchise as (
+				select
+					dsf.id,
+					company_id,
+					branch_id,
+					date
+				from
+					daily_summary_franchise dsf /* Parameter */
+				where
+					(company_id = $P{company_id}::integer or coalesce($P{company_id}, '') = '')
+					and (branch_id = $P{branch_id}::integer or COALESCE($P{branch_id}, '') = '')
+					and (date + interval '7 hours')::date between $P{start_date}::date and $P{end_date}::date
+					and state != 'cancel'
+					and is_backdate = false 
+					),
+temp_kerry_cash as (
+				select
+					dsfl.session_no_and_so as order_no,
+					coalesce('') as ref_order_no,
+					branch_id,
+					company_id,
+					date,
+					round(dsfl.total::decimal, 2) as sub_total,
+					0.00 as discount_by_sor,
+					0.00 as discount_by_see,
+					0.00 as delivery_fee,
+					round(dsfl.total::decimal, 2) as total,
+					round(dsfl.total::decimal, 2) as bank_transfer
+				from
+					daily_summary_franchise dsf
+				inner join daily_summary_franchise_line dsfl on dsf.id = dsfl.daily_summary_franchise_id /* Parameter */
+				where
+					(company_id = $P{company_id}::integer or coalesce($P{company_id}, '') = '')
+					and (branch_id = $P{branch_id}::integer or COALESCE($P{branch_id}, '') = '')
+					and (date + interval '7 hours')::date between $P{start_date}::date and $P{end_date}::date
+					and state != 'cancel'
+					and is_backdate = false
+					and dsfl.session_no_and_so ilike '%Kerry%'
+					),
+temp_delivery_fee as (
+					select
+						sum(sol.price_unit * sol.product_uom_qty) as amount_delivery_fee,
+						sol.order_id
+					from
+						sale_order_line sol
+					inner join account_invoice ai on
+						ai.so_id = sol.order_id
+					where
+						ai.parent_invoice_id is null
+						and ai.type = 'out_refund'
+						and (sol.is_type_delivery_special = true
+						or
+						-- special place
+					 sol.is_type_delivery_by_order = true)
+						-- depend on type sale ofm such as true : <499 False
+					group by order_id 
+					),
+temp_so_kerry as (
+					select
+						so.id as so_id,
+						coalesce(sum(sol.price_total), 0.0) as kerry_price_total
+					from
+						sale_order so
+					inner join sale_order_line sol on
+						sol.order_id = so.id
+					inner join product_product pp on
+						pp.id = sol.product_id
+					inner join product_template prt on
+						pp.product_tmpl_id = prt.id
+						and prt.type = 'service'
+					where
+						pp.default_code ilike 'KE%'
+					group by
+						so.id
+	),
+temp_pos_kerry as (
+				select
+					pos.id as pos_id,
+					coalesce(sum(posl.price_subtotal_incl), 0.0) as kerry_price_total
+				from
+					pos_order pos
+				inner join pos_order_line posl on
+					posl.order_id = pos.id
+				inner join product_product pp on
+					pp.id = posl.product_id
+				inner join product_template prt on
+					pp.product_tmpl_id = prt.id
+					and prt.type = 'service'
+				where
+					pp.default_code ilike 'KE%'
+				group by
+					pos.id
+	),
+temp_bank_cash as (
+			select
+				abl.pos_statement_id as pos_id,
+				coalesce(sum(abl.amount), 0.0) as total_cash
+			from
+				account_bank_statement_line abl
+			inner join (
+				select
+					aj.*
+				from
+					account_journal aj
+				left join redeem_type re on aj.redeem_type_id = re.id
+				where
+					aj.type = 'cash'
+					and (re.id is null) or (re.id is not null and re.is_bank_transfer = true) ) ajn on
+				abl.journal_id = ajn.id
+			group by
+				pos_id 
+	
+	),
+temp_deposit_cash as (
+				select
+					dep.sale_id as sale_id,
+					coalesce(sum(adl.paid_total), 0.0) as total_cash
+				from
+					account_deposit dep
+				inner join account_deposit_payment_line adl on
+					dep.id = adl.payment_id
+				inner join (
+					select
+						aj.*
+					from
+						account_journal aj
+					left join redeem_type re on aj.redeem_type_id = re.id
+					where
+						aj.type = 'cash'
+						and (re.id is null) or (re.id is not null and re.is_bank_transfer = true) ) ajn on
+					adl.journal_id = ajn.id
+				where dep.state not in ('draft', 'cancel')
+				group by
+					sale_id 
+	),
+temp_inv_cash as (
+				select
+					ail.invoice_id as inv_id,
+					coalesce(sum(paid_total), 0.0) as total_cash
+				from
+					account_invoice_payment_line ail
+				inner join account_payment_line apl on
+					apl.payment_id = ail.payment_id
+				inner join account_payment_method_multi apmm on
+					apmm.id = apl.payment_method_id
+				inner join (
+					select
+						aj.*
+					from
+						account_journal aj
+					left join redeem_type re on aj.redeem_type_id = re.id
+					where
+						aj.type = 'cash'
+						and (re.id is null) or (re.id is not null and re.is_bank_transfer = true) ) ajn on
+					apmm.journal_id = ajn.id
+				group by
+					inv_id 
+	),
+temp_so as ( 
+		select
+			s_sod.id,
+			inv.state,
+			case when sale_payment_type = 'deposit' then coalesce(dep.name, inv.number, '')
+			else coalesce(inv.number, s_sod.name, '') 
+			end as so_name,
+			coalesce('') as ref_no,
+			s_sod.company_id as company_id,
+			s_sod.branch_id as branch_id,
+			s_sod.so_date_order as date,
+			before_discount as sub_total,
+			(
+			select
+				case
+					when sum(l.price_unit) is not null then sum(l.price_unit)
+					else 0
+				end
+			from
+				sale_order_line l
+			where
+				l.order_id = s_sod.id
+				and l.reward_type = 'discount'
+				and l.promotion = true
+				and l.is_type_discount_f_see = false
+				and l.free_product_id is null ) as discount_by_sor,
+		 	amount_discount_by_order*(-1) as discount_by_see,
+			amount_delivery_fee_special + amount_delivery_fee_by_order + coalesce(kr.kerry_price_total, 0.0) as delivery_fee,
+			s_sod.amount_total as total,
+			case
+				when sale_payment_type = 'credit' then s_sod.amount_total - (amount_delivery_fee_special + amount_delivery_fee_by_order + coalesce(kr.kerry_price_total, 0.0)) + amount_discount_by_order
+				else (case when type_sale_ofm = True then s_sod.amount_total 
+						else dc.total_cash - (amount_delivery_fee_special + amount_delivery_fee_by_order + coalesce(kr.kerry_price_total, 0.0)) + amount_discount_by_order
+					end)
+			end as bank_transfer
+		from sale_order s_sod
+		inner join temp_deposit_cash dc on
+			dc.sale_id = s_sod.id
+		left join temp_so_kerry kr on
+			kr.so_id = s_sod.id
+		left join ( select name,sale_id 
+					 from account_deposit
+					 where state not in ('draft','cancel')
+					 ) dep on  dep.sale_id = s_sod.id
+		left join ( select number,so_id,state
+					from account_invoice
+					where type = 'out_invoice'
+					and state in ('open', 'paid')
+					) inv on inv.so_id = s_sod.id  
+		where (s_sod.so_date_order + interval '7 hours')::date between $P{start_date}::date and $P{end_date}::date
+		order by s_sod.id
+
+	),
+temp_pos_discount_by_sor as (
+				select
+					l.order_id as pos_id,
+					case
+						when sum(l.price_subtotal_wo_discount_incl) is not null then sum(l.price_subtotal_wo_discount_incl)
+						else 0
+					end as discount_by_sor
+				from
+					pos_order_line l
+				where
+					l.reward_type = 'discount'
+					and l.promotion = true
+					and l.free_product_id is null
+				group by l.order_id 
+),
+temp_pos as (
+			select
+				pos.id as pos_id,
+				coalesce(pos.inv_no, '') as pos_name,
+				coalesce(return_pod.inv_no, '') as ref_no,
+				dsf.company_id as company_id,
+				dsf.branch_id as branch_id,
+				dsf.date as date,
+				coalesce(pos.before_discount,pos.amount_total - coalesce(kr.kerry_price_total, 0.0) + coalesce(psor.discount_by_sor, 0.0), 0.0) as sub_total,
+				coalesce(psor.discount_by_sor, 0.0) as discount_by_sor,
+				0 as discount_by_see,
+				coalesce(kr.kerry_price_total, 0.0) as delivery_fee,
+				pos.amount_total as total,
+				coalesce(bc.total_cash, 0.0) as bank_transfer
+			from
+				pos_order pos
+			left join pos_order return_pod on
+				pos.return_order_id = return_pod.id
+			inner join temp_daily_summary_franchise dsf on
+				dsf.id = pos.daily_summary_franchise_id
+			left join temp_bank_cash bc on
+				bc.pos_id = pos.id
+			left join temp_pos_discount_by_sor psor on
+				psor.pos_id = pos.id
+			left join temp_pos_kerry kr on
+				kr.pos_id = pos.id
+	
+	),
+temp_cn as (
+			select
+				so.id as so_id,
+				so.sale_payment_type,
+				cn.id as cn_id,
+				cn.number as cn_name,
+				case when inv.number is not null then inv.number
+				else coalesce('') end as ref_no,
+				cn.company_id as company_id,
+				cn.branch_id as branch_id,
+				cn.date_invoice as date,
+				cn.parent_invoice_id as cn_parent_invoice_id,
+				cn.state,
+				cn.amount_total_signed
+			from
+				account_invoice cn
+			inner join (
+				select
+					id,
+					sale_payment_type,
+					branch_id
+				from
+					sale_order ) so on
+				so.id = cn.so_id
+			left join account_invoice inv on inv.id = cn.parent_invoice_id
+			where (cn.date_invoice + interval '7 hours')::date between $P{start_date}::date and $P{end_date}::date
+				and cn.type = ('out_refund')
+),
+temp_cn_total as (
+select
+	cn_id,
+	cn_name,
+	ref_no,
+	company_id,
+	branch_id,
+	date,
+	sum(cnl_subtotal)*(-1) as sub_total,
+	sum(cnl_disc_sor) as discount_by_sor,
+	sum(cnl_disc_see) as discount_by_see,
+	sum(delivery_fee)*(-1) as delivery_fee,
+	sum(total) as total,
+	sum(bank_transfer - cnl_disc_see + delivery_fee) as bank_transfer
+from
+	(
+	select
+		cn_id,
+		cn_name,
+		ref_no,
+		cn.company_id as company_id,
+		cn.branch_id as branch_id,
+		cn.date as date,
+		cnl.cnl_subtotal as cnl_subtotal,
+		cnl.cnl_disc_sor as cnl_disc_sor,
+		cnl.cnl_disc_see as cnl_disc_see,
+		0 as delivery_fee,
+		round(cn.amount_total_signed,2) as total,
+		round(cn.amount_total_signed,2) as bank_transfer,
+		true as is_cash
+	from
+		temp_cn cn
+	inner join (
+		select
+			amount_subtotal as cnl_subtotal,
+			prorate_amount - prorate_amount_2 as cnl_disc_sor,
+			prorate_amount_2 as cnl_disc_see,
+			prorate_amount as prorate_amount,
+			is_type_discount_f_see,
+			free_product_id,
+			promotion,
+			invoice_id
+		from
+			account_invoice_line) cnl on
+		cnl.invoice_id = cn.cn_id
+		and cnl.promotion = false
+		and cnl.is_type_discount_f_see = false
+		and cnl.free_product_id is null
+	where
+		cn.sale_payment_type = 'credit'
+union
+	select
+		cn_id,
+		cn_name,
+		ref_no,
+		cn.company_id as company_id,
+		cn.branch_id as branch_id,
+		cn.date as date,
+		cnl.cnl_subtotal as cnl_subtotal,
+		cnl.cnl_disc_sor as cnl_disc_sor,
+		cnl.cnl_disc_see as cnl_disc_see,
+		0 as delivery_fee,
+		round(cn.amount_total_signed,2) as total,
+		coalesce(round(inc.total_cash::DECIMAL,2), 0.0) as bank_transfer,
+		case
+			when coalesce(inc.total_cash, 0.0) = 0 then false
+			else true
+		end as is_cash
+	from
+		temp_cn cn
+	left join temp_inv_cash inc on
+		inc.inv_id = cn.cn_id
+	inner join (
+		select
+			amount_subtotal as cnl_subtotal,
+			prorate_amount - prorate_amount_2 as cnl_disc_sor,
+			prorate_amount_2 as cnl_disc_see,
+			prorate_amount as prorate_amount,
+			is_type_discount_f_see,
+			free_product_id,
+			promotion,
+			invoice_id
+		from
+			account_invoice_line ) cnl on
+		cnl.invoice_id = cn.cn_id
+		and cnl.promotion = false
+		and cnl.is_type_discount_f_see = false
+		and cnl.free_product_id is null
+	where
+		cn.sale_payment_type in ('cash',
+		'deposit')
+		and cn.state = 'paid'
+union
+	select
+		cn_id,
+		cn_name,
+		ref_no,
+		cn.company_id as company_id,
+		cn.branch_id as branch_id,
+		cn.date as date,
+		adl.paid_total as cnl_subtotal,
+		sol_disc_sor as cnl_disc_sor,
+		sol_disc_see as cnl_disc_see,		
+		coalesce(dfee.amount_delivery_fee,0) as delivery_fee,
+		round(amount_total_signed,2) as total,
+		abs(round(dc.total_cash::DECIMAL,2))*-1 as bank_transfer,
+		case
+			when dc.total_cash = 0 then false
+			else true
+		end as is_cash
+	from
+		temp_cn cn
+	inner join (
+		select
+			order_id,
+			product_id,
+			free_product_id,
+			is_line_discount_delivery_promotion,
+			is_type_delivery_special,
+			is_type_delivery_by_order,
+			is_type_discount_f_see,
+			prorate_amount_2 as sol_disc_see,
+			prorate_amount as sol_disc_all,
+			prorate_amount - prorate_amount_2 as sol_disc_sor,
+			product_uom_qty
+		from
+			sale_order_line ) sol on
+		sol.order_id = cn.so_id
+		and sol.is_line_discount_delivery_promotion = false
+		and sol.is_type_delivery_special = false
+		and sol.is_type_delivery_by_order = false
+		and sol.is_type_discount_f_see = false
+		and sol.free_product_id is null
+	inner join (
+		select
+			id,
+			name,
+			sale_id
+		from
+			account_deposit ) dep on
+		dep.sale_id = cn.so_id
+	inner join account_deposit_payment_line adl on
+		dep.id = adl.payment_id
+	left join temp_deposit_cash dc on
+		dc.sale_id = cn.so_id
+	left join temp_delivery_fee dfee on
+		dfee.order_id = so_id
+	where
+		cn.sale_payment_type in ('deposit')
+		and cn.state = 'paid'
+		and cn_parent_invoice_id is null ) cn_total
+where
+	is_cash = true
+group by
+	cn_id,
+	cn_name,
+	ref_no,
+	company_id,
+	branch_id,
+	date)
+select rcn.name as company,
+       pob.branch_code as store_code,
+       pob.branch_name as store_name,
+       result.date,
+       result.order_no,
+       result.ref_order_no,
+       result.sub_total,
+       result.discount_by_sor,
+       result.discount_by_see,
+       result.delivery_fee,
+       result.total,
+       result.bank_transfer,
+       result.delivery_fee
+from (
+	select
+	cn_name as order_no,
+	ref_no as ref_order_no,
+	branch_id,
+	company_id,
+	date,
+	sub_total,
+	discount_by_sor,
+    discount_by_see,
+    delivery_fee,
+    round(total,2) as total,
+    round(bank_transfer::DECIMAL,2) as bank_transfer
+from
+	temp_cn_total cn
+union 
+select
+	so_name as order_no,
+	ref_no as ref_order_no,
+	branch_id,
+	company_id,
+	date,
+	sub_total,
+	discount_by_sor,
+    discount_by_see,
+    delivery_fee,
+    round(total,2) as total,
+    round(bank_transfer::DECIMAL,2) as bank_transfer
+from
+	temp_so so
+union select
+	pos_name as order_no,
+	ref_no as ref_order_no,
+	branch_id,
+	company_id,
+	date,
+	sub_total,
+	discount_by_sor,
+    discount_by_see,
+    delivery_fee,
+    round(total,2) as total,
+    round(bank_transfer,2) as bank_transfer
+from
+	temp_pos pos
+union
+select
+	order_no,
+	ref_order_no,
+	branch_id,
+	company_id,
+	date,
+	sub_total,
+	discount_by_sor,
+	discount_by_see,
+	delivery_fee,
+	total,
+	bank_transfer
+from
+	temp_kerry_cash
+) result
+inner join (
+	select *
+	from pos_branch 
+	where (id = $P{branch_id}::integer or COALESCE($P{branch_id}, '') = '')
+)pob on pob.id = result.branch_id
+inner join (
+	select *
+	from res_company
+	where (id = $P{company_id}::integer or coalesce($P{company_id}, '') = '')
+)rcn on rcn.id = result.company_id
+order by result.date,
+         rcn.id,
+         pob.id,
+		 result.order_no,
+		 result.ref_order_no]]>
+	</queryString>
+	<field name="company" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="company"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="res_company"/>
+	</field>
+	<field name="store_code" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="store_code"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="pos_branch"/>
+		<fieldDescription><![CDATA[Store Code]]></fieldDescription>
+	</field>
+	<field name="store_name" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="store_name"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="pos_branch"/>
+		<fieldDescription><![CDATA[Store Name]]></fieldDescription>
+	</field>
+	<field name="date" class="java.sql.Timestamp">
+		<property name="com.jaspersoft.studio.field.label" value="date"/>
+		<fieldDescription><![CDATA[Date]]></fieldDescription>
+	</field>
+	<field name="order_no" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="order_no"/>
+	</field>
+	<field name="ref_order_no" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.label" value="ref_order_no"/>
+	</field>
+	<field name="sub_total" class="java.lang.Double">
+		<property name="com.jaspersoft.studio.field.label" value="sub_total"/>
+		<fieldDescription><![CDATA[Sub Total]]></fieldDescription>
+	</field>
+	<field name="discount_by_sor" class="java.lang.Double">
+		<property name="com.jaspersoft.studio.field.label" value="discount_by_sor"/>
+		<fieldDescription><![CDATA[Discount by Sor]]></fieldDescription>
+	</field>
+	<field name="discount_by_see" class="java.lang.Double">
+		<property name="com.jaspersoft.studio.field.label" value="discount_by_see"/>
+		<fieldDescription><![CDATA[Discount by See]]></fieldDescription>
+	</field>
+	<field name="delivery_fee" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.label" value="delivery_fee"/>
+		<fieldDescription><![CDATA[Delivery Fee]]></fieldDescription>
+	</field>
+	<field name="total" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.label" value="total"/>
+		<fieldDescription><![CDATA[Total]]></fieldDescription>
+	</field>
+	<field name="bank_transfer" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.label" value="bank_transfer"/>
+		<fieldDescription><![CDATA[Bank Transfer]]></fieldDescription>
+	</field>
+	<field name="COLUMN_13" class="java.math.BigDecimal">
+		<property name="com.jaspersoft.studio.field.label" value="delivery_fee"/>
+	</field>
+	<variable name="row_no" class="java.lang.Integer">
+		<variableExpression><![CDATA[$V{COLUMN_COUNT}]]></variableExpression>
+	</variable>
+	<variable name="sum_sub_total" class="java.math.BigDecimal" resetType="Group" resetGroup="group_date" calculation="Sum">
+		<variableExpression><![CDATA[$F{sub_total}]]></variableExpression>
+	</variable>
+	<variable name="sum_discount_by_sor" class="java.math.BigDecimal" resetType="Group" resetGroup="group_date" calculation="Sum">
+		<variableExpression><![CDATA[$F{discount_by_sor}]]></variableExpression>
+	</variable>
+	<variable name="sum_discount_by_see" class="java.math.BigDecimal" resetType="Group" resetGroup="group_date" calculation="Sum">
+		<variableExpression><![CDATA[$F{discount_by_see}]]></variableExpression>
+	</variable>
+	<variable name="sum_delivery_fee" class="java.math.BigDecimal" resetType="Group" resetGroup="group_date" calculation="Sum">
+		<variableExpression><![CDATA[$F{delivery_fee}]]></variableExpression>
+	</variable>
+	<variable name="sum_total" class="java.math.BigDecimal" resetType="Group" resetGroup="group_date" calculation="Sum">
+		<variableExpression><![CDATA[$F{total}]]></variableExpression>
+	</variable>
+	<variable name="sum_bank_transfer" class="java.math.BigDecimal" resetType="Group" resetGroup="group_date" calculation="Sum">
+		<variableExpression><![CDATA[$F{bank_transfer}]]></variableExpression>
+	</variable>
+	<group name="group_date">
+		<groupExpression><![CDATA[$F{date}]]></groupExpression>
+		<groupHeader>
+			<band height="20">
+				<textField isStretchWithOverflow="true" pattern="" isBlankWhenNull="true">
+					<reportElement stretchType="RelativeToBandHeight" x="0" y="0" width="1443" height="20"/>
+					<box>
+						<topPen lineWidth="0.5" lineColor="#CCCCCC"/>
+						<leftPen lineWidth="0.5" lineColor="#CCCCCC"/>
+						<bottomPen lineWidth="0.5" lineColor="#CCCCCC"/>
+						<rightPen lineWidth="0.5" lineColor="#CCCCCC"/>
+					</box>
+					<textElement lineSpacing="Single">
+						<font fontName="TH SarabunPSK" size="12" isBold="false"/>
+					</textElement>
+					<textFieldExpression class="java.lang.String"><![CDATA[" วันที่ " +new SimpleDateFormat("dd/MM/yyyy").format($F{date})]]></textFieldExpression>
+				</textField>
+			</band>
+		</groupHeader>
+		<groupFooter>
+			<band height="20">
+				<textField isStretchWithOverflow="true" pattern="#,##0.00;-#,##0.00" isBlankWhenNull="true">
+					<reportElement stretchType="RelativeToBandHeight" x="813" y="0" width="100" height="20">
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+						<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					</reportElement>
+					<box>
+						<topPen lineWidth="0.5" lineColor="#CCCCCC"/>
+						<leftPen lineWidth="0.5" lineColor="#CCCCCC"/>
+						<bottomPen lineWidth="0.5" lineColor="#CCCCCC"/>
+						<rightPen lineWidth="0.5" lineColor="#CCCCCC"/>
+					</box>
+					<textElement textAlignment="Right" lineSpacing="Single">
+						<font fontName="TH SarabunPSK" size="12" isBold="true"/>
+					</textElement>
+					<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{sum_sub_total}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" pattern="#,##0.00;-#,##0.00" isBlankWhenNull="true">
+					<reportElement stretchType="RelativeToBandHeight" x="913" y="0" width="110" height="20">
+						<property name="com.jaspersoft.studio.unit.x" value="px"/>
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					</reportElement>
+					<box>
+						<topPen lineWidth="0.5" lineColor="#CCCCCC"/>
+						<leftPen lineWidth="0.5" lineColor="#CCCCCC"/>
+						<bottomPen lineWidth="0.5" lineColor="#CCCCCC"/>
+						<rightPen lineWidth="0.5" lineColor="#CCCCCC"/>
+					</box>
+					<textElement textAlignment="Right" lineSpacing="Single">
+						<font fontName="TH SarabunPSK" size="12" isBold="true"/>
+					</textElement>
+					<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{sum_discount_by_sor}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" pattern="#,##0.00;-#,##0.00" isBlankWhenNull="true">
+					<reportElement stretchType="RelativeToBandHeight" x="1023" y="0" width="110" height="20">
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+						<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					</reportElement>
+					<box>
+						<topPen lineWidth="0.5" lineColor="#CCCCCC"/>
+						<leftPen lineWidth="0.5" lineColor="#CCCCCC"/>
+						<bottomPen lineWidth="0.5" lineColor="#CCCCCC"/>
+						<rightPen lineWidth="0.5" lineColor="#CCCCCC"/>
+					</box>
+					<textElement textAlignment="Right" lineSpacing="Single">
+						<font fontName="TH SarabunPSK" size="12" isBold="true"/>
+					</textElement>
+					<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{sum_discount_by_see}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" pattern="#,##0.00;-#,##0.00" isBlankWhenNull="true">
+					<reportElement stretchType="RelativeToBandHeight" x="1133" y="0" width="90" height="20">
+						<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					</reportElement>
+					<box>
+						<topPen lineWidth="0.5" lineColor="#CCCCCC"/>
+						<leftPen lineWidth="0.5" lineColor="#CCCCCC"/>
+						<bottomPen lineWidth="0.5" lineColor="#CCCCCC"/>
+						<rightPen lineWidth="0.5" lineColor="#CCCCCC"/>
+					</box>
+					<textElement textAlignment="Right" lineSpacing="Single">
+						<font fontName="TH SarabunPSK" size="12" isBold="true"/>
+					</textElement>
+					<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{sum_delivery_fee}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" pattern="#,##0.00;-#,##0.00" isBlankWhenNull="true">
+					<reportElement stretchType="RelativeToBandHeight" x="1223" y="0" width="110" height="20">
+						<property name="com.jaspersoft.studio.unit.x" value="px"/>
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					</reportElement>
+					<box>
+						<topPen lineWidth="0.5" lineColor="#CCCCCC"/>
+						<leftPen lineWidth="0.5" lineColor="#CCCCCC"/>
+						<bottomPen lineWidth="0.5" lineColor="#CCCCCC"/>
+						<rightPen lineWidth="0.5" lineColor="#CCCCCC"/>
+					</box>
+					<textElement textAlignment="Right" lineSpacing="Single">
+						<font fontName="TH SarabunPSK" size="12" isBold="true"/>
+					</textElement>
+					<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{sum_total}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true" pattern="#,##0.00;-#,##0.00" isBlankWhenNull="true">
+					<reportElement stretchType="RelativeToBandHeight" x="1333" y="0" width="110" height="20">
+						<property name="com.jaspersoft.studio.unit.x" value="px"/>
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					</reportElement>
+					<box>
+						<topPen lineWidth="0.5" lineColor="#CCCCCC"/>
+						<leftPen lineWidth="0.5" lineColor="#CCCCCC"/>
+						<bottomPen lineWidth="0.5" lineColor="#CCCCCC"/>
+						<rightPen lineWidth="0.5" lineColor="#CCCCCC"/>
+					</box>
+					<textElement textAlignment="Right" lineSpacing="Single">
+						<font fontName="TH SarabunPSK" size="12" isBold="true"/>
+					</textElement>
+					<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{sum_bank_transfer}]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement x="0" y="0" width="40" height="20"/>
+					<box>
+						<topPen lineWidth="0.5" lineColor="#CCCCCC"/>
+						<leftPen lineWidth="0.5" lineColor="#CCCCCC"/>
+						<bottomPen lineWidth="0.5" lineColor="#CCCCCC"/>
+						<rightPen lineWidth="0.5" lineColor="#CCCCCC"/>
+					</box>
+					<textElement textAlignment="Center" lineSpacing="Single">
+						<font fontName="TH SarabunPSK" size="12" isBold="true"/>
+					</textElement>
+					<text><![CDATA[]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="40" y="0" width="180" height="20"/>
+					<box>
+						<topPen lineWidth="0.5" lineColor="#CCCCCC"/>
+						<leftPen lineWidth="0.5" lineColor="#CCCCCC"/>
+						<bottomPen lineWidth="0.5" lineColor="#CCCCCC"/>
+						<rightPen lineWidth="0.5" lineColor="#CCCCCC"/>
+					</box>
+					<textElement textAlignment="Center" lineSpacing="Single">
+						<font fontName="TH SarabunPSK" size="12" isBold="true"/>
+					</textElement>
+					<text><![CDATA[]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="220" y="0" width="50" height="20"/>
+					<box>
+						<topPen lineWidth="0.5" lineColor="#CCCCCC"/>
+						<leftPen lineWidth="0.5" lineColor="#CCCCCC"/>
+						<bottomPen lineWidth="0.5" lineColor="#CCCCCC"/>
+						<rightPen lineWidth="0.5" lineColor="#CCCCCC"/>
+					</box>
+					<textElement textAlignment="Center" lineSpacing="Single">
+						<font fontName="TH SarabunPSK" size="12" isBold="true"/>
+					</textElement>
+					<text><![CDATA[]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="270" y="0" width="130" height="20"/>
+					<box>
+						<topPen lineWidth="0.5" lineColor="#CCCCCC"/>
+						<leftPen lineWidth="0.5" lineColor="#CCCCCC"/>
+						<bottomPen lineWidth="0.5" lineColor="#CCCCCC"/>
+						<rightPen lineWidth="0.5" lineColor="#CCCCCC"/>
+					</box>
+					<textElement textAlignment="Center" lineSpacing="Single">
+						<font fontName="TH SarabunPSK" size="12" isBold="true"/>
+					</textElement>
+					<text><![CDATA[]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="400" y="0" width="113" height="20">
+						<property name="com.jaspersoft.studio.unit.x" value="px"/>
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					</reportElement>
+					<box>
+						<topPen lineWidth="0.5" lineColor="#CCCCCC"/>
+						<leftPen lineWidth="0.5" lineColor="#CCCCCC"/>
+						<bottomPen lineWidth="0.5" lineColor="#CCCCCC"/>
+						<rightPen lineWidth="0.5" lineColor="#CCCCCC"/>
+					</box>
+					<textElement textAlignment="Center" lineSpacing="Single">
+						<font fontName="TH SarabunPSK" size="12" isBold="true"/>
+					</textElement>
+					<text><![CDATA[]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="513" y="0" width="160" height="20">
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					</reportElement>
+					<box>
+						<topPen lineWidth="0.5" lineColor="#CCCCCC"/>
+						<leftPen lineWidth="0.5" lineColor="#CCCCCC"/>
+						<bottomPen lineWidth="0.5" lineColor="#CCCCCC"/>
+						<rightPen lineWidth="0.5" lineColor="#CCCCCC"/>
+					</box>
+					<textElement textAlignment="Center" lineSpacing="Single">
+						<font fontName="TH SarabunPSK" size="12" isBold="true"/>
+					</textElement>
+					<text><![CDATA[]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="673" y="0" width="140" height="20"/>
+					<box>
+						<topPen lineWidth="0.5" lineColor="#CCCCCC"/>
+						<leftPen lineWidth="0.5" lineColor="#CCCCCC"/>
+						<bottomPen lineWidth="0.5" lineColor="#CCCCCC"/>
+						<rightPen lineWidth="0.5" lineColor="#CCCCCC"/>
+					</box>
+					<textElement lineSpacing="Single">
+						<font fontName="TH SarabunPSK" size="12" isBold="true"/>
+					</textElement>
+					<text><![CDATA[Total]]></text>
+				</staticText>
+			</band>
+		</groupFooter>
+	</group>
+	<columnHeader>
+		<band height="20">
+			<staticText>
+				<reportElement mode="Opaque" x="220" y="0" width="50" height="20" backcolor="#CCCCFF"/>
+				<box>
+					<topPen lineWidth="0.5" lineColor="#CCCCCC"/>
+					<leftPen lineWidth="0.5" lineColor="#CCCCCC"/>
+					<bottomPen lineWidth="0.5" lineColor="#CCCCCC"/>
+					<rightPen lineWidth="0.5" lineColor="#CCCCCC"/>
+				</box>
+				<textElement textAlignment="Center" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Store]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="270" y="0" width="130" height="20" backcolor="#CCCCFF"/>
+				<box>
+					<topPen lineWidth="0.5" lineColor="#CCCCCC"/>
+					<leftPen lineWidth="0.5" lineColor="#CCCCCC"/>
+					<bottomPen lineWidth="0.5" lineColor="#CCCCCC"/>
+					<rightPen lineWidth="0.5" lineColor="#CCCCCC"/>
+				</box>
+				<textElement textAlignment="Center" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Store Name]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="400" y="0" width="113" height="20" backcolor="#CCCCFF"/>
+				<box>
+					<topPen lineWidth="0.5" lineColor="#CCCCCC"/>
+					<leftPen lineWidth="0.5" lineColor="#CCCCCC"/>
+					<bottomPen lineWidth="0.5" lineColor="#CCCCCC"/>
+					<rightPen lineWidth="0.5" lineColor="#CCCCCC"/>
+				</box>
+				<textElement textAlignment="Center" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Date]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="0" y="0" width="40" height="20" backcolor="#CCCCFF"/>
+				<box>
+					<topPen lineWidth="0.5" lineColor="#CCCCCC"/>
+					<leftPen lineWidth="0.5" lineColor="#CCCCCC"/>
+					<bottomPen lineWidth="0.5" lineColor="#CCCCCC"/>
+					<rightPen lineWidth="0.5" lineColor="#CCCCCC"/>
+				</box>
+				<textElement textAlignment="Center" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[No.]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="40" y="0" width="180" height="20" backcolor="#CCCCFF"/>
+				<box>
+					<topPen lineWidth="0.5" lineColor="#CCCCCC"/>
+					<leftPen lineWidth="0.5" lineColor="#CCCCCC"/>
+					<bottomPen lineWidth="0.5" lineColor="#CCCCCC"/>
+					<rightPen lineWidth="0.5" lineColor="#CCCCCC"/>
+				</box>
+				<textElement textAlignment="Center" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Company]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="813" y="0" width="100" height="20" backcolor="#CCCCFF">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<topPen lineWidth="0.5" lineColor="#CCCCCC"/>
+					<leftPen lineWidth="0.5" lineColor="#CCCCCC"/>
+					<bottomPen lineWidth="0.5" lineColor="#CCCCCC"/>
+					<rightPen lineWidth="0.5" lineColor="#CCCCCC"/>
+				</box>
+				<textElement textAlignment="Center" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Sub Total]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="913" y="0" width="110" height="20" backcolor="#CCCCFF">
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<box>
+					<topPen lineWidth="0.5" lineColor="#CCCCCC"/>
+					<leftPen lineWidth="0.5" lineColor="#CCCCCC"/>
+					<bottomPen lineWidth="0.5" lineColor="#CCCCCC"/>
+					<rightPen lineWidth="0.5" lineColor="#CCCCCC"/>
+				</box>
+				<textElement textAlignment="Center" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Discount by Sor]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="1023" y="0" width="110" height="20" backcolor="#CCCCFF">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<topPen lineWidth="0.5" lineColor="#CCCCCC"/>
+					<leftPen lineWidth="0.5" lineColor="#CCCCCC"/>
+					<bottomPen lineWidth="0.5" lineColor="#CCCCCC"/>
+					<rightPen lineWidth="0.5" lineColor="#CCCCCC"/>
+				</box>
+				<textElement textAlignment="Center" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Discount by See]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="1133" y="0" width="90" height="20" backcolor="#CCCCFF">
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<topPen lineWidth="0.5" lineColor="#CCCCCC"/>
+					<leftPen lineWidth="0.5" lineColor="#CCCCCC"/>
+					<bottomPen lineWidth="0.5" lineColor="#CCCCCC"/>
+					<rightPen lineWidth="0.5" lineColor="#CCCCCC"/>
+				</box>
+				<textElement textAlignment="Center" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Delivery Fee]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="1223" y="0" width="110" height="20" backcolor="#CCCCFF">
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<box>
+					<topPen lineWidth="0.5" lineColor="#CCCCCC"/>
+					<leftPen lineWidth="0.5" lineColor="#CCCCCC"/>
+					<bottomPen lineWidth="0.5" lineColor="#CCCCCC"/>
+					<rightPen lineWidth="0.5" lineColor="#CCCCCC"/>
+				</box>
+				<textElement textAlignment="Center" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Total]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="1333" y="0" width="110" height="20" backcolor="#CCCCFF">
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<box>
+					<topPen lineWidth="0.5" lineColor="#CCCCCC"/>
+					<leftPen lineWidth="0.5" lineColor="#CCCCCC"/>
+					<bottomPen lineWidth="0.5" lineColor="#CCCCCC"/>
+					<rightPen lineWidth="0.5" lineColor="#CCCCCC"/>
+				</box>
+				<textElement textAlignment="Center" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Bank Transfer]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="513" y="0" width="160" height="20" backcolor="#CCCCFF">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<box>
+					<topPen lineWidth="0.5" lineColor="#CCCCCC"/>
+					<leftPen lineWidth="0.5" lineColor="#CCCCCC"/>
+					<bottomPen lineWidth="0.5" lineColor="#CCCCCC"/>
+					<rightPen lineWidth="0.5" lineColor="#CCCCCC"/>
+				</box>
+				<textElement textAlignment="Center" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Ticket No. / Inv No.]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="673" y="0" width="140" height="20" backcolor="#CCCCFF"/>
+				<box>
+					<topPen lineWidth="0.5" lineColor="#CCCCCC"/>
+					<leftPen lineWidth="0.5" lineColor="#CCCCCC"/>
+					<bottomPen lineWidth="0.5" lineColor="#CCCCCC"/>
+					<rightPen lineWidth="0.5" lineColor="#CCCCCC"/>
+				</box>
+				<textElement textAlignment="Center" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Ref. No.]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="20">
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToBandHeight" x="0" y="0" width="40" height="20"/>
+				<box>
+					<topPen lineWidth="0.5" lineColor="#CCCCCC"/>
+					<leftPen lineWidth="0.5" lineColor="#CCCCCC"/>
+					<bottomPen lineWidth="0.5" lineColor="#CCCCCC"/>
+					<rightPen lineWidth="0.5" lineColor="#CCCCCC"/>
+				</box>
+				<textElement textAlignment="Center" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression class="java.lang.Integer"><![CDATA[$V{row_no}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToBandHeight" x="40" y="0" width="180" height="20"/>
+				<box>
+					<topPen lineWidth="0.5" lineColor="#CCCCCC"/>
+					<leftPen lineWidth="0.5" lineColor="#CCCCCC"/>
+					<bottomPen lineWidth="0.5" lineColor="#CCCCCC"/>
+					<rightPen lineWidth="0.5" lineColor="#CCCCCC"/>
+				</box>
+				<textElement lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{company}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToBandHeight" x="270" y="0" width="130" height="20"/>
+				<box>
+					<topPen lineWidth="0.5" lineColor="#CCCCCC"/>
+					<leftPen lineWidth="0.5" lineColor="#CCCCCC"/>
+					<bottomPen lineWidth="0.5" lineColor="#CCCCCC"/>
+					<rightPen lineWidth="0.5" lineColor="#CCCCCC"/>
+				</box>
+				<textElement lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{store_name}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="dd/MM/yyyy" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToBandHeight" x="400" y="0" width="113" height="20">
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<box>
+					<topPen lineWidth="0.5" lineColor="#CCCCCC"/>
+					<leftPen lineWidth="0.5" lineColor="#CCCCCC"/>
+					<bottomPen lineWidth="0.5" lineColor="#CCCCCC"/>
+					<rightPen lineWidth="0.5" lineColor="#CCCCCC"/>
+				</box>
+				<textElement textAlignment="Center" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression class="java.util.Date"><![CDATA[$F{date}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00;-#,##0.00" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToBandHeight" x="813" y="0" width="100" height="20">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<topPen lineWidth="0.5" lineColor="#CCCCCC"/>
+					<leftPen lineWidth="0.5" lineColor="#CCCCCC"/>
+					<bottomPen lineWidth="0.5" lineColor="#CCCCCC"/>
+					<rightPen lineWidth="0.5" lineColor="#CCCCCC"/>
+				</box>
+				<textElement textAlignment="Right" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{sub_total}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToBandHeight" x="220" y="0" width="50" height="20"/>
+				<box>
+					<topPen lineWidth="0.5" lineColor="#CCCCCC"/>
+					<leftPen lineWidth="0.5" lineColor="#CCCCCC"/>
+					<bottomPen lineWidth="0.5" lineColor="#CCCCCC"/>
+					<rightPen lineWidth="0.5" lineColor="#CCCCCC"/>
+				</box>
+				<textElement textAlignment="Center" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{store_code}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00;-#,##0.00" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToBandHeight" x="913" y="0" width="110" height="20">
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<box>
+					<topPen lineWidth="0.5" lineColor="#CCCCCC"/>
+					<leftPen lineWidth="0.5" lineColor="#CCCCCC"/>
+					<bottomPen lineWidth="0.5" lineColor="#CCCCCC"/>
+					<rightPen lineWidth="0.5" lineColor="#CCCCCC"/>
+				</box>
+				<textElement textAlignment="Right" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{discount_by_sor}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00;-#,##0.00" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToBandHeight" x="1023" y="0" width="110" height="20">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<topPen lineWidth="0.5" lineColor="#CCCCCC"/>
+					<leftPen lineWidth="0.5" lineColor="#CCCCCC"/>
+					<bottomPen lineWidth="0.5" lineColor="#CCCCCC"/>
+					<rightPen lineWidth="0.5" lineColor="#CCCCCC"/>
+				</box>
+				<textElement textAlignment="Right" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{discount_by_see}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00;-#,##0.00" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToBandHeight" x="1133" y="0" width="90" height="20">
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<box>
+					<topPen lineWidth="0.5" lineColor="#CCCCCC"/>
+					<leftPen lineWidth="0.5" lineColor="#CCCCCC"/>
+					<bottomPen lineWidth="0.5" lineColor="#CCCCCC"/>
+					<rightPen lineWidth="0.5" lineColor="#CCCCCC"/>
+				</box>
+				<textElement textAlignment="Right" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{delivery_fee}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00;-#,##0.00" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToBandHeight" x="1223" y="0" width="110" height="20">
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<box>
+					<topPen lineWidth="0.5" lineColor="#CCCCCC"/>
+					<leftPen lineWidth="0.5" lineColor="#CCCCCC"/>
+					<bottomPen lineWidth="0.5" lineColor="#CCCCCC"/>
+					<rightPen lineWidth="0.5" lineColor="#CCCCCC"/>
+				</box>
+				<textElement textAlignment="Right" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{total}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00;-#,##0.00" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToBandHeight" x="1333" y="0" width="110" height="20">
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<box>
+					<topPen lineWidth="0.5" lineColor="#CCCCCC"/>
+					<leftPen lineWidth="0.5" lineColor="#CCCCCC"/>
+					<bottomPen lineWidth="0.5" lineColor="#CCCCCC"/>
+					<rightPen lineWidth="0.5" lineColor="#CCCCCC"/>
+				</box>
+				<textElement textAlignment="Right" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{bank_transfer}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToBandHeight" x="513" y="0" width="160" height="20">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<box>
+					<topPen lineWidth="0.5" lineColor="#CCCCCC"/>
+					<leftPen lineWidth="0.5" lineColor="#CCCCCC"/>
+					<bottomPen lineWidth="0.5" lineColor="#CCCCCC"/>
+					<rightPen lineWidth="0.5" lineColor="#CCCCCC"/>
+				</box>
+				<textElement lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{order_no}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement stretchType="RelativeToBandHeight" x="673" y="0" width="140" height="20"/>
+				<box>
+					<topPen lineWidth="0.5" lineColor="#CCCCCC"/>
+					<leftPen lineWidth="0.5" lineColor="#CCCCCC"/>
+					<bottomPen lineWidth="0.5" lineColor="#CCCCCC"/>
+					<rightPen lineWidth="0.5" lineColor="#CCCCCC"/>
+				</box>
+				<textElement lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{ref_order_no}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<noData>
+		<band height="20">
+			<staticText>
+				<reportElement x="0" y="0" width="1444" height="20"/>
+				<textElement textAlignment="Center" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="14"/>
+				</textElement>
+				<text><![CDATA[No Data]]></text>
+			</staticText>
+		</band>
+	</noData>
+</jasperReport>

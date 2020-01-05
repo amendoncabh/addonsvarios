@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+    
+
+
+    <t t-extend='Product'>
+
+        <t t-jquery='.product-img' t-operation='prepend'>
+            <span class="product-stock">
+                <t t-att-data-action='widget.decimal_separator' t-esc="product.qty_available"/> <t t-esc="product.uom_id[1]"/>
+            </span>
+        </t>
+    </t>
+
+
+</templates>

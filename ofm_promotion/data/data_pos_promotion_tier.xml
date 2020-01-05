@@ -1,0 +1,277 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="ofm_promotion.pos_promotion_tier_option_21" model="pos.promotion.tier.option">
+            <field name="name">21</field>
+        </record>
+        <record id="ofm_promotion.pos_promotion_tier_option_22" model="pos.promotion.tier.option">
+            <field name="name">22</field>
+        </record>
+        <record id="ofm_promotion.pos_promotion_tier_option_23" model="pos.promotion.tier.option">
+            <field name="name">23</field>
+        </record>
+        <record id="ofm_promotion.pos_promotion_tier_option_24" model="pos.promotion.tier.option">
+            <field name="name">24</field>
+        </record>
+        <record id="ofm_promotion.pos_promotion_tier_option_25" model="pos.promotion.tier.option">
+            <field name="name">25</field>
+        </record>
+        <record id="ofm_promotion.pos_promotion_tier_option_26" model="pos.promotion.tier.option">
+            <field name="name">26</field>
+        </record>
+        <record id="ofm_promotion.pos_promotion_tier_option_27" model="pos.promotion.tier.option">
+            <field name="name">27</field>
+        </record>
+        <record id="ofm_promotion.pos_promotion_tier_option_28" model="pos.promotion.tier.option">
+            <field name="name">28</field>
+        </record>
+        <record id="ofm_promotion.pos_promotion_tier_option_29" model="pos.promotion.tier.option">
+            <field name="name">29</field>
+        </record>
+        <record id="ofm_promotion.pos_promotion_tier_option_31" model="pos.promotion.tier.option">
+            <field name="name">31</field>
+        </record>
+        <record id="ofm_promotion.pos_promotion_tier_option_32" model="pos.promotion.tier.option">
+            <field name="name">32</field>
+        </record>
+        <record id="ofm_promotion.pos_promotion_tier_option_33" model="pos.promotion.tier.option">
+            <field name="name">33</field>
+        </record>
+        <record id="ofm_promotion.pos_promotion_tier_option_34" model="pos.promotion.tier.option">
+            <field name="name">34</field>
+        </record>
+        <record id="ofm_promotion.pos_promotion_tier_option_35" model="pos.promotion.tier.option">
+            <field name="name">35</field>
+        </record>
+        <record id="ofm_promotion.pos_promotion_tier_option_36" model="pos.promotion.tier.option">
+            <field name="name">36</field>
+        </record>
+        <record id="ofm_promotion.pos_promotion_tier_option_37" model="pos.promotion.tier.option">
+            <field name="name">37</field>
+        </record>
+        <record id="ofm_promotion.pos_promotion_tier_option_38" model="pos.promotion.tier.option">
+            <field name="name">38</field>
+        </record>
+        <record id="ofm_promotion.pos_promotion_tier_option_39" model="pos.promotion.tier.option">
+            <field name="name">39</field>
+        </record>
+        <record id="ofm_promotion.pos_promotion_tier_option_41" model="pos.promotion.tier.option">
+            <field name="name">41</field>
+        </record>
+        <record id="ofm_promotion.pos_promotion_tier_option_42" model="pos.promotion.tier.option">
+            <field name="name">42</field>
+        </record>
+        <record id="ofm_promotion.pos_promotion_tier_option_43" model="pos.promotion.tier.option">
+            <field name="name">43</field>
+        </record>
+        <record id="ofm_promotion.pos_promotion_tier_option_44" model="pos.promotion.tier.option">
+            <field name="name">44</field>
+        </record>
+        <record id="ofm_promotion.pos_promotion_tier_option_45" model="pos.promotion.tier.option">
+            <field name="name">45</field>
+        </record>
+        <record id="ofm_promotion.pos_promotion_tier_option_46" model="pos.promotion.tier.option">
+            <field name="name">46</field>
+        </record>
+        <record id="ofm_promotion.pos_promotion_tier_option_47" model="pos.promotion.tier.option">
+            <field name="name">47</field>
+        </record>
+        <record id="ofm_promotion.pos_promotion_tier_option_48" model="pos.promotion.tier.option">
+            <field name="name">48</field>
+        </record>
+        <record id="ofm_promotion.pos_promotion_tier_option_49" model="pos.promotion.tier.option">
+            <field name="name">49</field>
+        </record>
+        <record id="ofm_promotion.pos_promotion_tier_option_51" model="pos.promotion.tier.option">
+            <field name="name">51</field>
+        </record>
+        <record id="ofm_promotion.pos_promotion_tier_option_52" model="pos.promotion.tier.option">
+            <field name="name">52</field>
+        </record>
+        <record id="ofm_promotion.pos_promotion_tier_option_53" model="pos.promotion.tier.option">
+            <field name="name">53</field>
+        </record>
+        <record id="ofm_promotion.pos_promotion_tier_option_54" model="pos.promotion.tier.option">
+            <field name="name">54</field>
+        </record>
+        <record id="ofm_promotion.pos_promotion_tier_option_55" model="pos.promotion.tier.option">
+            <field name="name">55</field>
+        </record>
+        <record id="ofm_promotion.pos_promotion_tier_option_56" model="pos.promotion.tier.option">
+            <field name="name">56</field>
+        </record>
+        <record id="ofm_promotion.pos_promotion_tier_option_57" model="pos.promotion.tier.option">
+            <field name="name">57</field>
+        </record>
+        <record id="ofm_promotion.pos_promotion_tier_option_58" model="pos.promotion.tier.option">
+            <field name="name">58</field>
+        </record>
+        <record id="ofm_promotion.pos_promotion_tier_option_59" model="pos.promotion.tier.option">
+            <field name="name">59</field>
+        </record>
+        <record id="ofm_promotion.pos_promotion_tier_option_61" model="pos.promotion.tier.option">
+            <field name="name">61</field>
+        </record>
+        <record id="ofm_promotion.pos_promotion_tier_option_62" model="pos.promotion.tier.option">
+            <field name="name">62</field>
+        </record>
+        <record id="ofm_promotion.pos_promotion_tier_option_63" model="pos.promotion.tier.option">
+            <field name="name">63</field>
+        </record>
+        <record id="ofm_promotion.pos_promotion_tier_option_64" model="pos.promotion.tier.option">
+            <field name="name">64</field>
+        </record>
+        <record id="ofm_promotion.pos_promotion_tier_option_65" model="pos.promotion.tier.option">
+            <field name="name">65</field>
+        </record>
+        <record id="ofm_promotion.pos_promotion_tier_option_66" model="pos.promotion.tier.option">
+            <field name="name">66</field>
+        </record>
+        <record id="ofm_promotion.pos_promotion_tier_option_67" model="pos.promotion.tier.option">
+            <field name="name">67</field>
+        </record>
+        <record id="ofm_promotion.pos_promotion_tier_option_68" model="pos.promotion.tier.option">
+            <field name="name">68</field>
+        </record>
+        <record id="ofm_promotion.pos_promotion_tier_option_69" model="pos.promotion.tier.option">
+            <field name="name">69</field>
+        </record>
+        <record id="ofm_promotion.pos_promotion_tier_option_71" model="pos.promotion.tier.option">
+            <field name="name">71</field>
+        </record>
+        <record id="ofm_promotion.pos_promotion_tier_option_72" model="pos.promotion.tier.option">
+            <field name="name">72</field>
+        </record>
+        <record id="ofm_promotion.pos_promotion_tier_option_73" model="pos.promotion.tier.option">
+            <field name="name">73</field>
+        </record>
+        <record id="ofm_promotion.pos_promotion_tier_option_74" model="pos.promotion.tier.option">
+            <field name="name">74</field>
+        </record>
+        <record id="ofm_promotion.pos_promotion_tier_option_75" model="pos.promotion.tier.option">
+            <field name="name">75</field>
+        </record>
+        <record id="ofm_promotion.pos_promotion_tier_option_76" model="pos.promotion.tier.option">
+            <field name="name">76</field>
+        </record>
+        <record id="ofm_promotion.pos_promotion_tier_option_77" model="pos.promotion.tier.option">
+            <field name="name">77</field>
+        </record>
+        <record id="ofm_promotion.pos_promotion_tier_option_78" model="pos.promotion.tier.option">
+            <field name="name">78</field>
+        </record>
+        <record id="ofm_promotion.pos_promotion_tier_option_79" model="pos.promotion.tier.option">
+            <field name="name">79</field>
+        </record>
+
+
+        <record id="ofm_promotion.pos_promotion_tier_21_29" model="pos.promotion.tier">
+            <field name="name">21-29: Qty Get Product</field>
+            <field name="tier_range">9</field>
+            <field name="condition_type">qty</field>
+            <field name="reward_type">product</field>
+            <field name="start_tier">21</field>
+            <field name="tier_option_ids" eval="[(6,0,[
+                ref('ofm_promotion.pos_promotion_tier_option_21'),
+                ref('ofm_promotion.pos_promotion_tier_option_22'),
+                ref('ofm_promotion.pos_promotion_tier_option_23'),
+                ref('ofm_promotion.pos_promotion_tier_option_24'),
+                ref('ofm_promotion.pos_promotion_tier_option_25'),
+                ref('ofm_promotion.pos_promotion_tier_option_26'),
+                ref('ofm_promotion.pos_promotion_tier_option_27'),
+                ref('ofm_promotion.pos_promotion_tier_option_28'),
+                ref('ofm_promotion.pos_promotion_tier_option_29'),
+            ])]"/>
+        </record>
+        <record id="ofm_promotion.pos_promotion_tier_31_39" model="pos.promotion.tier">
+            <field name="name">31-39: Price Get Product</field>
+            <field name="tier_range">9</field>
+            <field name="condition_type">price</field>
+            <field name="reward_type">product</field>
+            <field name="start_tier">31</field>
+            <field name="tier_option_ids" eval="[(6,0,[
+                ref('ofm_promotion.pos_promotion_tier_option_31'),
+                ref('ofm_promotion.pos_promotion_tier_option_32'),
+                ref('ofm_promotion.pos_promotion_tier_option_33'),
+                ref('ofm_promotion.pos_promotion_tier_option_34'),
+                ref('ofm_promotion.pos_promotion_tier_option_35'),
+                ref('ofm_promotion.pos_promotion_tier_option_36'),
+                ref('ofm_promotion.pos_promotion_tier_option_37'),
+                ref('ofm_promotion.pos_promotion_tier_option_38'),
+                ref('ofm_promotion.pos_promotion_tier_option_39'),
+            ])]"/>
+        </record>
+        <record id="ofm_promotion.pos_promotion_tier_41_49" model="pos.promotion.tier">
+            <field name="name">41-49: Qty Get Discount</field>
+            <field name="tier_range">9</field>
+            <field name="condition_type">qty</field>
+            <field name="reward_type">discount</field>
+            <field name="start_tier">41</field>
+            <field name="tier_option_ids" eval="[(6,0,[
+                ref('ofm_promotion.pos_promotion_tier_option_41'),
+                ref('ofm_promotion.pos_promotion_tier_option_42'),
+                ref('ofm_promotion.pos_promotion_tier_option_43'),
+                ref('ofm_promotion.pos_promotion_tier_option_44'),
+                ref('ofm_promotion.pos_promotion_tier_option_45'),
+                ref('ofm_promotion.pos_promotion_tier_option_46'),
+                ref('ofm_promotion.pos_promotion_tier_option_47'),
+                ref('ofm_promotion.pos_promotion_tier_option_48'),
+                ref('ofm_promotion.pos_promotion_tier_option_49'),
+            ])]"/>
+        </record>
+        <record id="ofm_promotion.pos_promotion_tier_51_59" model="pos.promotion.tier">
+            <field name="name">51-59: Price Get Discount</field>
+            <field name="tier_range">9</field>
+            <field name="condition_type">price</field>
+            <field name="reward_type">discount</field>
+            <field name="start_tier">51</field>
+            <field name="tier_option_ids" eval="[(6,0,[
+                ref('ofm_promotion.pos_promotion_tier_option_51'),
+                ref('ofm_promotion.pos_promotion_tier_option_52'),
+                ref('ofm_promotion.pos_promotion_tier_option_53'),
+                ref('ofm_promotion.pos_promotion_tier_option_54'),
+                ref('ofm_promotion.pos_promotion_tier_option_55'),
+                ref('ofm_promotion.pos_promotion_tier_option_56'),
+                ref('ofm_promotion.pos_promotion_tier_option_57'),
+                ref('ofm_promotion.pos_promotion_tier_option_58'),
+                ref('ofm_promotion.pos_promotion_tier_option_59'),
+            ])]"/>
+        </record>
+        <record id="ofm_promotion.pos_promotion_tier_61_69" model="pos.promotion.tier">
+            <field name="name">61-69: Qty Get Coupon</field>
+            <field name="tier_range">9</field>
+            <field name="condition_type">qty</field>
+            <field name="reward_type">coupon</field>
+            <field name="start_tier">61</field>
+            <field name="tier_option_ids" eval="[(6,0,[
+                ref('ofm_promotion.pos_promotion_tier_option_61'),
+                ref('ofm_promotion.pos_promotion_tier_option_62'),
+                ref('ofm_promotion.pos_promotion_tier_option_63'),
+                ref('ofm_promotion.pos_promotion_tier_option_64'),
+                ref('ofm_promotion.pos_promotion_tier_option_65'),
+                ref('ofm_promotion.pos_promotion_tier_option_66'),
+                ref('ofm_promotion.pos_promotion_tier_option_67'),
+                ref('ofm_promotion.pos_promotion_tier_option_68'),
+                ref('ofm_promotion.pos_promotion_tier_option_69'),
+            ])]"/>
+        </record>
+        <record id="ofm_promotion.pos_promotion_tier_71_79" model="pos.promotion.tier">
+            <field name="name">71-79: Price Get Coupon</field>
+            <field name="tier_range">9</field>
+            <field name="condition_type">price</field>
+            <field name="reward_type">coupon</field>
+            <field name="start_tier">71</field>
+            <field name="tier_option_ids" eval="[(6,0,[
+                ref('ofm_promotion.pos_promotion_tier_option_71'),
+                ref('ofm_promotion.pos_promotion_tier_option_72'),
+                ref('ofm_promotion.pos_promotion_tier_option_73'),
+                ref('ofm_promotion.pos_promotion_tier_option_74'),
+                ref('ofm_promotion.pos_promotion_tier_option_75'),
+                ref('ofm_promotion.pos_promotion_tier_option_76'),
+                ref('ofm_promotion.pos_promotion_tier_option_77'),
+                ref('ofm_promotion.pos_promotion_tier_option_78'),
+                ref('ofm_promotion.pos_promotion_tier_option_79'),
+            ])]"/>
+        </record>
+    </data>
+</odoo>

@@ -1,0 +1,105 @@
+<?xml version="1.0"?>
+<openerp>
+    <data>
+
+        <record model="ir.ui.view" id="view_pos_session_form_2">
+            <field name="name">pos.session.form.view2</field>
+            <field name="model">pos.session</field>
+            <field name="inherit_id" ref="point_of_sale.view_pos_session_form"/>
+            <field name="arch" type="xml">
+
+                <xpath expr="//field[@name='user_id']" position="after">
+                    <field name="reason_id"
+                           options="{'no_quick_create': True, 'no_create_edit': True, 'no_open': True}"
+                           attrs="{'required':[('name','!=','/')]}"/>
+                </xpath>
+
+                <xpath expr="//label[@for='cash_register_total_entry_encoding']" position="attributes">
+                    <attribute name="groups">point_of_sale.group_pos_central_manager,
+                        point_of_sale.group_pos_central_manager
+                    </attribute>
+                </xpath>
+
+                <xpath expr="//field[@name='cash_register_total_entry_encoding']" position="attributes">
+                    <attribute name="groups">point_of_sale.group_pos_central_manager,
+                        point_of_sale.group_pos_central_manager
+                    </attribute>
+                </xpath>
+
+                <xpath expr="//label[@for='cash_register_balance_end']" position="attributes">
+                    <attribute name="groups">point_of_sale.group_pos_central_manager,
+                        point_of_sale.group_pos_central_manager
+                    </attribute>
+                </xpath>
+
+                <xpath expr="//field[@name='cash_register_balance_end']" position="attributes">
+                    <attribute name="groups">point_of_sale.group_pos_central_manager,
+                        point_of_sale.group_pos_central_manager
+                    </attribute>
+                </xpath>
+
+                <xpath expr="//field[@name='cash_register_balance_end_real']" position="attributes">
+                    <attribute name="groups">point_of_sale.group_pos_manager,
+                        point_of_sale.group_pos_central_manager
+                    </attribute>
+                </xpath>
+
+                <xpath expr="//field[@name='cash_register_difference']" position="attributes">
+                    <attribute name="groups">point_of_sale.group_pos_central_manager</attribute>
+                </xpath>
+
+                <xpath expr="//field[@name='difference']" position="attributes">
+                    <attribute name="groups">point_of_sale.group_pos_manager,
+                        point_of_sale.group_pos_central_manager
+                    </attribute>
+                </xpath>
+
+                <xpath expr="//field[@name='total_entry_encoding']" position="attributes">
+                    <attribute name="groups">point_of_sale.group_pos_manager,
+                        point_of_sale.group_pos_central_manager
+                    </attribute>
+                </xpath>
+
+                <!--<xpath expr="//button[@name='open_cashbox'][2]" position="attributes">-->
+                    <!--<attribute name="groups">-->
+                        <!--point_of_sale.group_pos_manager,-->
+                        <!--point_of_sale.group_pos_central_manager-->
+                    <!--</attribute>-->
+                <!--</xpath>-->
+
+                <xpath expr="//field[@name='config_id']" position="attributes">
+                    <attribute name="attrs">{'readonly':[('name','!=','/')]}</attribute>
+                    <attribute name="options">{'no_quick_create': True, 'no_create_edit': True, 'no_open': True}</attribute>
+                </xpath>
+
+                <xpath expr="//button[@icon='fa-level-up']" position="replace">
+                    <button class="oe_stat_button" name="%(account.action_cash_box_out)d"
+                            context="{'reason_id': reason_id}"
+                            type="action" icon="fa-level-up"
+                            invisible="1"
+                            attrs="{'invisible': ['|', ('cash_control', '=', False), ('state', 'not in', ['closing_control'])]}">
+                        <div class="o_form_field o_stat_info">
+                            <span class="o_stat_text">Take</span>
+                            <span class="o_stat_text">Money Out</span>
+                        </div>
+                    </button>
+                </xpath>
+
+                <xpath expr="//button[@icon='fa-level-down']" position="replace">
+                    <button class="oe_stat_button" name="%(account.action_cash_box_in)d"
+                            context="{'reason_id': reason_id}"
+                            type="action" icon="fa-level-down"
+                            invisible="1"
+                            attrs="{'invisible': ['|', ('cash_control', '=', False), ('state', 'not in', ['closing_control'])]}">
+                        <div class="o_form_field o_stat_info">
+                            <span class="o_stat_text">Put</span>
+                            <span class="o_stat_text">Money In</span>
+                        </div>
+                    </button>
+                </xpath>
+
+            </field>
+        </record>
+
+    </data>
+</openerp>

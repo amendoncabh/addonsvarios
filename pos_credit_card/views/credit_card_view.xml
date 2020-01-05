@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+
+        <template id="assets" inherit_id="point_of_sale.assets">
+            <xpath expr="." position="inside">
+                <script type="text/javascript" src="/pos_credit_card/static/src/js/credit_card.js"/>
+            </xpath>
+
+            <xpath expr="//link[@id='pos-stylesheet']" position="after">
+                <link rel="stylesheet" href="/pos_credit_card/static/src/css/credit_card.css"/>
+            </xpath>
+        </template>
+
+    </data>
+</openerp>

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+          <record id="invoice_form_change_detail_inherit" model="ir.ui.view">
+                <field name="name">account.invoice.form</field>
+                <field name="model">account.invoice</field>
+                <field name="inherit_id" ref="rd_account_invoice_detail.invoice_form_change_detial_inherit"/>
+                <field name="arch" type="xml">
+
+                    <xpath expr="//button[@name='%(rd_account_invoice_detail.action_wizard_change_detail_view)d']" position="attributes">
+                        <attribute name="states"></attribute>
+                        <attribute name="attrs">{'invisible': ['|',
+                            ('type', 'in', ['out_refund', 'in_refund']),
+                            ('state', 'not in', ['open','paid'])
+                            ]}</attribute>
+                    </xpath>
+
+                    <xpath expr="//button[@name='%(rd_account_invoice_detail.action_wizard_change_detail_view)d']" position="after">
+                        <button name="%(rd_account_invoice_detail.action_wizard_change_detail_view)d"
+                                string="Change CN"
+                                type="action"
+                                attrs="{'invisible': ['|',
+                                    ('type', 'not in', ['out_refund', 'in_refund']),
+                                    ('state', 'not in', ['open','paid'])
+                                ]}"
+                                context="{
+                                'default_partner_id': partner_id,
+                                'default_invoice_date': date_invoice,
+                                }"
+                                groups="account.group_account_invoice"
+                        />
+                    </xpath>
+
+                </field>
+        </record>
+    </data>
+</odoo>

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="account_invoice_form_inherit" model="ir.ui.view">
+            <field name="name">account.invoice.form.inherit</field>
+            <field name="model">account.invoice</field>
+            <field name="inherit_id" ref="account.invoice_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='amount_total']" position="replace">
+                    <field
+                            name="amount_total_signed"
+                            class="oe_subtotal_footer_separator"
+                            string="Total"
+                    />
+                </xpath>
+                <xpath expr="//field[@name='residual']" position="replace">
+                    <field
+                            name="residual_signed"
+                            class="oe_subtotal_footer_separator"
+                            attrs="{'invisible': [('state', '=', 'draft')]}"
+                            string="Amount Due"
+                    />
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

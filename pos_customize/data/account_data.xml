@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data noupdate="1">
+
+        <!--
+        POS Calculate
+        -->
+        <record forcecreate="True" id="trinity_currency" model="res.currency">
+            <field name="name">TRB</field>
+            <field name="active">True</field>
+            <field name="symbol">฿</field>
+            <field name="rate">1</field>
+            <field name="rounding">0.0000000010</field>
+        </record>
+
+    </data>
+</openerp>

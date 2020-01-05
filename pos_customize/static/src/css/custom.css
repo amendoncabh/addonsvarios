@@ -1,0 +1,177 @@
+/*.pos .actionpad .button.set-customer {
+    padding-left: 47px;
+}
+.pos .actionpad {
+    width: 134px;
+}*/
+
+@font-face{
+    font-family: 'TH SarabunPSK';
+    src: url(../fonts/THSarabun_Bold.eot);
+}
+
+.pos.big-scrollbars *::-webkit-scrollbar{
+    width:  15px;
+    height: 40px;
+}
+
+.pos .numpad {
+    display: inline-block;
+    float: right;
+    text-align: center;
+    width: 216px;
+    margin: 16px;
+    margin-top: 8px;
+    margin-left: 0px;
+    border: none;
+    border-radius: 0;
+    border-top: 1px solid;
+    border-left: 1px solid;
+    border-color: #bfbfbf;
+    border-top-right-radius: 4px;
+}
+
+.pos .leftpane .numpad .numpad-backspace{
+    background: #D45959 none repeat scroll 0 0;
+    border-color: transparent;
+    color: white;
+}
+/*.pos .leftpane .numpad .numpad-backspace:hover {
+    background: #FB9090 none repeat scroll 0 0;
+}*/
+.pos .leftpane .numpad .numpad-backspace:active {
+    background: #AF3232 none repeat scroll 0 0;
+    border-color: transparent;
+    color: white;
+}
+
+/* product */
+.pos .product {
+    font-size: 10px;
+    width: 115px;
+    height:100px;
+}
+
+/* product count in orderline */
+.pos .total-prod {
+    font-size: 15px;
+}
+
+.pos .inv-no {
+    font-size: 16px;
+}
+
+.pos .receipt-change {
+    font-size: 15px;
+}
+
+/* Top Content Next Order Button */
+.pos .receipt-screen .screen-content .top-content .button{
+    visibility: hidden;
+}
+
+
+.pos .pos-sale-ticket {
+    font-family: inherit;
+    /* font-family: "TH SarabunPSK"; */
+}
+
+.pos .pos-customize-center-align {
+    text-align: center;
+}
+
+/* print receipt */
+@media print {
+    /*.pos .pos-sale-ticket img{
+        width: 120px;
+        height: 120px;
+        height: 1px;
+        visibility: hidden;
+    }*/
+
+    .pos .pos-sale-ticket {
+        width: 310px;
+        margin: 0px 3px 0px 3px;
+        padding: 0px 12px 0px 2px;
+        /* font-family: "TH SarabunPSK"; */
+    }
+    .o_notification_manager, .o_loading, .popup, modal-dialog, .loader {
+        display:none !important;
+        visibility:hidden !important;
+    }
+}
+
+.paymentmethods .button {
+    line-height: 60px;
+}
+
+
+.page-break{
+    page-break-after: always;
+}
+
+.screen .centered-content{
+    right:25%; top: 70px; bottom: 10px;
+}
+
+.screen .top-content{
+    height: 70px;
+}
+
+.screen .left-content{
+    top: 70px;
+}
+
+.screen .right-content{
+    top: 70px;
+}
+
+.pos .leftpane {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -ms-box-sizing: border-box;
+    box-sizing: border-box;
+    position: absolute;
+    left: 0;
+    width: 441px;
+    top: 0px;
+    bottom: 0;
+    border-right: solid 1px #CECBCB;
+    border-right: solid 3px #787878;
+    background: #e2e2e2;
+}
+
+.pos .pos-sale-ticket .receipt-border-total{
+    border-top: dashed 1px;
+    border-bottom: double;
+}
+
+.pos .receipt-descript-align{
+    vertical-align: top;
+}
+
+.pos .receipt-descript-size{
+    font-size: 10px;
+}
+
+.pos .actionpad .button.pay {
+    height: 136px;
+}
+
+.pos .pos-branding .username{
+    float:right;
+    color:#DDD;
+    font-size:16px;
+    margin-right:32px;
+    line-height: 48px;
+    font-style:italic;
+    cursor: pointer;
+    width: 150px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.required-form{
+  background-color: #CECDFF !important;
+}

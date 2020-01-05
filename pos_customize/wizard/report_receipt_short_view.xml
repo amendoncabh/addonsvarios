@@ -1,0 +1,67 @@
+<?xml version="1.0"?>
+<openerp>
+  <data>
+      <record id="report_receipt_short_jasper" model="ir.actions.report.xml">
+          <field name="string">Electronic tax invoice collection Report</field>
+          <field name="name">Electronic tax invoice collection Report</field>
+          <field name="type">ir.actions.report.xml</field>
+          <field name="model">report.receipt.short.wizard</field>
+          <field name="report_name">report.receipt.short.jasper</field>
+          <field name="tml_source">file</field>
+          <field name="report_rml">pos_customize/report/report_receipt_short.jrxml</field>
+          <field name="parser_state">loc</field>
+          <field name="auto">True</field>
+          <field name="menu">True</field>
+          <field name="header">False</field>
+          <field name="jasper_report">True</field>
+          <field name="jasper_output">pdf</field>
+          <field name="jasper_model_id" ref="pos_customize.model_report_receipt_short_wizard"/>
+      </record>
+
+      <act_window id="action_report_receipt_short_wizard"
+        name="Electronic tax invoice collection Report"
+        res_model="report.receipt.short.wizard"
+        view_mode="form"
+        target="new"/>
+
+      <menuitem id="menu_report_receipt_short_wizard"
+          parent="menu_report_cashier"
+          action="action_report_receipt_short_wizard"
+          sequence="2"/>
+
+        <record id="view_report_receipt_short_wizard" model="ir.ui.view">
+
+            <field name="name">report.receipt.short.form</field>
+            <field name="model">report.receipt.short.wizard</field>
+            <field name="arch" type="xml">
+            <form string="Electronic tax invoice collection Report">
+
+                <group>
+
+                    <group>
+                        <field name="start_date" required="1"/>
+                        <field name="end_date" required="1"/>
+                    </group>
+
+                    <group>
+                        <field name="branch_id"
+                               options="{'no_quick_create': True, 'no_create_edit': True}"
+                               required="1"/>
+                    </group>
+
+                </group>
+
+                <footer>
+                    <button name="action_print_report"
+                    string="Print Report" type="object"
+                    class="oe_highlight"/>
+                    or
+                    <button string="Cancel" class="oe_link"
+                    special="cancel"/>
+                </footer>
+            </form>
+            </field>
+        </record>
+
+    </data>
+</openerp>

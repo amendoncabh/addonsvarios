@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="inherit_view_account_move_form" model="ir.ui.view">
+            <field name="name">account.move</field>
+            <field name="model">account.move</field>
+            <field name="inherit_id" ref="account.view_move_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//notebook/page/field/tree/field[@name='partner_id']" position="before">
+                      <field name="product_cp_cid"/>
+                </xpath>
+                <xpath expr="//notebook/page/field[@name='line_ids']/.." position="before">
+                    <page string="Journal Items OFM">
+                        <field name="line_ofm_ids" widget="one2many_list"
+                          context="{'line_ofm_ids': line_ofm_ids, 'journal_id': journal_id }">
+                            <tree editable="bottom" string="Journal Items">
+                                <field name="account_id" domain="[('company_id', '=', parent.company_id), ('deprecated', '=', False)]"/>
+                                <field name="product_cp_cid"/>
+                                <field name="partner_id"
+                                    domain="['|', ('parent_id', '=', False), ('is_company', '=', True)]"/>
+                                <field name="name"/>
+                                <field name="analytic_account_id" groups="analytic.group_analytic_accounting"/>
+                                <field name="amount_currency" groups="base.group_multi_currency"/>
+                                <field name="company_currency_id" invisible="1"/>
+                                <field name="currency_id" options="{'no_create': True}" groups="base.group_multi_currency"/>
+                                <field name="debit" sum="Total Debit"/>
+                                <field name="credit" sum="Total Credit"/>
+                                <field name="date_maturity" required="0"/>
+                            </tree>
+                        </field>
+                        <field name="narration" colspan="4" placeholder="Add an internal note..." nolabel="1" height="50"/>
+                    </page>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="inherit_view_move_line_form" model="ir.ui.view">
+            <field name="name">account.move.line.form</field>
+            <field name="model">account.move.line</field>
+            <field name="inherit_id" ref="account.view_move_line_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='account_id']" position="after">
+                    <field name="product_cp_cid"/>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

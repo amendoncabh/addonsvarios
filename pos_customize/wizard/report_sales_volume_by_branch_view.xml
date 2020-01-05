@@ -1,0 +1,74 @@
+<?xml version="1.0"?>
+<openerp>
+    <data>
+        <record id="report_sales_volume_by_branch_jasper" model="ir.actions.report.xml">
+          <field name="string">Sales Volume and Sales Value By Duration Report</field>
+          <field name="name">Sales Volume and Sales Value By Duration Report</field>
+          <field name="type">ir.actions.report.xml</field>
+          <field name="model">report.sales.volume.by.branch.wizard</field>
+          <field name="report_name">report.sales.volume.by.branch.jasper</field>
+          <field name="tml_source">file</field>
+          <field name="report_rml">pos_customize/report/report_sales_volume_by_branch.jrxml</field>
+          <field name="parser_state">loc</field>
+          <field name="auto">True</field>
+          <field name="menu">True</field>
+          <field name="header">False</field>
+          <field name="jasper_report">True</field>
+          <field name="jasper_output">pdf</field>
+          <field name="jasper_model_id" ref="pos_customize.model_report_sales_volume_by_branch_wizard"/>
+      </record>
+
+        <act_window id="action_report_sales_volume_by_branch_wizard"
+                name="Sales Volume and Sales Value By Duration Report"
+                res_model="report.sales.volume.by.branch.wizard"
+                view_mode="form"
+                target="new"/>
+
+        <menuitem id="menu_report_sales_volume_by_branch_wizard"
+                parent="menu_report_sales_admin"
+                action="action_report_sales_volume_by_branch_wizard"
+                sequence="3"/>
+
+        <record id="view_report_sales_volume_by_branch_wizard" model="ir.ui.view">
+
+                <field name="name">report.sales.volume.by.branch.form</field>
+                <field name="model">report.sales.volume.by.branch.wizard</field>
+                <field name="arch" type="xml">
+                <form string="Sales Volume and Sales Value By Duration Report">
+                 <group>
+                    <group>
+                        <field name="start_date" required="1"/>
+                        <field name="end_date" required="1"/>
+                        <field name="start_cate"
+                               options="{'no_quick_create': True, 'no_create_edit': True}"
+                               required="1"/>
+                        <field name="end_cate"
+                               options="{'no_quick_create': True, 'no_create_edit': True}"
+                               required="1"/>
+                    </group>
+                    <group>
+                        <field name="start_branch"
+                               options="{'no_quick_create': True, 'no_create_edit': True}"
+                               required="1"/>
+                        <field name="end_branch"
+                               options="{'no_quick_create': True, 'no_create_edit': True}"
+                               required="1"/>
+                    </group>
+                     <group>
+                          <field name="jasper_output" widget="radio" required="1"/>
+                   </group>
+                </group>
+                <footer>
+                    <button name="action_print_report"
+                        string="Print Report" type="object"
+                        class="oe_highlight"/>
+                        or
+                    <button string="Cancel" class="oe_link"
+                        special="cancel"/>
+                </footer>
+                </form>
+                </field>
+        </record>
+
+    </data>
+</openerp>

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    
+    <record id="view_redeem_type_form" model="ir.ui.view">
+        <field name="name">Redeem Type</field>
+        <field name="model">redeem.type</field>
+        <field name="arch" type="xml">
+            <form string="Redeem Type">
+                <div class="oe_title">
+                    <label class="oe_edit_only" for="name" string="Name"/>
+                    <h1>
+                        <field name="name" placeholder="e.g. T1CC "/>
+                    </h1>
+                </div>
+                <group col="1">
+                    <field name="code"/>
+                    <field name="description"/>
+                </group>
+                <separate/>
+                <group col="2">
+                    <field name="is_t1c"/>
+                    <field name="is_bank_transfer"/>
+                    <field name="active"/>
+                </group>                
+            </form>
+        </field>
+    </record>
+    
+    <record id="view_redeem_type_tree" model="ir.ui.view">
+        <field name="name">Redeem Type</field>
+        <field name="model">redeem.type</field>
+        <field name="arch" type="xml">
+            <tree string="Redeem Type">
+                <field name="name"/>
+                <field name="code"/>
+                <field name="description"/>
+                <field name="active"/>
+            </tree>
+        </field>
+    </record>
+    
+    
+    <record id="action_open_redeem_type" model="ir.actions.act_window">
+        <field name="name">Redeem Type</field>
+        <field name="res_model">redeem.type</field>
+        <field name="view_type">form</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_id" ref="view_redeem_type_tree"/>
+    </record>
+
+    <menuitem id="redeem_type_menu" action="action_open_redeem_type" name="Redeem Type" parent="account.account_account_menu" sequence="2"/>
+
+</odoo>

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+        <function
+            id="function_deposit_product_from_sale"
+            model="product.product"
+            name="deposit_product_from_sale"
+        />
+        <function
+            id="function_deposit_product_from_sale_without_tax"
+            model="product.product"
+            name="deposit_product_from_sale_without_tax"
+        />
+        <function
+            id="function_cash_credit_product_from_sale"
+            model="product.product"
+            name="cash_credit_product_from_sale"
+        />
+        <function
+            id="function_cash_credit_product_from_sale_without_tax"
+            model="product.product"
+            name="cash_credit_product_from_sale_without_tax"
+        />
+        <function
+            id="function_deposit_product_from_purchase"
+            model="product.product"
+            name="deposit_product_from_purchase"
+        />
+        <function
+            id="function_deposit_product_from_purchase_without_tax"
+            model="product.product"
+            name="deposit_product_from_purchase_without_tax"
+        />
+    </data>
+</odoo>

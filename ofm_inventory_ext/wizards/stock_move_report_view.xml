@@ -1,0 +1,84 @@
+<?xml version="1.0"?>
+<openerp>
+   <data>
+
+       <record id="stock_move_report_pdf_jasper" model="ir.actions.report.xml">
+           <field name="string">รายงานความเคลื่อนไหวสินค้าคงคลัง</field>
+           <field name="auto">True</field>
+           <field name="model">stock.move.report.wizard</field>
+           <field name="jasper_model_id" ref="base.model_res_users"/>
+           <field name="name">รายงานความเคลื่อนไหวสินค้าคงคลัง</field>
+           <field name="report_name">stock.move.report.pdf.jasper</field>
+           <field name="rml">ofm_inventory_ext/report/stock_move_report_pdf.jrxml</field>
+           <field name="report_rml">ofm_inventory_ext/report/stock_move_report_pdf.jrxml</field>
+           <field name="menu">False</field>
+           <field name="header">False</field>
+           <field name="jasper_report">True</field>
+           <field name="jasper_output">pdf</field>
+       </record>
+
+       <record id="stock_move_report_excel_jasper" model="ir.actions.report.xml">
+           <field name="string">รายงานความเคลื่อนไหวสินค้าคงคลัง</field>
+           <field name="auto">True</field>
+           <field name="model">stock.move.report.wizard</field>
+           <field name="jasper_model_id" ref="base.model_res_users"/>
+           <field name="name">รายงานความเคลื่อนไหวสินค้าคงคลัง</field>
+           <field name="report_name">stock.move.report.excel.jasper</field>
+           <field name="rml">ofm_inventory_ext/report/stock_move_report_excel.jrxml</field>
+           <field name="report_rml">ofm_inventory_ext/report/stock_move_report_excel.jrxml</field>
+           <field name="menu">False</field>
+           <field name="header">False</field>
+           <field name="jasper_report">True</field>
+           <field name="jasper_output">xls</field>
+       </record>
+
+       <record id="action_stock_move_report_wizard" model="ir.actions.act_window">
+            <field name="name">รายงานความเคลื่อนไหวสินค้าคงคลัง</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">stock.move.report.wizard</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+        </record>
+
+       <menuitem id="menu_stock_move_report_wizard"
+                 parent="stock.menu_warehouse_report"
+                 action="action_stock_move_report_wizard"
+                 sequence="8"/>
+
+       <record id="view_stock_move_report_wizard" model="ir.ui.view">
+           <field name="name">รายงานความเคลื่อนไหวสินค้าคงคลัง</field>
+           <field name="model">stock.move.report.wizard</field>
+           <field name="arch" type="xml">
+               <form string="รายงานความเคลื่อนไหวสินค้าคงคลัง">
+                   <group>
+                       <group>
+                           <field name="start_date"/>
+                           <field name="end_date"/>
+                           <field name="jasper_output" widget="radio"/>
+                       </group>
+                       <group>
+                           <field name="company_id"
+                                  options="{'no_quick_create': True, 'no_create_edit': True}"/>
+                           <field name="branch_id"
+                                  options="{'no_quick_create': True, 'no_create_edit': True}"
+                                  domain="[('pos_company_id', '=',company_id)]" />
+                           <field name="start_pid"/>
+                           <field name="end_pid"/>
+                           <field name="status_type"/>
+                       </group>
+                   </group>
+                   <footer>
+                       <button name="action_print_report"
+                               string="Print Report" type="object"
+                               class="oe_highlight"/>
+                       or
+                       <button string="Cancel" class="oe_link"
+                               special="cancel"/>
+                   </footer>
+               </form>
+           </field>
+       </record>
+
+   </data>
+</openerp>

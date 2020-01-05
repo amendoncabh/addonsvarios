@@ -1,0 +1,57 @@
+<?xml version="1.0"?>
+<odoo>
+    <data>
+
+        <record id="franchise_master_report_jasper" model="ir.actions.report.xml">
+            <field name="string">Franchise Master Report</field>
+            <field name="auto">True</field>
+            <field name="model">franchise.master.report.wizard</field>
+            <field name="jasper_model_id" ref="base.model_res_users"/>
+            <field name="name">Franchise Master Report</field>
+            <field name="report_name">franchise.master.report.jasper</field>
+            <field name="rml">ofm_franchise/reports/franchise_master_report.jrxml</field>
+            <field name="report_rml">ofm_franchise/reports/franchise_master_report.jrxml</field>
+            <field name="menu">False</field>
+            <field name="header">False</field>
+            <field name="jasper_report">True</field>
+            <field name="jasper_output">xls</field>
+        </record>
+
+        <act_window id="action_franchise_master_report_wizard"
+                    name="franchise_master"
+                    res_model="franchise.master.report.wizard"
+                    view_mode="form"
+                    target="new"/>
+
+        <record id="view_franchise_master_report_wizard" model="ir.ui.view">
+            <field name="name">franchise.master.report.form</field>
+            <field name="model">franchise.master.report.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Franchise Master Report">
+                    <group>
+                        <group>
+                            <field name="company_id" options="{'no_create': True}"/>
+                            <field name="company_type"/>
+                            <field name="jasper_output"/>
+                        </group>
+                        <group>
+                            <field name="province_id" options="{'no_create': True}"/>
+                            <field name="vat"/>
+                            <field name="state"/>
+                        </group>
+                    </group>
+
+                    <footer>
+                        <button name="action_print_report"
+                                string="Print Report" type="object"
+                                class="oe_highlight"/>
+                        or
+                        <button string="Cancel" class="oe_link"
+                                special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+    </data>
+</odoo>

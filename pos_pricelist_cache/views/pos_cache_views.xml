@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="product_pricelist_view">
+            <field name="name">product.pricelist.website.form</field>
+            <field name="model">product.pricelist</field>
+            <field name="inherit_id" ref="product.product_pricelist_view"/>
+            <field name="arch" type="xml">
+                <xpath expr="//form/sheet" position="inside">
+                    <notebook>
+                        <page string="Pricelist Cache" groups="base.group_system">
+                            <group groups="base.group_system">
+                                <group>
+                                    <field name='latest_cache_id' invisible="1"/>
+                                    <field name='latest_cache_time'/>
+                                </group>
+                                <group>
+                                    <button name="new_cache" type="object"
+                                            string="Renew cache"/>
+                                    <button name='delete_cache' type="object"
+                                            string="Delete all cache"
+                                            attrs="{'invisible': [('latest_cache_id', '=', False)]}"/>
+                                    <button name='delete_old_caches' type="object"
+                                            string="Delete old cache"
+                                            attrs="{'invisible': [('latest_cache_id', '=', False)]}"/>
+                                </group>
+                            </group>
+                            <field name="cache_ids" mode="tree" groups="base.group_system">
+                                <tree default_order="id desc">
+                                    <field name="id"/>
+                                    <field name="product_len"/>
+                                    <field name="write_date"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record model="ir.rule" id="re_product_label_rule">
+            <field name="name">Product Label RePrint</field>
+            <field name="model_id" search="[('model','=','product.label.reprint')]" model="ir.model"/>
+            <field name="global" eval="True"/>
+            <field name="domain_force">[('company_id','=',user.company_id.id)]</field>
+        </record>
+    </data>
+</odoo>

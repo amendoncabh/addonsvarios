@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="product_search_form_view_inherit" model="ir.ui.view">
+            <field name="name">product.product.search.inherit</field>
+            <field name="model">product.product</field>
+            <field name="inherit_id" ref="product.product_search_form_view"/>
+            <field name="arch" type="xml">
+                <xpath expr="field[@name='attribute_value_ids']" position="before">
+                    <field name="template_ids" string="Branch" domain="[('template_ids','ilike',self)]"/>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="product_category_form_view" model="ir.ui.view">
+            <field name="name">product.category.form</field>
+            <field name="model">product.category</field>
+            <field name="inherit_id" ref="product.product_category_form_view"/>
+            <field name="arch" type="xml">
+                <xpath expr="//group[@name='first']" position="after">
+                    <group name="first" col="4" string="Category Type">
+                        <field name="cat_id"/>
+                        <field name="sub_cat_id"/>
+                    </group>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="product_category_list_view" model="ir.ui.view">
+            <field name="name">product.category.list</field>
+            <field name="model">product.category</field>
+            <field name="inherit_id" ref="product.product_category_list_view"/>
+            <field name="priority">1</field>
+            <field name="arch" type="xml">
+                <xpath expr="//tree/field[@name='display_name']" position="before">
+                    <field name="sequence" widget="handle"/>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="inherit_product_normal_form_view" model="ir.ui.view">
+            <field name="name">inherit.product.product.normal.form.view</field>
+            <field name="model">product.product</field>
+            <field name="priority" eval="17"/>
+            <field name="inherit_id" ref="product.product_normal_form_view"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='standard_price']" position="replace"></xpath>
+                <xpath expr="//button[@name='%(stock_account.action_view_change_standard_price)d']" position="replace"></xpath>
+                <xpath expr="//field[@name='lst_price']" position="after">
+                    <field name="product_cost" attrs="{'invisible':[('type','=','product')]}"/>
+                    <field name="price_normal" readonly="1"/>
+                    <field name="price_promotion" readonly="1"/>
+                    <field name="date_promotion_start" readonly="1"/>
+                    <field name="date_promotion_end" readonly="1"/>
+                </xpath>
+                <xpath expr="//field[@name='lst_price']" position="attributes">
+                    <attribute name="readonly">1</attribute>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="inherit_product_template_only_form_view" model="ir.ui.view">
+            <field name="name">inherit.product.template.product.form</field>
+            <field name="model">product.template</field>
+            <field name="priority" eval="17"/>
+            <field name="inherit_id" ref="product.product_template_only_form_view"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='standard_price']" position="replace"></xpath>
+                <xpath expr="//button[@name='%(stock_account.action_view_change_standard_price)d']" position="replace"></xpath>
+                <xpath expr="//field[@name='list_price']" position="after">
+                    <field name="product_cost" attrs="{'invisible':[('type','=','product')]}"/>
+                    <field name="price_normal" readonly="1"/>
+                    <field name="price_promotion" readonly="1"/>
+                    <field name="date_promotion_start" readonly="1"/>
+                    <field name="date_promotion_end" readonly="1"/>
+                </xpath>
+                <xpath expr="//field[@name='list_price']" position="attributes">
+                    <attribute name="readonly">1</attribute>
+                </xpath>
+            </field>
+        </record>
+
+    </data>
+</odoo>

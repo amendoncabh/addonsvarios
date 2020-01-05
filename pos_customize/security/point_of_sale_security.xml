@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+<data noupdate="0">
+
+    <record id="point_of_sale.group_pos_owner" model="res.groups">
+        <field name="name">Owner</field>
+        <field name="category_id" ref="base.module_category_point_of_sale"/>
+        <field name="implied_ids" eval="[(4, ref('point_of_sale.group_pos_manager'))]"/>
+        <field name="users" eval="[(4, ref('base.user_root'))]"/>
+    </record>
+    <record id="point_of_sale.group_pos_central_manager" model="res.groups">
+        <field name="name">Central Manager</field>
+        <field name="category_id" ref="base.module_category_point_of_sale"/>
+        <field name="implied_ids" eval="[(6, 0, [ref('point_of_sale.group_pos_manager'),ref('point_of_sale.group_pos_owner')])]"/>
+        <field name="users" eval="[(4, ref('base.user_root'))]"/>
+    </record>
+    <record id="point_of_sale.group_pos_admin" model="res.groups">
+        <field name="name">Admin</field>
+        <field name="category_id" ref="base.module_category_point_of_sale"/>
+        <field name="implied_ids" eval="[(4, ref('point_of_sale.group_pos_manager'))]"/>
+        <field name="users" eval="[(4, ref('base.user_root'))]"/>
+    </record>
+
+    <record id="rule_requisition_branches_of_user" model="ir.rule">
+        <field name="name">Requisition Of Branch User</field>
+        <field name="model_id" ref="pos_customize.model_requisition_branches" />
+        <field name="groups" eval="[(6, 0, [ref('point_of_sale.group_pos_user')])]"/>
+        <field name="domain_force">[('pos_branch', '=', user.pos_config.branch_id.id)]</field>
+    </record>
+    <record id="rule_requisition_branches_of_admin" model="ir.rule">
+        <field name="name">Requisition Of Branch Admin</field>
+        <field name="model_id" ref="pos_customize.model_requisition_branches" />
+        <field name="groups" eval="[(6, 0, [ref('point_of_sale.group_pos_central_manager')])]"/>
+        <field name="domain_force">[]</field>
+    </record>
+
+    <!--<record model="ir.rule" id="rule_filter_product_branch">-->
+        <!--<field name="name">Filter Product By Branch</field>-->
+        <!--<field name="model_id" ref="model_product_template"/>-->
+        <!--<field name="global" eval="True"/>-->
+        <!--<field name="domain_force">[('id', 'in', user.branch_id.branch_product_ids.ids)]</field>-->
+    <!--</record>-->
+
+    <!--POS BRANCH-->
+
+    <record id="rule_branch_of_user" model="ir.rule">
+        <field name="name">Pos Branch Of Branch User</field>
+        <field name="model_id" ref="pos_customize.model_pos_branch" />
+        <field name="groups" eval="[(6, 0, [ref('point_of_sale.group_pos_user')])]"/>
+        <field name="domain_force">[('id', '=', user.branch_id.id)]</field>
+    </record>
+    <record id="rule_branch_of_manager" model="ir.rule">
+        <field name="name">Pos Branch Of Branch Manager</field>
+        <field name="model_id" ref="pos_customize.model_pos_branch" />
+        <field name="groups" eval="[(6, 0, [ref('point_of_sale.group_pos_manager')])]"/>
+        <field name="domain_force">[('id', 'in', user.branch_ids.ids )]</field>
+    </record>
+    <record id="rule_branch_of_owner" model="ir.rule">
+        <field name="name">Pos Branch Of Branch Owner</field>
+        <field name="model_id" ref="pos_customize.model_pos_branch" />
+        <field name="groups" eval="[(6, 0, [ref('point_of_sale.group_pos_owner')])]"/>
+        <field name="domain_force">[('id', 'in', user.company_id.branch_ids.ids)]</field>
+    </record>
+    <record id="rule_branch_of_admin" model="ir.rule">
+        <field name="name">Pos Branch Of Branch Admin</field>
+        <field name="model_id" ref="pos_customize.model_pos_branch" />
+        <field name="groups" eval="[(6, 0, [ref('point_of_sale.group_pos_admin')])]"/>
+        <field name="domain_force">[]</field>
+    </record>
+
+    <!--POS CONFIG-->
+
+    <record model="ir.rule" id="rule_filter_pos_config_user">
+        <field name="name">Filter POS Config By Branch User</field>
+        <field name="model_id" ref="point_of_sale.model_pos_config"/>
+        <field name="groups" eval="[(6, 0, [ref('point_of_sale.group_pos_user')])]"/>
+        <field name="domain_force">[('branch_id', '=', user.branch_id.id)]</field>
+    </record>
+    <record model="ir.rule" id="rule_filter_pos_config_manager">
+        <field name="name">Filter POS Config By Branch Manager</field>
+        <field name="model_id" ref="point_of_sale.model_pos_config"/>
+        <field name="groups" eval="[(6, 0, [ref('point_of_sale.group_pos_manager')])]"/>
+        <field name="domain_force">[('branch_id.id', 'in', user.branch_ids.ids)]</field>
+    </record>
+    <record model="ir.rule" id="rule_filter_pos_config_owner">
+        <field name="name">Filter POS Config By Branch Owner</field>
+        <field name="model_id" ref="point_of_sale.model_pos_config"/>
+        <field name="groups" eval="[(6, 0, [ref('point_of_sale.group_pos_owner')])]"/>
+        <field name="domain_force">[('branch_id.id', 'in', user.branch_ids.ids)]</field>
+    </record>
+    <record model="ir.rule" id="rule_filter_pos_config_admin">
+        <field name="name">Filter POS Config By Branch Admin</field>
+        <field name="model_id" ref="point_of_sale.model_pos_config" />
+        <field name="groups" eval="[(6, 0, [ref('point_of_sale.group_pos_admin')])]"/>
+        <field name="domain_force">[]</field>
+    </record>
+
+    <!--POS SESSION-->
+
+    <record id="rule_session_branch_of_user" model="ir.rule">
+        <field name="name">session branch of user</field>
+        <field name="model_id" ref="point_of_sale.model_pos_session" />
+        <field name="groups" eval="[(6, 0, [ref('point_of_sale.group_pos_user')])]"/>
+        <field name="domain_force">[('config_id.branch_id.id', '=', user.branch_id.id)]</field>
+    </record>
+    <record id="rule_session_branch_of_manager" model="ir.rule">
+        <field name="name">session branch of manager</field>
+        <field name="model_id" ref="point_of_sale.model_pos_session" />
+        <field name="groups" eval="[(6, 0, [ref('point_of_sale.group_pos_manager')])]"/>
+        <field name="domain_force">[('config_id.branch_id.id', 'in', user.branch_ids.ids)]</field>
+    </record>
+    <record id="rule_session_branch_of_owner" model="ir.rule">
+        <field name="name">session branch of owner</field>
+        <field name="model_id" ref="point_of_sale.model_pos_session" />
+        <field name="groups" eval="[(6, 0, [ref('point_of_sale.group_pos_owner')])]"/>
+        <field name="domain_force">[('config_id.branch_id.id', 'in', user.branch_ids.ids)]</field>
+    </record>
+    <record id="rule_session_branch_of_admin" model="ir.rule">
+        <field name="name">session branch of admin</field>
+        <field name="model_id" ref="point_of_sale.model_pos_session" />
+        <field name="groups" eval="[(6, 0, [ref('point_of_sale.group_pos_admin')])]"/>
+        <field name="domain_force">[]</field>
+    </record>
+
+    <!--POS ORDER-->
+
+    <record model="ir.rule" id="rule_filter_pos_order_of_user">
+        <field name="name">Filter POS Order Of Branch User</field>
+        <field name="model_id" ref="point_of_sale.model_pos_order"/>
+        <field name="groups" eval="[(6, 0, [ref('point_of_sale.group_pos_user')])]"/>
+        <field name="domain_force">[('session_id.config_id.branch_id.id', '=', user.branch_id.id)]</field>
+    </record>
+    <record model="ir.rule" id="rule_filter_pos_order_of_manager">
+        <field name="name">Filter POS Order Of Branch Manager</field>
+        <field name="model_id" ref="point_of_sale.model_pos_order"/>
+        <field name="groups" eval="[(6, 0, [ref('point_of_sale.group_pos_manager')])]"/>
+        <field name="domain_force">[('session_id.config_id.branch_id.id', 'in', user.branch_ids.ids)]</field>
+    </record>
+    <record model="ir.rule" id="rule_filter_pos_order_of_owner">
+        <field name="name">Filter POS Order Of Branch Owner</field>
+        <field name="model_id" ref="point_of_sale.model_pos_order"/>
+        <field name="groups" eval="[(6, 0, [ref('point_of_sale.group_pos_owner')])]"/>
+        <field name="domain_force">[('session_id.config_id.branch_id.id', 'in', user.branch_ids.ids)]</field>
+    </record>
+    <record model="ir.rule" id="rule_filter_pos_order_of_admin">
+        <field name="name">Filter POS Order Of Branch Admin</field>
+        <field name="model_id" ref="point_of_sale.model_pos_order" />
+        <field name="groups" eval="[(6, 0, [ref('point_of_sale.group_pos_admin')])]"/>
+        <field name="domain_force">[]</field>
+    </record>
+
+</data>
+</openerp>

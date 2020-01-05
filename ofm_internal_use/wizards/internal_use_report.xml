@@ -1,0 +1,102 @@
+<?xml version="1.0"?>
+<odoo>
+    <record id="view_internal_use_report_wizard" model="ir.ui.view">
+        <field name="name">Internal Use</field>
+        <field name="model">internal.use.report</field>
+        <field name="arch" type="xml">
+            <form string="Internal use">
+                <group>
+                    <field name="company_id" 
+                        string="Company"
+                        options="{
+                                    'no_quick_create': True,
+                                    'no_create_edit': True,
+                                    'no_open': True
+                                }"/>
+                    <field name="branch_id" 
+                        string="Branch"
+                        options="{
+                                    'no_quick_create': True,
+                                    'no_create_edit': True,
+                                    'no_open': True
+                                }"/>
+                    <field name="sub_dept_ids" 
+                        string="Sub Dept" 
+                        widget="many2many_tags"
+                        options="{
+                                    'no_quick_create': True,
+                                    'no_create_edit': True,
+                                    'no_open': True
+                                }"
+                        context="{
+                            'tree_view_ref': 'ofm_product_ext.view_ofm_product_sub_dept_tree_search_mode',
+                        }"/>
+                    <field name="product_ids" 
+                        string="Product"
+                        widget="many2many_tags"
+                        options="{
+                                    'no_quick_create': True,
+                                    'no_create_edit': True,
+                                    'no_open': True
+                                }"/>
+                    <field name="start_date"/>
+                    <field name="end_date"/>
+                    <field name="type" widget="radio"/>
+                </group>
+                <footer>
+                    <button name="action_print"
+                            string="Print" type="object"
+                            class="oe_highlight"/>
+                    or
+                    <button string="Cancel" class="oe_link"
+                            special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="internal_use_report_pdf_jasper" model="ir.actions.report.xml">
+        <field name="string">รายงานการเบิกใช้สินค้า</field>
+        <field name="auto">True</field>
+        <field name="model">internal.use.report</field>
+        <field name="jasper_model_id" ref="base.model_res_users"/>
+        <field name="name">Internal Use</field>
+        <field name="report_name">internal.use.report.pdf.jasper</field>
+        <field name="rml">ofm_internal_use/reports/internal_use.jrxml</field>
+        <field name="report_rml">ofm_internal_use/reports/internal_use.jrxml</field>
+        <field name="menu">False</field>
+        <field name="header">False</field>
+        <field name="jasper_report">True</field>
+        <field name="jasper_output">pdf</field>
+    </record>
+    <record id="internal_use_report_xls_jasper" model="ir.actions.report.xml">
+        <field name="string">รายงานการเบิกใช้สินค้า</field>
+        <field name="auto">True</field>
+        <field name="model">internal.use.report</field>
+        <field name="jasper_model_id" ref="base.model_res_users"/>
+        <field name="name">Internal Use</field>
+        <field name="report_name">internal.use.report.xls.jasper</field>
+        <field name="rml">ofm_internal_use/reports/internal_use.jrxml</field>
+        <field name="report_rml">ofm_internal_use/reports/internal_use.jrxml</field>
+        <field name="menu">False</field>
+        <field name="header">False</field>
+        <field name="jasper_report">True</field>
+        <field name="jasper_output">xls</field>
+    </record>
+
+    <record id="action_open_internal_use_report_wizard" model="ir.actions.act_window">
+        <field name="name">รายงานการเบิกใช้สินค้า</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">internal.use.report</field>
+        <field name="view_type">form</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="view_internal_use_report_wizard" />
+        <field name="target">new</field>
+    </record>
+
+    <menuitem id="menu_internal_use_report_wizard"
+                  parent="stock.menu_warehouse_report"
+                  action="action_open_internal_use_report_wizard"
+                  string="รายงานการเบิกใช้สินค้า"
+                  sequence="5"/>
+</odoo>

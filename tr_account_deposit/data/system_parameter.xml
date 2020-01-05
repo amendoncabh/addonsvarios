@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="ir_config_parameter_deposit_default_payment_cash" model="ir.config_parameter">
+            <field name="key">deposit_default_payment_cash</field>
+            <field name="value">cash</field>
+        </record>
+        <record id="ir_config_parameter_deposit_default_payment_credit_card" model="ir.config_parameter">
+            <field name="key">deposit_default_payment_credit_card</field>
+            <field name="value">bank</field>
+        </record>
+    </data>
+</odoo>

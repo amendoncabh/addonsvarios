@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_inventory_reason_code_tree" model="ir.ui.view">
+        <field name="name">Inventory Reason Code</field>
+        <field name="model">inventory.reason.code</field>
+        <field name="arch" type="xml">
+            <tree string="Inventory Reason Code" editable="top">
+                <field name="name"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="action_inventory_reason_code_form" model="ir.actions.act_window">
+        <field name="name">Inventory Reason Code</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">inventory.reason.code</field>
+        <field name="view_type">form</field>
+        <field name="view_mode">tree</field>
+        <field name="view_id" ref="view_inventory_reason_code_tree"/>
+    </record>
+
+    <menuitem name="Reason Code" action="action_inventory_reason_code_form" id="menu_action_inventory_reason_code_form" groups="ofm_access_right_center.group_ofm_hq" parent="stock.menu_stock_config_settings" sequence="29"/>
+</odoo>

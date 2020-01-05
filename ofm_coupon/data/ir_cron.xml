@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record model="ir.cron" id="refresh_pos_address_cache_cron">
+            <field name="name">Unreserved Coupon job</field>
+            <field name="active" eval="True"/>
+            <field name="interval_number">1</field>
+            <field name="interval_type">minutes</field>
+            <field name="numbercall">-1</field>
+            <field name="doall" eval="False"/>
+            <field name="model" eval="'multi.coupon'"/>
+            <field name="function" eval="'unreserved_process'"/>
+            <field name="args" eval="'()'"/>
+        </record>
+    </data>
+</odoo>

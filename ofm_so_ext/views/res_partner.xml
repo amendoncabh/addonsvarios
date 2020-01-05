@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="view_partner_form_inherit" model="ir.ui.view">
+            <field name="name">view.partner.form.inherit</field>
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="base.view_partner_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='child_ids']/form//field[@name='comment']" position="after">
+                    <field name="vendor_ship_id" invisible="1"/>
+                    <field name="is_update_shipping" invisible="1"/>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="customer_aging_balance_view_partner_form_inherit" model="ir.ui.view">
+            <field name="name">customer.aging.balance.view.partner.form.inherit</field>
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="customer_aging_balance.view_partner_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='aging_balance']" position="attributes">
+                    <attribute name="groups">sales_team.group_sale_manager</attribute>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

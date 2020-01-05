@@ -1,0 +1,244 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="pricelists_form_view">
+            <field name="name">pricelists.form.view</field>
+            <field name="model">pricelists</field>
+            <field name="arch" type="xml">
+                <form string="Price-lists">
+                    <sheet>
+                        <div class="oe_button_box" name="button_box">
+                            <button name="%(action_open_import_pricelists)d"
+                                    string="Import (.xlsx)"
+                                    icon="fa-stack-overflow"
+                                    type="action"
+                                    class="oe_stat_button"/>
+                        </div>
+                        <div class="oe_title">
+                            <label class="oe_edit_only" for="name" string="Price-lists Name"/>
+                            <h1>
+                                <field name="name"/>
+                            </h1>
+                            <label for="sequence" string="Sequence"/>
+                            <field name="sequence" readonly="1"/>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="is_except_branch"/>
+                                <field name="active"/>
+                            </group>
+                            <group>
+                                <field name="start_date"/>
+                                <field name="end_date"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="Price-lists Items">
+                                <field name="pricelists_line_ids">
+                                    <tree string="Price-lists Items" editable="top">
+                                        <field name="product_id"
+                                               options="{
+                                                   'no_create_edit': True,
+                                                   'no_create':True,
+                                                   'no_open':True
+                                               }"
+                                               context="{
+                                                   'search_model': 'pricelists'
+                                               }"/>
+                                        <field name="price_exc_vat"/>
+                                        <field name="price_inc_vat"/>
+                                        <field name="retail_price_exc_vat"/>
+                                        <field name="retail_price_inc_vat"/>
+                                        <field name="promo_price_exc_vat"/>
+                                        <field name="promo_price_inc_vat"/>
+                                        <field name="different_price"/>
+                                    </tree>
+                                </field>
+                            </page>
+                            <page string="Branch">
+                                <field name="branch_ids">
+                                    <tree>
+                                        <field name="name"/>
+                                    </tree>
+                                </field>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="pricelists_tree_view">
+            <field name="name">pricelists.tree.view</field>
+            <field name="model">pricelists</field>
+            <field name="arch" type="xml">
+                <tree string="Price-lists">
+                    <field name="sequence" widget="handle"/>
+                    <field name="sequence"/>
+                    <field name="name"/>
+                    <field name="branch_ids" widget="many2many_tags"/>
+                    <field name="is_except_branch"/>
+                    <field name="start_date"/>
+                    <field name="end_date"/>
+                    <field name="active"/>
+                </tree>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="pricelists_line_form_view">
+            <field name="name">pricelists.line.form.view</field>
+            <field name="model">pricelists.line</field>
+            <field name="arch" type="xml">
+                <form string="Price-lists Line">
+                    <sheet>
+                        <div class="oe_title">
+                            <label for="product_id" string="Product Name"/>
+                            <field name="product_id" readonly="1"/>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="price_exc_vat"/>
+                                <field name="retail_price_exc_vat"/>
+                                <field name="promo_price_exc_vat"/>
+                            </group>
+                            <group>
+                                <field name="price_inc_vat"/>
+                                <field name="retail_price_inc_vat"/>
+                                <field name="promo_price_inc_vat"/>
+                                <field name="different_price"/>
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="pricelists_line_tree_view">
+            <field name="name">pricelists.line.tree.view</field>
+            <field name="model">pricelists.line</field>
+            <field name="arch" type="xml">
+                <tree string="Price-lists Product" editable="bottom">
+                    <field name="pricelists_id"
+                           options="{'no_create_edit': True, 'no_create':True, 'no_open':True}"/>
+                    <field name="product_id"
+                           options="{'no_create_edit': True, 'no_create':True, 'no_open':True}"/>
+                    <field name="price_exc_vat"/>
+                    <field name="price_inc_vat"/>
+                    <field name="retail_price_exc_vat"/>
+                    <field name="retail_price_inc_vat"/>
+                    <field name="promo_price_exc_vat"/>
+                    <field name="promo_price_inc_vat"/>
+                    <field name="different_price"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="pricelists_search_view" model="ir.ui.view">
+           <field name="name">pricelists.search</field>
+           <field name="model">pricelists</field>
+            <field name="arch" type="xml">
+                <search string="">
+                    <field name="name"/>
+                    <field name="branch_ids"/>
+                    <field name="is_except_branch"/>
+                    <field name="start_date"/>
+                    <field name="end_date"/>
+                    <field name="active"/>
+                </search>
+           </field>
+        </record>
+
+        <record id="action_pricelists" model="ir.actions.act_window">
+            <field name="name">Price-lists</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">pricelists</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="search_view_id" ref="pricelists_search_view"/>
+            <field name="target">current</field>
+        </record>
+
+        <menuitem id="menu_pricelists"
+                  parent="sales_team.menu_sale_config"
+                  action="action_pricelists"
+                  sequence="6"/>
+
+        <record id="pricelists_line_search_view" model="ir.ui.view">
+           <field name="name">pricelists.line.search</field>
+           <field name="model">pricelists.line</field>
+            <field name="arch" type="xml">
+                <search string="">
+                    <field name="pricelists_id"/>
+                    <field name="product_id"/>
+                </search>
+           </field>
+        </record>
+
+        <record id="action_pricelists_line" model="ir.actions.act_window">
+            <field name="name">Price-lists Product</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">pricelists.line</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree</field>
+            <field name="search_view_id" ref="pricelists_line_search_view"/>
+            <field name="target">current</field>
+        </record>
+
+        <menuitem id="menu_pricelists_line"
+                  parent="sales_team.menu_sale_config"
+                  action="action_pricelists_line"
+                  sequence="7"/>
+
+        <record id="pricelists_log_search_view" model="ir.ui.view">
+           <field name="name">pricelists.log.search</field>
+           <field name="model">mail.tracking.value</field>
+            <field name="arch" type="xml">
+                <search string="">
+                    <field name="pricelist_name"/>
+                    <field name="field_desc"/>
+                    <field name="old_value_float"/>
+                    <field name="new_value_float"/>
+                    <field name="old_value_char"/>
+                    <field name="new_value_char"/>
+                    <field name="old_value_datetime"/>
+                    <field name="new_value_datetime"/>
+                    <field name="update_date"/>
+                    <field name="update_by_id"/>
+                </search>
+           </field>
+        </record>
+
+        <record id="view_log_pricelists" model="ir.ui.view">
+            <field name="name">log.pricelists.form</field>
+            <field name="model">mail.tracking.value</field>
+            <field name="arch" type="xml">
+                <tree string="Log Price-lists" create="0" delete="0">
+                    <field name="pricelist_name"/>
+                    <field name="field_desc"/>
+                    <field name="old_value"/>
+                    <field name="new_value"/>
+                    <field name="update_date"/>
+                    <field name="update_by_id"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="action_log_pricelists" model="ir.actions.act_window">
+            <field name="name">Log Pricelists</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">mail.tracking.value</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="view_log_pricelists"/>
+            <field name="target">current</field>
+            <field name="domain">[('mail_message_id.model', 'in', ['pricelists.line', 'pricelists'])]</field>
+            <field name="search_view_id" ref="pricelists_log_search_view"/>
+        </record>
+
+        <menuitem id="menu_log_pricelists"
+                  parent="sales_team.menu_sale_config"
+                  action="action_log_pricelists"
+                  groups="ofm_access_right_center.group_ofm_hq"
+                  sequence="8"/>
+    </data>
+</odoo>

@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+
+pos_cash_box_reason.pos_cash_box_reason_group,pos.cash.box.reason user,model_pos_cash_box_reason,base.group_user,1,0,0,0
+pos_cash_box_reason.pos_cash_box_reason_pos_admin_group,pos.cash.box.reason pos_admin,model_pos_cash_box_reason,point_of_sale.group_pos_admin,1,1,1,0

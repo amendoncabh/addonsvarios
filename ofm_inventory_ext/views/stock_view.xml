@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="delivery_doc_report" model="ir.actions.report.xml">
+            <field name="string">Goods Receive Note</field>
+            <field name="auto">True</field>
+            <field name="model">stock.picking</field>
+            <field name="name">Goods Receive Note</field>
+            <field name="report_name">receive.doc.report.jasper</field>
+            <field name="rml">ofm_inventory_ext/report/receive_doc_report.jrxml</field>
+            <field name="report_rml">ofm_inventory_ext/report/receive_doc_report.jrxml</field>
+            <field name="menu">False</field>
+            <field name="header">False</field>
+            <field name="jasper_report">True</field>
+            <field name="jasper_output">pdf</field>
+        </record>
+
+        <record id="view_picking_ext" model="ir.ui.view">
+            <field name="name">stock.picking.form</field>
+            <field name="model">stock.picking</field>
+            <field name="inherit_id" ref="stock.view_picking_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//div[@name='button_box']" position="inside">
+                    <button type="object"
+                            name="print_goods_receive_note"
+                            class="oe_stat_button"
+                            icon="fa-print"
+                            string="Goods Receive Note"
+                            attrs="{'invisible': ['|','|',('picking_type_code', 'not in', ('incoming')),
+                            ('state','in',('draft', 'cancel', 'waiting')),
+                            ('is_from_po','=',False),
+                            ]}"/>
+                </xpath>
+                <xpath expr="//button[@name='button_scrap']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//button[@name='action_assign']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//button[@name='do_unreserve']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//button[@name='action_cancel']" position="attributes">
+                    <attribute name="groups">stock.group_stock_manager</attribute>
+                </xpath>
+                <xpath expr="//field[@name='origin']" position="after">
+                    <field name="account_move_id"/>
+                    <field name="usage_src_location"/>
+                    <field name="usage_dest_location"/>
+                </xpath>
+
+                <xpath expr="//field[@name='partner_id']" position="attributes">
+                    <attribute name="readonly">True</attribute>
+                </xpath>
+
+                <xpath expr="//field[@name='min_date']" position="after">
+                    <field name="date_done" widget="date"
+                           attrs="{
+                                'readonly': [
+                                    '|',
+                                    ('state', '=', 'done'),
+                                    '&amp;',
+                                    ('usage_src_location', '=', 'internal'),
+                                    ('usage_dest_location', '=', 'supplier'),
+                                ],
+                                'invisible': [
+                                    ('state', '!=', 'done'),
+                                ]
+                            }"
+                    />
+                </xpath>
+                <xpath expr="//field[@name='move_lines']" position="attributes">
+                    <attribute name="context">{
+                        'address_in_id': partner_id,
+                        'form_view_ref':'stock.view_move_picking_form',
+                        'tree_view_ref':'stock.view_move_picking_tree',
+                        'default_picking_type_id': picking_type_id,
+                        'default_location_id': location_id,
+                        'default_location_dest_id': location_dest_id,
+                        'default_picking_id': id,
+                    }"
+                    </attribute>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="view_picking_type_ext" model="ir.ui.view">
+            <field name="name">stock.picking.type.form</field>
+            <field name="model">stock.picking.type</field>
+            <field name="inherit_id" ref="stock.view_picking_type_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='warehouse_id']" position="after">
+                    <field name="branch_id"/>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="view_warehouse_ext" model="ir.ui.view">
+            <field name="name">stock.warehouse</field>
+            <field name="model">stock.warehouse</field>
+            <field name="inherit_id" ref="stock.view_warehouse"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='in_type_id']" position="after">
+                    <field name="in_return_type_id"/>
+                </xpath>
+                <xpath expr="//field[@name='out_type_id']" position="after">
+                    <field name="out_return_type_id"/>
+                    <field name="pos_type_id"/>
+                    <field name="pos_return_type_id"/>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

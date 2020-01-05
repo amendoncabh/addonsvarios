@@ -1,0 +1,1107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="promotion_mapping_product_qty_view">
+            <field name="name">promotion.mapping.product.qty.tree</field>
+            <field name="model">promotion.mapping.product.qty</field>
+            <field name="arch" type="xml">
+                <tree string="Reward Mapping Product Qty" editable="top">
+                    <field name="model_type" invisible="1"/>
+                    <field name="is_mapping_qty" invisible="1"/>
+                    <field name="barcode"/>
+                    <field name="product_id"
+                           options="{
+                                'no_quick_create': True,
+                                'no_create_edit': True,
+                                'no_open': True,
+                           }"
+                           domain="[('is_coupon', '=', False)]"
+                    />
+                    <field name="qty"
+                           attrs="{
+                                'invisible': [('is_mapping_qty', '=', False)],
+                                'required':[('is_mapping_qty', '=', True)]
+                           }"/>
+                </tree>
+            </field>
+        </record>
+
+
+        <record model="ir.ui.view" id="promotion_condition_tree_view">
+            <field name="name">pos.promotion.step.condition.tree</field>
+            <field name="model">pos.promotion.condition</field>
+            <field name="arch" type="xml">
+                <tree string="Promotion Condition Lines">
+                    <field name="sequence" widget="handle"/>
+                    <field name="condition_amount" invisible="0"/>
+                    <field name="condition_price" invisible="1"/>
+                    <field name="condition_qty" invisible="1"/>
+                    <field name="condition_product" invisible="1"/>
+                    <field name="condition_brand_id" invisible="1"/>
+                    <field name="condition_categ_id" invisible="1"/>
+                    <field name="condition_dept" invisible="1"/>
+                    <field name="condition_sub_dept" invisible="1"/>
+                    <field name="condition_bill_limit" invisible="1"/>
+                    <field name="reward_amount" invisible="0"/>
+                    <field name="reward_price" invisible="1"/>
+                    <field name="reward_qty" invisible="1"/>
+                    <field name="reward_discount_percentage" invisible="0"/>
+                    <field name="reward_product" invisible="1"/>
+                    <field name="reward_brand_id" invisible="1"/>
+                    <field name="reward_categ_id" invisible="1"/>
+                    <field name="reward_dept" invisible="1"/>
+                    <field name="reward_sub_dept" invisible="1"/>
+                    <field name="promotion_type_selected" invisible="1"/>
+                    <field name="condition_type_selected" invisible="1"/>
+                    <field name="reward_type_selected" invisible="1"/>
+                </tree>
+            </field>
+        </record>
+
+        <!--step view-->
+        <record model="ir.ui.view" id="promotion_step_condition_form_view">
+            <field name="name">pos.promotion.step.condition.form</field>
+            <field name="model">pos.promotion.condition</field>
+            <field name="arch" type="xml">
+                <form string="Promotion Condition">
+                    <sheet>
+                        <group invisible="1">
+                            <field name="promotion_condition_can_create" invisible="1"/>
+                            <field name="condition_type_selected" invisible="1"/>
+                            <field name="promotion_type_selected" invisible="1"/>
+                            <field name="reward_type_selected" invisible="1"/>
+                            <field name="apply_with_coupon" invisible="1"/>
+                        </group>
+                        <notebook>
+                            <page string="Condition">
+                                <group>
+                                    <group attrs="{'invisible':[('apply_with_coupon', '!=', 'condition')]}">
+                                        <field name="condition_coupon_type"
+                                               widget="radio"
+                                               options="{'horizontal': true}"
+                                               attrs="{'required':[('apply_with_coupon', '=', 'condition')]}"/>
+                                        <field name="condition_coupon_product_id"
+                                               domain="[('is_coupon', '=', 'True'),
+                                                       ('is_coupon_confirm', '=', True),
+                                                       ('coupon_type', '=', condition_coupon_type)]"
+                                               options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"
+                                               attrs="{'required':[('apply_with_coupon', '=', 'condition')]}"/>
+                                    </group>
+                                    <group>
+                                        <field name="condition_amount" invisible="1"/>
+                                        <field
+                                                name="condition_qty"
+                                                attrs="{
+                                                    'invisible':[
+                                                        '|',
+                                                        ('condition_type_selected', '!=', 'qty'),
+                                                        ('is_condition_mapping_qty', '=', True)
+                                                    ],
+                                                    'required':[
+                                                        '|',
+                                                        ('condition_type_selected', '=', 'qty'),
+                                                        ('is_condition_mapping_qty', '=', False)
+                                                    ],
+                                                }"
+                                        />
+                                        <field
+                                                name="condition_price"
+                                                attrs="{
+                                                    'invisible':[
+                                                        ('condition_type_selected', '!=', 'price')
+                                                    ],
+                                                    'required':[
+                                                        ('condition_type_selected', '=', 'price')
+                                                    ]
+                                                }"
+                                                class="text-right"
+                                        />
+                                        <field name="condition_product" required="1"/>
+                                    </group>
+                                    <group attrs="{'invisible':['&amp;','|',('apply_to_reward', '!=', True),('condition_product', '=', 'all'),('condition_product', '=', False)]}">
+                                        <field name="apply_to_reward" attrs="{'invisible':['|', ('condition_type_selected', '!=', 'qty'),('reward_type_selected', '!=', 'product')]}"/>
+                                        <field name="is_free_as_same_pid" attrs="{'invisible':[('apply_to_reward', '!=', True)]}"/>
+                                        <field
+                                                name="condition_brand_id"
+                                                attrs="{
+                                                    'invisible':[
+                                                        ('condition_product', '!=', 'brand')
+                                                    ],
+                                                    'required':[
+                                                        ('condition_product', '=', 'brand')
+                                                    ]
+                                                }"
+                                                options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"
+                                        />
+                                        <field
+                                                name="condition_categ_id"
+                                                attrs="{
+                                                    'invisible':[
+                                                        ('condition_product', '!=', 'category')
+                                                    ],
+                                                    'required':[
+                                                        ('condition_product', '=', 'category')
+                                                    ]
+                                                }"
+                                                options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"
+                                        />
+                                        <field
+                                                name="condition_dept"
+                                                attrs="{
+                                                    'invisible':[
+                                                        ('condition_product', 'not in', ['dept', 'sub_dept']),
+                                                    ],
+                                                    'required':[
+                                                        ('condition_product', 'in', ['dept', 'sub_dept']),
+                                                    ]
+                                                }"
+                                                options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"
+                                        />
+                                        <field
+                                                name="condition_sub_dept"
+                                                attrs="{
+                                                    'invisible':[
+                                                        ('condition_product', '!=', 'sub_dept')
+                                                    ],
+                                                    'required':[
+                                                        ('condition_product', '=', 'sub_dept')
+                                                    ]
+                                                }"
+                                                domain="[('dept_parent_id', '!=', False), ('dept_parent_id', '=', condition_dept)]"
+                                                options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"
+                                        />
+                                    </group>
+                                </group>
+                                <group attrs="{
+                                            'invisible':[
+                                                ('condition_product', '!=', 'manual'),
+                                            ]
+                                       }">
+                                    <field name="is_condition_mapping_qty" attrs="{
+                                        'invisible': [
+                                            '|',
+                                            ('condition_type_selected', '=', 'price'),
+                                            ('is_free_as_same_pid', '=', True),
+                                        ]
+                                    }"/>
+                                    <field name="condition_mapping_product_qty_flag" invisible="1" attrs="{
+                                            'required':[
+                                                ('condition_product', '=', 'manual'),
+                                            ]
+                                       }"/>
+                                    <field name="condition_mapping_product_qty_ids" context="{
+                                        'model_type': 'condition',
+                                        'is_mapping_qty': is_condition_mapping_qty,
+                                        'tree_view_ref': 'ofm_promotion.promotion_mapping_product_qty_view',
+                                    }"/>
+                                    <field name="condition_mapping_product_text"
+                                           style="min-height: 150px; max-height: 150px;
+                                           min-width:100%; max-width:100%; overflow-y: scroll;"/>
+                                </group>
+                                <group attrs="{'invisible':[('condition_product', '=', False)]}">
+                                    <group>
+                                        <field name="is_exclude_product"
+                                               attrs="{
+                                                   'invisible':[('condition_product', '=', 'manual')]
+                                               }"
+                                        />
+                                    </group>
+                                    <group></group>
+                                    <group attrs="{'invisible': [('is_exclude_product', '!=', True)]}">
+                                        <field
+                                            name="exclude_condition_product"
+                                            attrs="{
+                                                'invisible': [
+                                                    ('is_exclude_product', '!=', True)
+                                                ],
+                                                'required': [
+                                                    ('is_exclude_product', '=', True)
+                                                ]
+                                            }"
+                                        />
+                                    </group>
+                                    <group attrs="{'invisible': [('exclude_condition_product', '=', False)]}">
+                                            <field
+                                                    name="exclude_condition_brand_id"
+                                                    attrs="{
+                                                        'invisible':[
+                                                            ('exclude_condition_product', '!=', 'brand')
+                                                        ],
+                                                        'required':[
+                                                            ('exclude_condition_product', '=', 'brand')
+                                                        ]
+                                                    }"
+                                                    options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"
+                                            />
+                                            <field
+                                                    name="exclude_condition_categ_id"
+                                                    attrs="{
+                                                        'invisible':[
+                                                            ('exclude_condition_product', '!=', 'category')
+                                                        ],
+                                                        'required':[
+                                                            ('exclude_condition_product', '=', 'category')
+                                                        ]
+                                                    }"
+                                                    options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"
+                                            />
+                                            <field
+                                                    name="exclude_condition_dept"
+                                                    attrs="{
+                                                        'invisible':[
+                                                            ('exclude_condition_product', 'not in', ['dept', 'sub_dept']),
+                                                        ],
+                                                        'required':[
+                                                            ('exclude_condition_product', 'in', ['dept', 'sub_dept']),
+                                                        ]
+                                                    }"
+                                                    options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"
+                                            />
+                                            <field
+                                                    name="exclude_condition_sub_dept"
+                                                    attrs="{
+                                                        'invisible':[
+                                                            ('exclude_condition_product', '!=', 'sub_dept')
+                                                        ],
+                                                        'required':[
+                                                            ('exclude_condition_product', '=', 'sub_dept')
+                                                        ]
+                                                    }"
+                                                    domain="[('dept_parent_id', '!=', False), ('dept_parent_id', '=', exclude_condition_dept)]"
+                                                    options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"
+                                            />
+                                            <field
+                                                    name="exclude_condition_manual_product"
+                                                    mode="tree"
+                                                    widget="many2many_edit_on_top"
+                                                    attrs="{
+                                                        'invisible':[
+                                                            ('exclude_condition_product', '!=', 'manual'),
+                                                        ],
+                                                        'required':[
+                                                            ('exclude_condition_product', '=', 'manual'),
+                                                        ]
+                                                    }"
+                                                    domain="[('is_coupon', '=', False)]"
+                                                    options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"
+                                            >
+                                                <tree string="Exclude Condition Manual Product" editable="top">
+                                                    <field name="barcode"/>
+                                                    <field name="name"/>
+                                                </tree>
+                                            </field>
+                                            <field name="exclude_condition_manual_text"
+                                                   style="min-height: 150px; max-height: 150px;
+                                                   min-width:100%; max-width:100%; overflow-y: scroll;"
+                                                   attrs="{
+                                                        'invisible':[
+                                                            ('exclude_condition_product', '!=', 'manual'),
+                                                        ],
+                                                    }"/>
+                                        </group>
+                                    </group>
+                            </page>
+                            <page string="Reward">
+                                <group attrs="{
+                                    'invisible':[
+                                        '|',
+                                        ('reward_type_selected', '!=', 'discount')
+                                    ]}">
+                                    <field name="reward_discount_percentage"/>
+                                </group>
+                                <group>
+                                    <group attrs="{'invisible':['|',
+                                            ('apply_with_coupon', '!=', 'reward'),
+                                            ('reward_type_selected', '=', 'discount'),
+                                        ]}">
+                                        <field name="reward_coupon_type"
+                                               widget="radio"
+                                               options="{'horizontal': true}"
+                                               attrs="{'required':[('apply_with_coupon', '=', 'reward')]}"/>
+                                        <field name="reward_coupon_product_id"
+                                               domain="[('is_coupon', '=', 'True'),
+                                               ('is_coupon_confirm', '=', True),
+                                               ('coupon_type', '=', reward_coupon_type)]"
+                                               options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"
+                                               attrs="{'required':[('apply_with_coupon', '=', 'reward')]}"/>
+                                    </group>
+                                    <group>
+                                        <field name="reward_amount" invisible="1"/>
+                                        <field
+                                                name="reward_qty"
+                                                attrs="{
+                                                    'invisible':[
+                                                        '|',
+                                                        ('reward_type_selected', 'not in', ('product', 'coupon')),
+                                                        ('is_reward_mapping_qty', '=', True)
+                                                    ],
+                                                    'required':[
+                                                        ('is_reward_mapping_qty', '=', False)
+                                                    ],
+                                                    'readonly': [('reward_type_selected', '=', 'coupon')]
+                                                }"
+                                        />
+                                        <field
+                                                name="reward_price"
+                                                attrs="{
+                                                    'invisible':[
+                                                        ('reward_type_selected', '!=', 'discount')
+                                                    ],
+                                                    'required':[
+                                                        ('reward_type_selected', '=', 'discount')
+                                                    ]
+                                                }"
+                                                class="text-right"
+                                        />
+                                        <field
+                                                name="reward_max_discount"
+                                                attrs="{
+                                                    'invisible':[
+                                                        '|',
+                                                        ('reward_type_selected', '!=', 'discount'),
+                                                        ('reward_discount_percentage', '!=', True)
+                                                    ],
+                                                    'required':[
+                                                        ('reward_type_selected', '=', 'discount'),
+                                                        ('reward_discount_percentage', '=', True)
+                                                    ]
+                                                }"
+                                                class="text-right"
+                                        />
+                                        <field name="is_select_product_discount"
+                                            attrs="{
+                                                    'invisible':[
+                                                        '|',
+                                                        ('reward_type_selected', '!=', 'discount'),
+                                                    ],
+                                                    'required':[
+                                                        ('reward_type_selected', '=', 'discount'),
+                                                    ]
+                                                }"
+                                        />
+                                        <field
+                                                name="reward_product"
+                                                attrs="{
+                                                    'invisible':[
+                                                        '|', '|',
+                                                        ('apply_with_coupon', '=', 'reward'),
+                                                        ('apply_to_reward', '!=', False),
+                                                         '&amp;',
+                                                        ('reward_type_selected', '!=', 'product'),
+                                                        ('is_select_product_discount', '!=', True),
+                                                    ],
+                                                    'required': [
+                                                        '&amp;','&amp;',
+                                                        ('apply_with_coupon', '!=', 'reward'),
+                                                        ('apply_to_reward', '=', False),
+                                                         '|',
+                                                        ('reward_type_selected', '=', 'product'),
+                                                        ('is_select_product_discount', '=', True),
+                                                    ]
+                                                }"
+                                        />
+                                    </group>
+                                    <group attrs="{'invisible':[
+                                            '|', '|',
+                                            ('reward_product', '=', False),
+                                            ('reward_product', '=', 'all'),
+                                            ('reward_product', '=', 'manual')
+                                        ]}">
+                                        <field
+                                                name="reward_brand_id"
+                                                attrs="{
+                                                    'invisible':[
+                                                        ('reward_product', '!=', 'brand'),
+                                                    ],
+                                                    'required':[
+                                                        ('reward_product', '=', 'brand'),
+                                                    ]
+                                                }"
+                                                options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"
+                                        />
+                                        <field
+                                                name="reward_categ_id"
+                                                attrs="{
+                                                    'invisible':[
+                                                        ('reward_product', '!=', 'category'),
+                                                    ],
+                                                    'required':[
+                                                        ('reward_product', '=', 'category'),
+                                                    ]
+                                                }"
+                                                options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"
+                                        />
+                                        <field
+                                                name="reward_dept"
+                                                attrs="{
+                                                    'invisible':[
+                                                        ('reward_product', 'not in', ['dept', 'sub_dept']),
+                                                    ],
+                                                    'required':[
+                                                        ('reward_product', 'in', ['dept', 'sub_dept']),
+                                                    ]
+                                                }"
+                                                options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"
+                                        />
+                                        <field
+                                                name="reward_sub_dept"
+                                                attrs="{
+                                                    'invisible':[
+                                                        ('reward_product', '!=', 'sub_dept'),
+                                                    ],
+                                                    'required':[
+                                                        ('reward_product', '=', 'sub_dept'),
+                                                    ]
+                                                }"
+                                                domain="[('dept_parent_id', '!=', False), ('dept_parent_id', '=', reward_dept)]"
+                                                options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"
+                                        />
+                                    </group>
+                                </group>
+                                <group attrs="{'invisible':[('reward_product', '=', False)]}">
+                                    <group>
+                                        <field name="is_exclude_reward"
+                                               attrs="{
+                                                   'invisible': [('reward_product', '=', 'manual')]
+                                               }"/>
+                                    </group>
+                                    <group></group>
+                                    <group attrs="{'invisible': [('is_exclude_reward', '!=', True)]}">
+                                        <field
+                                                name="exclude_reward_product"
+                                                attrs="{
+                                                    'invisible': [
+                                                        ('is_exclude_reward', '!=', True)
+                                                    ],
+                                                    'required': [
+                                                        ('is_exclude_reward', '=', True)
+                                                    ]
+                                                }"
+                                        />
+                                    </group>
+                                    <group attrs="{'invisible': [('exclude_reward_product', '=', False)]}">
+                                        <field
+                                                name="exclude_reward_brand_id"
+                                                attrs="{
+                                                    'invisible':[
+                                                        ('exclude_reward_product', '!=', 'brand')
+                                                    ],
+                                                    'required':[
+                                                        ('exclude_reward_product', '=', 'brand')
+                                                    ]
+                                                }"
+                                                options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"
+                                        />
+                                        <field
+                                                name="exclude_reward_categ_id"
+                                                attrs="{
+                                                    'invisible':[
+                                                        ('exclude_reward_product', '!=', 'category')
+                                                    ],
+                                                    'required':[
+                                                        ('exclude_reward_product', '=', 'category')
+                                                    ]
+                                                }"
+                                                options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"
+                                        />
+                                        <field
+                                                name="exclude_reward_dept"
+                                                attrs="{
+                                                    'invisible':[
+                                                        ('exclude_reward_product', 'not in', ['dept', 'sub_dept']),
+                                                    ],
+                                                    'required':[
+                                                        ('exclude_reward_product', 'in', ['dept', 'sub_dept']),
+                                                    ]
+                                                }"
+                                                options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"
+                                        />
+                                        <field
+                                                name="exclude_reward_sub_dept"
+                                                attrs="{
+                                                    'invisible':[
+                                                        ('exclude_reward_product', '!=', 'sub_dept')
+                                                    ],
+                                                    'required':[
+                                                        ('exclude_reward_product', '=', 'sub_dept')
+                                                    ]
+                                                }"
+                                                domain="[('dept_parent_id', '!=', False), ('dept_parent_id', '=', exclude_reward_dept)]"
+                                                options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"
+                                        />
+                                        <field
+                                                name="exclude_reward_manual_product"
+                                                mode="tree"
+                                                widget="many2many_edit_on_top"
+                                                attrs="{
+                                                    'invisible':[
+                                                        ('exclude_reward_product', '!=', 'manual'),
+                                                    ],
+                                                    'required':[
+                                                        ('exclude_reward_product', '=', 'manual'),
+                                                    ]
+                                                }"
+                                                domain="[('is_coupon', '=', False)]"
+                                                options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"
+                                        >
+                                            <tree string="Exclude Condition Manual Product" editable="top">
+                                                <field name="barcode"/>
+                                                <field name="name"/>
+                                            </tree>
+                                        </field>
+                                        <field name="exclude_reward_manual_text"
+                                               style="min-height: 150px; max-height: 150px;
+                                               min-width:100%; max-width:100%; overflow-y: scroll;"
+                                               attrs="{
+                                                    'invisible':[
+                                                        ('exclude_reward_product', '!=', 'manual'),
+                                                    ],
+                                                }"/>
+                                    </group>
+                                </group>
+                                <group attrs="{'invisible':['|', ('apply_to_reward', '=', True), ('reward_product', '!=', 'manual')]}">
+                                    <field name="is_reward_mapping_qty" attrs="{
+                                        'invisible': [
+                                            ('reward_type_selected', '=', 'price'),
+                                        ]
+                                    }"/>
+                                    <field name="reward_mapping_product_qty_flag" invisible="1" attrs="{
+                                            'required':[
+                                                ('apply_to_reward', '!=', True),
+                                                ('reward_product', '=', 'manual')
+                                            ]
+                                       }"/>
+                                    <field name="reward_mapping_product_qty_ids" context="{
+                                        'model_type': 'reward',
+                                        'is_mapping_qty': is_reward_mapping_qty,
+                                        'tree_view_ref': 'ofm_promotion.promotion_mapping_product_qty_view',
+                                    }"/>
+                                    <field name="reward_mapping_product_text"
+                                           style="min-height: 150px; max-height: 150px;
+                                           min-width:100%; max-width:100%; overflow-y: scroll;"/>
+                                </group>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <!--loop view-->
+        <record model="ir.ui.view" id="promotion_loop_condition_form_view">
+            <field name="name">pos.promotion.loop.condition.form</field>
+            <field name="model">pos.promotion.condition</field>
+            <field name="arch" type="xml">
+                <form string="Promotion Condition">
+                    <sheet>
+                        <group invisible="1">
+                            <field name="promotion_condition_can_create" invisible="1"/>
+                            <field name="condition_type_selected" invisible="1"/>
+                            <field name="promotion_type_selected" invisible="1"/>
+                            <field name="reward_type_selected" invisible="1"/>
+                            <field name="apply_with_coupon" invisible="1"/>
+                        </group>
+                        <notebook>
+                            <page string="Condition">
+                                <group>
+                                    <group attrs="{'invisible':[('apply_with_coupon', '!=', 'condition')]}">
+                                        <field name="condition_coupon_type"
+                                               widget="radio"
+                                               options="{'horizontal': true}"
+                                               attrs="{'required':[('apply_with_coupon', '=', 'condition')]}"/>
+                                        <field name="condition_coupon_product_id"
+                                               domain="[('is_coupon', '=', 'True'),
+                                               ('is_coupon_confirm', '=', True),
+                                               ('coupon_type', '=', condition_coupon_type)]"
+                                               options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"
+                                               attrs="{'required':[('apply_with_coupon', '=', 'condition')]}"/>
+                                    </group>
+                                </group>
+                                <group>
+                                    <group>
+                                        <field name="condition_bill_limit" required="1" attrs="{
+                                            'readonly': [('reward_type_selected', '=', 'coupon')]
+                                        }"/>
+                                    </group>
+                                </group>
+                                <group>
+                                    <group>
+                                        <field name="condition_amount" invisible="1"/>
+                                        <field
+                                                name="condition_qty"
+                                                attrs="{
+                                                    'invisible':[
+                                                        '|',
+                                                        ('condition_type_selected', '!=', 'qty'),
+                                                        ('is_condition_mapping_qty', '=', True)
+                                                    ],
+                                                    'required':[
+                                                        '|',
+                                                        ('condition_type_selected', '=', 'qty'),
+                                                        ('is_condition_mapping_qty', '=', False)
+                                                    ],
+                                                }"
+                                        />
+                                        <field
+                                                name="condition_price"
+                                                attrs="{
+                                                    'invisible':[
+                                                        ('condition_type_selected', '!=', 'price')
+                                                    ],
+                                                    'required':[
+                                                        ('condition_type_selected', '=', 'price')
+                                                    ]
+                                                }"
+                                                class="text-right"
+                                        />
+                                        <field name="condition_product" required="1"/>
+                                    </group>
+                                    <group attrs="{'invisible':['&amp;','|',('apply_to_reward', '!=', True),('condition_product', '=', 'all'),('condition_product', '=', False)]}">
+                                        <field name="apply_to_reward" attrs="{'invisible':['|', ('condition_type_selected', '!=', 'qty'),('reward_type_selected', '!=', 'product')]}"/>
+                                        <field name="is_free_as_same_pid" attrs="{'invisible':[('apply_to_reward', '!=', True)]}"/>
+                                        <field
+                                                name="condition_brand_id"
+                                                attrs="{
+                                                    'invisible':[
+                                                        ('condition_product', '!=', 'brand')
+                                                    ],
+                                                    'required':[
+                                                        ('condition_product', '=', 'brand')
+                                                    ]
+                                                }"
+                                                options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"
+                                        />
+                                        <field
+                                                name="condition_categ_id"
+                                                attrs="{
+                                                    'invisible':[
+                                                        ('condition_product', '!=', 'category')
+                                                    ],
+                                                    'required':[
+                                                        ('condition_product', '=', 'category')
+                                                    ]
+                                                }"
+                                                options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"
+                                        />
+                                        <field
+                                                name="condition_dept"
+                                                attrs="{
+                                                    'invisible':[
+                                                        ('condition_product', 'not in', ['dept', 'sub_dept']),
+                                                    ],
+                                                    'required':[
+                                                        ('condition_product', 'in', ['dept', 'sub_dept']),
+                                                    ]
+                                                }"
+                                                options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"
+                                        />
+                                        <field
+                                                name="condition_sub_dept"
+                                                attrs="{
+                                                    'invisible':[
+                                                        ('condition_product', '!=', 'sub_dept')
+                                                    ],
+                                                    'required':[
+                                                        ('condition_product', '=', 'sub_dept')
+                                                    ]
+                                                }"
+                                                domain="[('dept_parent_id', '!=', False), ('dept_parent_id', '=', condition_dept)]"
+                                                options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"
+                                        />
+                                    </group>
+                                </group>
+                                <group attrs="{
+                                            'invisible':[
+                                                ('condition_product', '!=', 'manual'),
+                                            ]
+                                       }">
+                                    <field name="is_condition_mapping_qty" attrs="{
+                                        'invisible': [
+                                            '|',
+                                            ('condition_type_selected', '=', 'price'),
+                                            ('is_free_as_same_pid', '=', True),
+                                        ]
+                                    }"/>
+                                    <field name="condition_mapping_product_qty_flag" invisible="1" attrs="{
+                                            'required':[
+                                                ('condition_product', '=', 'manual'),
+                                            ]
+                                       }"/>
+                                    <field name="condition_mapping_product_qty_ids" context="{
+                                        'model_type': 'condition',
+                                        'is_mapping_qty': is_condition_mapping_qty,
+                                        'tree_view_ref': 'ofm_promotion.promotion_mapping_product_qty_view',
+                                    }"/>
+                                    <field name="condition_mapping_product_text"
+                                           style="min-height: 150px; max-height: 150px;
+                                           min-width:100%; max-width:100%; overflow-y: scroll;"/>
+                                </group>
+                                <group attrs="{'invisible':[('condition_product', '=', False)]}">
+                                    <group>
+                                        <field name="is_exclude_product"
+                                               attrs="{
+                                                   'invisible':[('condition_product', '=', 'manual')]
+                                               }"
+                                        />
+                                    </group>
+                                    <group></group>
+                                    <group attrs="{'invisible': [('is_exclude_product', '!=', True)]}">
+                                        <field
+                                                name="exclude_condition_product"
+                                                attrs="{
+                                                    'invisible': [
+                                                        ('is_exclude_product', '!=', True)
+                                                    ],
+                                                    'required': [
+                                                        ('is_exclude_product', '=', True)
+                                                    ]
+                                                }"
+                                        />
+                                    </group>
+                                    <group attrs="{'invisible': [('exclude_condition_product', '=', False)]}">
+                                        <field
+                                                name="exclude_condition_brand_id"
+                                                attrs="{
+                                                    'invisible':[
+                                                        ('exclude_condition_product', '!=', 'brand')
+                                                    ],
+                                                    'required':[
+                                                        ('exclude_condition_product', '=', 'brand')
+                                                    ]
+                                                }"
+                                                options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"
+                                        />
+                                        <field
+                                                name="exclude_condition_categ_id"
+                                                attrs="{
+                                                    'invisible':[
+                                                        ('exclude_condition_product', '!=', 'category')
+                                                    ],
+                                                    'required':[
+                                                        ('exclude_condition_product', '=', 'category')
+                                                    ]
+                                                }"
+                                                options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"
+                                        />
+                                        <field
+                                                name="exclude_condition_dept"
+                                                attrs="{
+                                                    'invisible':[
+                                                        ('exclude_condition_product', 'not in', ['dept', 'sub_dept']),
+                                                    ],
+                                                    'required':[
+                                                        ('exclude_condition_product', 'in', ['dept', 'sub_dept']),
+                                                    ]
+                                                }"
+                                                options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"
+                                        />
+                                        <field
+                                                name="exclude_condition_sub_dept"
+                                                attrs="{
+                                                    'invisible':[
+                                                        ('exclude_condition_product', '!=', 'sub_dept')
+                                                    ],
+                                                    'required':[
+                                                        ('exclude_condition_product', '=', 'sub_dept')
+                                                    ]
+                                                }"
+                                                domain="[('dept_parent_id', '!=', False), ('dept_parent_id', '=', exclude_condition_dept)]"
+                                                options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"
+                                        />
+                                        <field
+                                                name="exclude_condition_manual_product"
+                                                mode="tree"
+                                                widget="many2many_edit_on_top"
+                                                attrs="{
+                                                    'invisible':[
+                                                        ('exclude_condition_product', '!=', 'manual'),
+                                                    ],
+                                                    'required':[
+                                                        ('exclude_condition_product', '=', 'manual'),
+                                                    ]
+                                                }"
+                                                domain="[('is_coupon', '=', False)]"
+                                                options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"
+                                        >
+                                            <tree string="Exclude Condition Manual Product" editable="top">
+                                                <field name="barcode"/>
+                                                <field name="name"/>
+                                            </tree>
+                                        </field>
+                                        <field name="exclude_condition_manual_text"
+                                               style="min-height: 150px; max-height: 150px;
+                                               min-width:100%; max-width:100%; overflow-y: scroll;"
+                                               attrs="{
+                                                    'invisible':[
+                                                        ('exclude_condition_product', '!=', 'manual'),
+                                                    ],
+                                                }"/>
+                                    </group>
+                                </group>
+                            </page>
+                            <page string="Reward">
+                                <group>
+                                    <group attrs="{'invisible':['|',
+                                            ('apply_with_coupon', '!=', 'reward'),
+                                            ('reward_type_selected', '=', 'discount'),
+                                            ]}">
+                                        <field name="reward_coupon_type"
+                                               widget="radio"
+                                               options="{'horizontal': true}"
+                                               attrs="{'required':[('apply_with_coupon', '=', 'reward')]}"/>
+                                        <field name="reward_coupon_product_id"
+                                               domain="[('is_coupon', '=', 'True'),
+                                                       ('is_coupon_confirm', '=', True),
+                                                       ('coupon_type', '=', reward_coupon_type)]"
+                                               options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"
+                                               attrs="{'required':[('apply_with_coupon', '=', 'reward')]}"/>
+                                    </group>
+                                    <group>
+                                        <field name="reward_amount" invisible="1"/>
+                                        <field
+                                                name="reward_qty"
+                                                attrs="{
+                                                    'invisible':[
+                                                        '|',
+                                                        ('reward_type_selected', 'not in', ('product', 'coupon')),
+                                                        ('is_reward_mapping_qty', '=', True)
+                                                    ],
+                                                    'required':[
+                                                        ('is_reward_mapping_qty', '=', False)
+                                                    ],
+                                                    'readonly': [('reward_type_selected', '=', 'coupon')]
+                                                }"
+                                        />
+                                        <field
+                                                name="reward_price"
+                                                attrs="{
+                                                    'invisible':[
+                                                        ('reward_type_selected', '!=', 'discount')
+                                                    ],
+                                                    'required':[
+                                                        ('reward_type_selected', '=', 'discount')
+                                                    ]
+                                                }"
+                                                class="text-right"
+                                        />
+                                        <field name="is_select_product_discount"
+                                            attrs="{
+                                                    'invisible':[
+                                                        '|',
+                                                        ('reward_type_selected', '!=', 'discount'),
+                                                    ],
+                                                    'required':[
+                                                        ('reward_type_selected', '=', 'discount'),
+                                                    ]
+                                                }"
+                                        />
+                                        <field
+                                                name="reward_product"
+                                                attrs="{
+                                                    'invisible':[
+                                                        '|', '|',
+                                                        ('apply_with_coupon', '=', 'reward'),
+                                                        ('apply_to_reward', '!=', False),
+                                                         '&amp;',
+                                                        ('reward_type_selected', '!=', 'product'),
+                                                        ('is_select_product_discount', '!=', True),
+                                                    ],
+                                                    'required': [
+                                                        '&amp;','&amp;',
+                                                        ('apply_with_coupon', '!=', 'reward'),
+                                                        ('apply_to_reward', '=', False),
+                                                         '|',
+                                                        ('reward_type_selected', '=', 'product'),
+                                                        ('is_select_product_discount', '=', True),
+                                                    ]
+                                                }"
+                                        />
+                                    </group>
+                                    <group attrs="{'invisible':[
+                                            '|', '|',
+                                            ('reward_product', '=', False),
+                                            ('reward_product', '=', 'all'),
+                                            ('reward_product', '=', 'manual')
+                                            ]}">
+                                        <field
+                                                name="reward_brand_id"
+                                                attrs="{
+                                                    'invisible':[
+                                                        ('reward_product', '!=', 'brand'),
+                                                    ],
+                                                    'required':[
+                                                        ('reward_product', '=', 'brand'),
+                                                    ]
+                                                }"
+                                                options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"
+                                        />
+                                        <field
+                                                name="reward_categ_id"
+                                                attrs="{
+                                                    'invisible':[
+                                                        ('reward_product', '!=', 'category'),
+                                                    ],
+                                                    'required':[
+                                                        ('reward_product', '=', 'category'),
+                                                    ]
+                                                }"
+                                                options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"
+                                        />
+                                        <field
+                                                name="reward_dept"
+                                                attrs="{
+                                                    'invisible':[
+                                                        ('reward_product', 'not in', ['dept', 'sub_dept']),
+                                                    ],
+                                                    'required':[
+                                                        ('reward_product', 'in', ['dept', 'sub_dept']),
+                                                    ]
+                                                }"
+                                                options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"
+                                        />
+                                        <field
+                                                name="reward_sub_dept"
+                                                attrs="{
+                                                    'invisible':[
+                                                        ('reward_product', '!=', 'sub_dept'),
+                                                    ],
+                                                    'required':[
+                                                        ('reward_product', '=', 'sub_dept'),
+                                                    ]
+                                                }"
+                                                domain="[('dept_parent_id', '!=', False), ('dept_parent_id', '=', reward_dept)]"
+                                                options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"
+                                        />
+                                    </group>
+                                </group>
+                                <group attrs="{'invisible':[('reward_product', '=', False)]}">
+                                    <group>
+                                        <field name="is_exclude_reward"
+                                               attrs="{
+                                                   'invisible': [('reward_product', '=', 'manual')]
+                                               }"
+                                        />
+                                    </group>
+                                    <group></group>
+                                    <group attrs="{'invisible': [('is_exclude_reward', '!=', True)]}">
+                                        <field
+                                                name="exclude_reward_product"
+                                                attrs="{
+                                                    'invisible': [
+                                                        ('is_exclude_reward', '!=', True)
+                                                    ],
+                                                    'required': [
+                                                        ('is_exclude_reward', '=', True)
+                                                    ]
+                                                }"
+                                        />
+                                    </group>
+                                    <group attrs="{'invisible': [('exclude_reward_product', '=', False)]}">
+                                        <field
+                                                name="exclude_reward_brand_id"
+                                                attrs="{
+                                                    'invisible':[
+                                                        ('exclude_reward_product', '!=', 'brand')
+                                                    ],
+                                                    'required':[
+                                                        ('exclude_reward_product', '=', 'brand')
+                                                    ]
+                                                }"
+                                                options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"
+                                        />
+                                        <field
+                                                name="exclude_reward_categ_id"
+                                                attrs="{
+                                                    'invisible':[
+                                                        ('exclude_reward_product', '!=', 'category')
+                                                    ],
+                                                    'required':[
+                                                        ('exclude_reward_product', '=', 'category')
+                                                    ]
+                                                }"
+                                                options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"
+                                        />
+                                        <field
+                                                name="exclude_reward_dept"
+                                                attrs="{
+                                                    'invisible':[
+                                                        ('exclude_reward_product', 'not in', ['dept', 'sub_dept']),
+                                                    ],
+                                                    'required':[
+                                                        ('exclude_reward_product', 'in', ['dept', 'sub_dept']),
+                                                    ]
+                                                }"
+                                                options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"
+                                        />
+                                        <field
+                                                name="exclude_reward_sub_dept"
+                                                attrs="{
+                                                    'invisible':[
+                                                        ('exclude_reward_product', '!=', 'sub_dept')
+                                                    ],
+                                                    'required':[
+                                                        ('exclude_reward_product', '=', 'sub_dept')
+                                                    ]
+                                                }"
+                                                domain="[('dept_parent_id', '!=', False), ('dept_parent_id', '=', exclude_reward_dept)]"
+                                                options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"
+                                        />
+                                        <field
+                                                name="exclude_reward_manual_product"
+                                                mode="tree"
+                                                widget="many2many_edit_on_top"
+                                                attrs="{
+                                                    'invisible':[
+                                                        ('exclude_reward_product', '!=', 'manual'),
+                                                    ],
+                                                    'required':[
+                                                        ('exclude_reward_product', '=', 'manual'),
+                                                    ]
+                                                }"
+                                                domain="[('is_coupon', '=', False)]"
+                                                options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"
+                                        >
+                                            <tree string="Exclude Condition Manual Product" editable="top">
+                                                <field name="barcode"/>
+                                                <field name="name"/>
+                                            </tree>
+                                        </field>
+                                        <field name="exclude_reward_manual_text"
+                                               style="min-height: 150px; max-height: 150px;
+                                               min-width:100%; max-width:100%; overflow-y: scroll;"
+                                               attrs="{
+                                                    'invisible':[
+                                                        ('exclude_reward_product', '!=', 'manual'),
+                                                    ],
+                                                }"/>
+                                    </group>
+                                </group>
+                                <group attrs="{'invisible':['|', ('apply_to_reward', '=', True), ('reward_product', '!=', 'manual')]}">
+                                    <field name="is_reward_mapping_qty" attrs="{
+                                        'invisible': [
+                                            ('reward_type_selected', '=', 'price'),
+                                        ]
+                                    }"/>
+                                    <field name="reward_mapping_product_qty_flag" invisible="1" attrs="{
+                                            'required':[
+                                                ('apply_to_reward', '!=', True),
+                                                ('reward_product', '=', 'manual')
+                                            ]
+                                       }"/>
+                                    <field name="reward_mapping_product_qty_ids" context="{
+                                        'model_type': 'reward',
+                                        'is_mapping_qty': is_reward_mapping_qty,
+                                        'tree_view_ref': 'ofm_promotion.promotion_mapping_product_qty_view',
+                                    }"/>
+                                    <field name="reward_mapping_product_text"
+                                           style="min-height: 150px; max-height: 150px;
+                                           min-width:100%; max-width:100%; overflow-y: scroll;"/>
+                                </group>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+    </data>
+</odoo>

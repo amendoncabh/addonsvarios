@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_import_pricelists_wizard" model="ir.ui.view">
+        <field name="name">Import Counted Cycle Count (.xlsx)</field>
+        <field name="model">import.counted.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Import Counted Cycle Count (.xlsx)">
+                <group>
+                    <p style="color: red">
+                        Please, Change format to Text before import file to program.
+                    </p>
+                </group>
+                <group>
+                    <field name="binary_data" filename="filename"/>
+                    <field name="filename" invisible="1"/>
+                </group>
+                <footer>
+                    <button name="action_import_counted"
+                            string="Confirm" type="object"
+                            class="oe_highlight"/>
+                    or
+                    <button string="Cancel" class="oe_link"
+                            special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_open_import_counted" model="ir.actions.act_window">
+        <field name="name">Import counted</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">import.counted.wizard</field>
+        <field name="view_type">form</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+</odoo>

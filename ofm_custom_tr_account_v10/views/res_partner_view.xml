@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="res_partner_ofm_form" model="ir.ui.view">
+            <field name="name">res.partner.ofm.form</field>
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="partner_information.view_partner_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='number']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//field[@name='branch']" position="replace">
+
+                </xpath>
+                <xpath expr="//notebook/page//field[@name='branch']" position="replace">
+
+                </xpath>
+                <xpath expr="//notebook/page//field[@name='number']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+            </field>
+        </record>
+
+
+    </data>
+</odoo>

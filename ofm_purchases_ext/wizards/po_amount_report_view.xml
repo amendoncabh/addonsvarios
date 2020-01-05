@@ -1,0 +1,63 @@
+<?xml version="1.0"?>
+<odoo>
+   <data>
+
+       <record id="po_amount_report_jasper" model="ir.actions.report.xml">
+           <field name="string">รายงานสรุปยอดซื้อสินค้า</field>
+           <field name="auto">True</field>
+           <field name="model">po.amount.report.wizard</field>
+           <field name="jasper_model_id" ref="base.model_res_users"/>
+           <field name="name">รายงานสรุปยอดซื้อสินค้า</field>
+           <field name="report_name">po.amount.report.jasper</field>
+           <field name="rml">ofm_purchases_ext/reports/po_amount_report.jrxml</field>
+           <field name="report_rml">ofm_purchases_ext/reports/po_amount_report.jrxml</field>
+           <field name="menu">False</field>
+           <field name="header">False</field>
+           <field name="jasper_report">True</field>
+           <field name="jasper_output">xls</field>
+       </record>
+
+       <act_window id="action_po_amount_report_wizard"
+                   name="รายงานสรุปยอดซื้อสินค้า"
+                   res_model="po.amount.report.wizard"
+                   view_mode="form"
+                   target="new"/>
+
+<!--       <menuitem id="menu_po_amount_report_wizard"-->
+<!--                 parent="purchase.purchase_report"-->
+<!--                 action="action_po_amount_report_wizard"-->
+<!--                 sequence="4"/>-->
+
+       <record id="view_po_amount_report_wizard" model="ir.ui.view">
+           <field name="name">po.amount.report.form</field>
+           <field name="model">po.amount.report.wizard</field>
+           <field name="arch" type="xml">
+               <form string="รายงานสรุปยอดซื้อสินค้า">
+                   <group>
+                       <group>
+                            <field name="year"/>
+                            <field name="jasper_output" widget="radio"/>
+                       </group>
+                       <group>
+                            <field name="month"/>
+                            <field name="company_id"
+                               options="{'no_quick_create': True, 'no_create_edit': True}"/>
+                            <field name="branch_id"
+                                options="{'no_quick_create': True, 'no_create_edit': True}"
+                                domain="[('pos_company_id', '=',company_id)]" />
+                       </group>
+                   </group>
+                   <footer>
+                       <button name="action_print_report"
+                               string="Print Report" type="object"
+                               class="oe_highlight"/>
+                       or
+                       <button string="Cancel" class="oe_link"
+                               special="cancel"/>
+                   </footer>
+               </form>
+           </field>
+       </record>
+
+   </data>
+</odoo>

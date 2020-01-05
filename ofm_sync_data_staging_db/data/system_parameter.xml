@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="ir_config_parameter_prs_api_request_token" model="ir.config_parameter">
+            <field name="key">is_log_parameter_input</field>
+            <field name="value">False</field>
+        </record>
+    </data>
+</odoo>

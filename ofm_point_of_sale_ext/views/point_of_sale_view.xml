@@ -1,0 +1,243 @@
+<?xml version="1.0"?>
+<openerp>
+    <data>
+        <record id="shift_close_jasper" model="ir.actions.report.xml">
+            <field name="string">Shift Close</field>
+            <field name="auto">True</field>
+            <field name="model">pos.session</field>
+            <field name="jasper_model_id" ref="base.model_res_users"/>
+            <field name="name">Shift Close</field>
+            <field name="report_name">shift.close.jasper</field>
+            <field name="rml">ofm_point_of_sale_ext/reports/re_print_shift_close.jrxml</field>
+            <field name="report_rml">ofm_point_of_sale_ext/reports/re_print_shift_close.jrxml</field>
+            <field name="menu">False</field>
+            <field name="header">False</field>
+            <field name="jasper_report">True</field>
+            <field name="jasper_output">pdf</field>
+        </record>
+
+        <record id="receipt_short_jasper" model="ir.actions.report.xml">
+            <field name="string">Receipt ABB</field>
+            <field name="auto">True</field>
+            <field name="model">pos.order</field>
+            <field name="jasper_model_id" ref="point_of_sale.model_pos_order"/>
+            <field name="name">Receipt ABB</field>
+            <field name="report_name">receipt.short.jasper</field>
+            <field name="rml">ofm_point_of_sale_ext/reports/receipt_short.jrxml</field>
+            <field name="report_rml">ofm_point_of_sale_ext/reports/receipt_short.jrxml</field>
+            <field name="menu">False</field>
+            <field name="header">False</field>
+            <field name="jasper_report">True</field>
+            <field name="jasper_output">pdf</field>
+        </record>
+
+
+        <record id="receipt_void_short_jasper" model="ir.actions.report.xml">
+            <field name="string">Receipt Void</field>
+            <field name="auto">True</field>
+            <field name="model">pos.order</field>
+            <field name="jasper_model_id" ref="point_of_sale.model_pos_order"/>
+            <field name="name">Receipt Void</field>
+            <field name="report_name">receipt.void.short.jasper</field>
+            <field name="rml">ofm_point_of_sale_ext/reports/receipt_void_short.jrxml</field>
+            <field name="report_rml">ofm_point_of_sale_ext/reports/receipt_void_short.jrxml</field>
+            <field name="menu">False</field>
+            <field name="header">False</field>
+            <field name="jasper_report">True</field>
+            <field name="jasper_output">pdf</field>
+        </record>
+
+        <record id="receipt_return_short_jasper" model="ir.actions.report.xml">
+            <field name="string">Receipt Return</field>
+            <field name="auto">True</field>
+            <field name="model">pos.order</field>
+            <field name="jasper_model_id" ref="point_of_sale.model_pos_order"/>
+            <field name="name">Receipt Return</field>
+            <field name="report_name">receipt.return.short.jasper</field>
+            <field name="rml">ofm_point_of_sale_ext/reports/receipt_return_short.jrxml</field>
+            <field name="report_rml">ofm_point_of_sale_ext/reports/receipt_return_short.jrxml</field>
+            <field name="menu">False</field>
+            <field name="header">False</field>
+            <field name="jasper_report">True</field>
+            <field name="jasper_output">pdf</field>
+        </record>
+
+        <record model="ir.ui.view" id="view_pos_session_form_user">
+            <field name="name">pos.session.form.user</field>
+            <field name="model">pos.session</field>
+            <field name="groups_id" eval="[(6, 0, [ref('point_of_sale.group_pos_user')])]"/>
+            <field name="inherit_id" ref="point_of_sale.view_pos_session_form"/>
+            <field name="priority" eval="3"/>
+            <field name="arch" type="xml">
+                <xpath expr="//button[@icon='fa-level-down']" position="after">
+                    <button type="object"
+                            name="print_shift_close"
+                            class="oe_stat_button"
+                            icon="fa-print"
+                            string="Shift Close"
+                            states="closed"/>
+                </xpath>
+                <xpath expr="//field[@name='statement_ids']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//separator" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="view_pos_session_form_owner">
+            <field name="name">pos.session.form.owner</field>
+            <field name="model">pos.session</field>
+            <field name="groups_id" eval="[(6, 0, [ref('point_of_sale.group_pos_owner')])]"/>
+            <field name="inherit_id" ref="view_pos_session_form_user"/>
+            <field name="priority" eval="3"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='statement_ids']" position="attributes">
+                    <attribute name="invisible">0</attribute>
+                </xpath>
+                <xpath expr="//separator" position="attributes">
+                    <attribute name="invisible">0</attribute>
+                </xpath>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="view_pos_session_form_admin">
+            <field name="name">pos.session</field>
+            <field name="model">pos.session</field>
+            <field name="inherit_id" ref="pos_customize.view_pos_session_form_2"/>
+            <field name="groups_id" eval="[(6, 0, [ref('point_of_sale.group_pos_admin'),ref('base.group_system')])]"/>
+            <field name="priority" eval="4"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='user_id']" position="attributes">
+                    <attribute name="readonly">0</attribute>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="view_pos_pos_form_inherit" model="ir.ui.view">
+            <field name="name">pos.order.form.inherit</field>
+            <field name="model">pos.order</field>
+            <field name="inherit_id" ref="point_of_sale.view_pos_pos_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//page[@name='extra']" position="after">
+                    <page string="Stock Picking" groups="base.group_system">
+                        <div>
+                            <field name='picking_ids' attrs="{
+                                'tree_view_ref':'stock.vpicktree',
+                                'form_view_ref':'stock.view_picking_form'
+                                }" />
+                        </div>
+                    </page>
+                    <page string="Tax Invoices">
+                        <div>
+                            <field name='invoice_ids' context="{
+                                    'default_type': 'out_invoice',
+                                    'type':'out_invoice',
+                                    'tree_view_ref':'account.invoice_tree',
+                                    'form_view_ref':'account.invoice_form',
+                                }"
+                            />
+                        </div>
+                    </page>
+                    <page string="Credit Notes">
+                        <div>
+                            <field name='refund_ids' attrs="{
+                                'tree_view_ref':'account.invoice_tree',
+                                'form_view_ref':'account.invoice_form'
+                                }" />
+                        </div>
+                    </page>
+                </xpath>
+                <xpath expr="//div[@name='button_box']" position="inside">
+                    <field name="check_reverse_all" invisible="1"/>
+                    <field name="approve_return" invisible="1"/>
+                    <field name="session_state" invisible="1"/>
+                    <button name="action_approve_return"
+                                class="oe_stat_button oe_read_only"
+                                icon="fa-undo"
+                                string="Approve Return"
+                                groups="point_of_sale.group_pos_manager"
+                                type="object"
+                                invisible="1"
+                                attrs="{'invisible':[
+                                    '|','|',
+                                    ('approve_return', '=', True),
+                                    ('session_state', '!=', 'closed'),
+                                    ('check_reverse_all', '=', True),
+                                ]}"/>
+                    <button name="action_view_picking"
+                                class="oe_stat_button oe_read_only"
+                                icon="fa-undo"
+                                string="Return"
+                                type="object"
+                                invisible="1"
+                                attrs="{'invisible':[
+                                    '|','|',
+                                    ('approve_return', '!=', True),
+                                    ('session_state', '!=', 'closed'),
+                                    ('check_reverse_all', '=', True),
+                                ]}"/>
+                </xpath>
+                <xpath expr="//field[@name='discount_amount']" position="after">
+                    <field name="prorate_amount" widget="monetary"/>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="pos_pin_setting_view_users_tree" model="ir.ui.view">
+            <field name="name">res.users.tree</field>
+            <field name="model">res.users</field>
+            <field name="arch" type="xml">
+                <tree string="Users" editable="bottom" create="false">
+                    <field name="name" readonly="1"/>
+                    <field name="pos_security_pin" password="True" widget="allow_number"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="action_pos_user_set_pin" model="ir.actions.act_window">
+            <field name="name">Pin Setting</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">res.users</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">form</field>
+            <field name="domain">[('id','=', uid)]</field>
+            <field name="view_ids" eval="[(5, 0, 0),
+                (0, 0, {'view_mode': 'tree', 'view_id': ref('ofm_point_of_sale_ext.pos_pin_setting_view_users_tree')}),]"/>
+        </record>
+
+        <record id="pos_product_template_tree" model="ir.ui.view">
+            <field name="name">Product Template</field>
+            <field name="model">pos_product.template</field>
+            <field name="arch" type="xml">
+                <tree string="Product" create="false">
+                    <field name="name" readonly="1"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="action_pos_product_template" model="ir.actions.act_window">
+            <field name="name">Product Template</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">pos_product.template</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">form</field>
+            <field name="view_ids" eval="[(5, 0, 0),
+                (0, 0, {'view_mode': 'tree', 'view_id': ref('ofm_point_of_sale_ext.pos_product_template_tree')}),]"/>
+        </record>
+
+        <menuitem
+            parent="point_of_sale.menu_point_config_product"
+            action="action_pos_user_set_pin"
+            id="menu__user_set_pin"
+            sequence="-1"/>
+        
+        <menuitem
+            parent="point_of_sale.menu_point_of_sale"
+            action="action_pos_product_template"
+            id="menu_pos_product_template"
+            sequence="-1"/>
+
+    </data>
+</openerp>

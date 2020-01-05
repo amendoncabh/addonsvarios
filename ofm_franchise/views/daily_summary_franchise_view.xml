@@ -1,0 +1,187 @@
+<?xml version="1.0"?>
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="form_view_daily_summary_franchise_detail">
+            <field name="name">daily.summary.franchise.form.view</field>
+            <field name="model">daily.summary.franchise</field>
+            <field name="arch" type="xml">
+                <form string="ใบสรุปประจำวัน" create="0" edit="0" delete="0">
+                    <header>
+                        <button name="edit_daily_summary_franchise"
+                                states="draft,verify"
+                                string="Edit"
+                                type="object"
+                                groups="point_of_sale.group_pos_manager,ofm_access_right_center.group_ofm_hq"
+                                class="oe_highlight"/>
+                        <button name="action_verify"
+                                states="draft"
+                                string="Comfirm"
+                                type="object"
+                                groups="hr.group_hr_manager"
+                                class="oe_highlight"/>
+                        <button name="action_confirm"
+                                states="verify"
+                                string="Approve"
+                                type="object"
+                                groups="ofm_access_right_center.group_ofm_hq"
+                                class="oe_highlight"/>
+                        <button name="action_cancel"
+                                states="draft"
+                                string="Cancel"
+                                type="object"
+                                groups="ofm_access_right_center.group_ofm_hq,ofm_access_right_center.group_ofm_admin,hr.group_hr_manager"/>
+                        <button name="action_cancel"
+                                states="verify"
+                                string="Cancel"
+                                type="object"
+                                groups="ofm_access_right_center.group_ofm_hq"/>
+                        <button name="action_cancel"
+                                states="active"
+                                string="Cancel"
+                                type="object"
+                                groups="ofm_access_right_center.group_ofm_admin"/>
+                        <field name="state" widget="statusbar"/>
+					</header>
+                    <sheet>
+                        <group attrs="{'readonly': [('state', '!=', 'draft')]}">
+                            <group>
+                                <field name="company_id"/>
+                                <field name="user_id"/>
+                                <field name="currency_id" invisible="1"/>
+                                <field name="store_code"/>
+                                <field name="store_name"/>
+                                <field name="last_export_date"/>
+                            </group>
+                            <group>
+                                <field name="date"/>
+                                <field name="branch_id"/>
+                                <field name="bank_transfer_status_id"/>
+                                <field name="last_import_date"/>
+                                <field name="is_backdate"/>
+                            </group>
+                        </group>
+                        <label string="ตารางสรุปยอดขายประจำวัน"/>
+                        <notebook>
+                            <page string="Detail">
+                                <field name="daily_summary_franchise_line_ids">
+                                    <tree string="Detail"
+                                          editable="button"
+                                          create="0"
+                                          delete="0">
+                                        <field name="session_no_and_so"/>
+                                        <field name="sub_total"/>
+                                        <field name="discount_by_sor"/>
+                                        <field name="discount_by_see"/>
+                                        <field name="delivery_fee"/>
+                                        <field name="total"/>
+                                        <field name="bank_transfer"/>
+                                    </tree>
+                                </field>
+                                <div>
+                                    <strong><label for="reason" string="Reason : "/></strong>
+                                    <field name="reason"/>
+                                </div>
+                                <group>
+                                    <group class="oe_subtotal_footer oe_right" colspan="2" name="daily_franchise_total">
+                                        <field name="sum_sub_total" widget="monetary"/>
+                                        <field name="sum_discount_by_sor" widget="monetary"/>
+                                        <field name="sum_discount_by_see" widget="monetary"/>
+                                        <field name="sum_delivery_fee" widget="monetary"/>
+                                        <field name="sum_total" widget="monetary"/>
+                                        <field name="sum_bank_transfer" widget="monetary"/>
+                                    </group>
+                                </group>
+                            </page>
+                            <page string="ตารางสรุปยอดชำระเงิน Credit Term">
+                                <field name="daily_summary_franchise_credit_term_ids">
+                                    <tree string="ตารางสรุปยอดชำระเงิน Credit Term"
+                                          editable="button"
+                                          create="1"
+                                          delete="1">
+                                        <field name="name"/>
+                                        <field name="total"/>
+                                    </tree>
+                                </field>
+                            </page>
+                            <page string="Summary Cash">
+                                <field name="daily_summary_franchise_cash_ids">
+                                    <tree string="Summary Cash"
+                                          editable="button"
+                                          create="0"
+                                          delete="0">
+                                        <field name="name"/>
+                                        <field name="total"/>
+                                    </tree>
+                                </field>
+                                <group class="oe_subtotal_footer oe_right">
+                                    <group>
+                                        <field name="sum_cash_total"/>
+                                    </group>
+                                </group>
+                            </page>
+                        </notebook>
+                    </sheet>
+                    <div class="oe_chatter">
+                        <field name="message_ids" widget="mail_thread"/>
+                    </div>
+                </form>
+            </field>
+        </record>
+
+        <record id="tree_view_daily_summary_franchise_detail" model="ir.ui.view">
+            <field name="name">daily.summary.franchise.tree.view</field>
+            <field name="model">daily.summary.franchise</field>
+            <field name="arch" type="xml">
+                <tree string="ใบสรุปประจำวัน" create="0" delete="1">
+                    <field name="company_id"/>
+                    <field name="store_code"/>
+                    <field name="store_name"/>
+                    <field name="date"/>
+                    <field name="sum_total"/>
+                    <field name="sum_bank_transfer"/>
+                    <field name="state"/>
+                    <field name="bank_transfer_status_id"/>
+                    <field name="last_export_date"/>
+                    <field name="last_import_date"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="search_view_daily_summary_franchise_detail" model="ir.ui.view">
+           <field name="name">daily.summary.franchise.search</field>
+           <field name="model">daily.summary.franchise</field>
+            <field name="arch" type="xml">
+                <search string="">
+                    <field name="company_id"/>
+                    <field name="date"/>
+                    <field name="branch_id"/>
+                    <field name="store_code"/>
+                    <field name="store_name"/>
+                    <field name="state"/>
+                    <field name="bank_transfer_status_id"/>
+                    <field name="last_export_date"/>
+                    <field name="last_import_date"/>
+                    <filter name="not_cancel" string="Not Cancel" domain="[('state', 'in', ('draft','verify','active'))]"/>
+                    <group expand="0" string="Bank Transfer Status">
+                        <filter string="Bank Transfer Status" domain="[]" context="{'group_by':'bank_transfer_status_id'}"/>
+                    </group>
+                </search>
+           </field>
+        </record>
+
+        <record id="action_daily_summary_franchise_detail" model="ir.actions.act_window">
+            <field name="name">ใบสรุปประจำวัน</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">daily.summary.franchise</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="search_view_id" ref="search_view_daily_summary_franchise_detail"/>
+            <field name="context">{
+                "search_default_not_cancel":1
+                }
+            </field>
+            <field name="target">current</field>
+        </record>
+
+    </data>
+</odoo>

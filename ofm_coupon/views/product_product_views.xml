@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="product_product_coupon_form_view" model="ir.ui.view">
+        <field name="name">product.product.form</field>
+        <field name="model">product.product</field>
+        <field name="priority" eval="15"/>
+        <field name="mode">primary</field>
+        <field name="arch" type="xml">
+            <form string="Coupon">
+                <sheet>
+                    <field name="image_medium" widget="image" class="oe_avatar"/>
+                    <div class="oe_title">
+                        <label class="oe_edit_only" for="name" string="Coupon Name"/>
+                        <h1>
+                            <field name="name" placeholder="Coupon Name"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <field name="coupon_type"
+                               widget="radio"
+                               options="{'horizontal': true}"
+                               attrs="{'readonly':[('is_coupon_confirm', '=', True)]}"/>
+                    </group>
+                    <group attrs="{'invisible':[('coupon_type', '=', 'single')]}">
+                        <button string="Generate Barcode"
+                                type="action"
+                                name="%(action_open_multi_coupon)d"/>
+                    </group>
+                    <notebook>
+                        <page string="General Information">
+                            <group>
+                                <field name="is_coupon_confirm" invisible="1"/>
+                                <label string="" attrs="{'invisible': [('is_coupon_confirm', '=', True)]}"/>
+                                <button string="Enable Coupon"
+                                        type="object"
+                                        name="enable_coupon"
+                                        attrs="{'invisible': [('is_coupon_confirm', '=', True)]}"/>
+                                <label string="" attrs="{'invisible': [('is_coupon_confirm', '=', False)]}"/>
+                                <button string="Disable Coupon"
+                                        type="object"
+                                        name="disable_coupon"
+                                        attrs="{'invisible': [('is_coupon_confirm', '=', False)]}"/>
+                            </group>
+                            <group attrs="{'invisible':[('coupon_type', '=', 'multi')]}">
+                                <group>
+                                    <field name="barcode" widget="allow_number"
+                                           attrs="{'required':[('coupon_type', '=', 'single')],
+                                                   'readonly':[('is_coupon_confirm', '=', True)]}"/>
+                                </group>
+                                <group>
+                                    <field name="coupon_used_time" invisible="1"/>
+                                    <!--<field name="coupon_limit"-->
+                                           <!--attrs="{'required':[('coupon_type', '=', 'single')],-->
+                                                   <!--'readonly':[('is_coupon_confirm', '=', True)]}"/>-->
+                                </group>
+                            </group>
+                            <group attrs="{'invisible':[('coupon_type', '=', 'single')]}">
+                                <field name="multi_coupon_ids">
+                                    <tree string="Multi Coupon">
+                                        <field name="barcode"/>
+                                        <field name="is_received"/>
+                                        <field name="is_reserved"/>
+                                        <field name="is_used"/>
+                                        <field name="is_canceled"/>
+                                    </tree>
+                                </field>
+                            </group>
+                        </page>
+                        <page string="Description">
+                            <group>
+                                <field name="description"/>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="product_product_coupon_action" model="ir.actions.act_window">
+        <field name="name">Coupon</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">product.product</field>
+        <field name="view_type">form</field>
+        <field name="create">0</field>
+        <field name="context" eval="{
+            'default_is_coupon': True,
+            'default_type': 'service',
+        }"/>
+        <field name="domain" eval="[('is_coupon', '=', True)]"/>
+        <field name="search_view_id" eval="ref('product.product_template_search_view')"/> <!-- Force empty -->
+        <field name="view_ids" eval="[(5, 0, 0),
+                (0, 0, {'view_mode': 'kanban', 'view_id': ref('product.product_kanban_view')}),
+                (0, 0, {'view_mode': 'tree', 'view_id': ref('product.product_product_tree_view')}),
+                (0, 0, {'view_mode': 'form', 'view_id': ref('product_product_coupon_form_view')}),
+            ]"/>
+        <field name="help" type="html">
+            <p class="oe_view_nocontent_create">
+                Click to add a new product.
+            </p>
+            <p>
+                You must define a product for everything you sell through
+                the point of sale interface.
+            </p>
+            <p>
+                Do not forget to set the price and the point of sale category
+                in which it should appear. If a product has no point of sale
+                category, you can not sell it through the point of sale
+                interface.
+            </p>
+        </field>
+    </record>
+
+    <menuitem
+            id="menu_product_product_coupon"
+            action="product_product_coupon_action"
+            parent="point_of_sale.menu_point_of_sale" sequence="7"/>
+</odoo>

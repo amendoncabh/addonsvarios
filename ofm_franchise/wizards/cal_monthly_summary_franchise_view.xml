@@ -1,0 +1,61 @@
+<?xml version="1.0"?>
+<odoo>
+    <data>
+        <record id="view_cal_monthly_summary_franchise_wizard" model="ir.ui.view">
+            <field name="name">cal.monthly.summary.franchise.view.wizard</field>
+            <field name="model">cal.monthly.summary.franchise.wizard</field>
+            <field name="arch" type="xml">
+                <form string="คำนวณสรุปยอดประจำเดือน">
+                    <group>
+                        <group>
+                            <field name="year"/>
+                            <label for="branch_from_id" string="Store From"/>
+                            <div>
+                                <field name="branch_from_id"
+                                    string="From"
+                                    options="{
+                                        'no_quick_create': True,
+                                        'no_create_edit': True,
+                                        'no_open': True
+                                    }"/>
+                            </div>
+                        </group>
+                        <group>
+                            <field name="month"/>
+                            <field name="branch_to_id"
+                                string="To"
+                                options="{
+                                    'no_quick_create': True,
+                                    'no_create_edit': True,
+                                    'no_open': True
+                                }"/>
+                        </group>
+                    </group>
+                    <footer>
+                        <button name="action_cal_monthly_summary_franchise"
+                                string="Calculate" type="object"
+                                class="oe_highlight"/>
+                        or
+                        <button string="Cancel" class="oe_link"
+                                special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_open_cal_monthly_summary_franchise_wizard" model="ir.actions.act_window">
+            <field name="name">คำนวณสรุปยอดประจำเดือน</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">cal.monthly.summary.franchise.wizard</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+        </record>
+
+        <menuitem id="menu_cal_monthly_summary_franchise_wizard"
+                  parent="ofm_franchise.menu_monthly_summary_franchise_main"
+                  action="ofm_franchise.action_open_cal_monthly_summary_franchise_wizard"
+                  sequence="5"
+                  groups="ofm_access_right_center.group_ofm_hq"/>
+    </data>
+</odoo>

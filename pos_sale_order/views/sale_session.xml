@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="sale_session_tree" model="ir.ui.view">
+            <field name="name">sale.session.tree</field>
+            <field name="model">sale.session</field>
+            <field name="arch" type="xml">
+                <tree string="Sale Session">
+                    <field name="user_id"/>
+                    <field name="config_name"/>
+                    <field name="company_id"/>
+                    <field name="branch_id"/>
+                    <field name="sale_type"/>
+                    <field name="login_number"/>
+                    <field name="create_date"/>
+                    <field name="write_date"/>
+                </tree>
+            </field>
+        </record>
+
+        <record model="ir.actions.act_window" id="action_sale_session">
+            <field name="name">Sale Session</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">sale.session</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree</field>
+            <field name="help" type="html">
+                <p class="oe_view_nocontent_create">
+                    Click to create
+                </p>
+            </field>
+        </record>
+
+        <menuitem
+                id="menu_sale_session"
+                action="action_sale_session"
+                name="Sale Session"
+                parent="sales_team.menu_sale_config"
+                sequence="15"
+                groups="base.group_no_one,base.group_system"/>
+    </data>
+</odoo>

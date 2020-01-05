@@ -1,0 +1,481 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+
+    <t t-extend="ClientListScreenWidget">
+        <t t-jquery="table.client-list thead tr" t-operation='append'>
+            <th>Tax ID</th>
+            <th>Branch ID</th>
+        </t>
+    </t>
+    <t t-extend="ClientLine">
+        <t t-jquery="tr" t-operation='append'>
+            <td><t t-esc='partner.vat or ""' /></td>
+            <td><t t-esc='partner.shop_id or ""' /></td>
+        </t>
+    </t>
+
+    <t t-name="PaymentScreen-Numpad">
+        <div class="numpad">
+            <button class="mode-button" data-action='+5'>+5</button>
+            <button class="mode-button" data-action='+10'>+10</button>
+            <button class="mode-button" data-action='+20'>+20</button>
+            <button class="mode-button" data-action='+50'>+50</button>
+
+            <br />
+            <button class="mode-button" data-action='+100'>+100</button>
+            <button class="input-button number-char" data-action='1'>1</button>
+            <button class="input-button number-char" data-action='2'>2</button>
+            <button class="input-button number-char" data-action='3'>3</button>
+
+            <br />
+            <button class="mode-button" data-action='+500'>+500</button>
+            <button class="input-button number-char" data-action='4'>4</button>
+            <button class="input-button number-char" data-action='5'>5</button>
+            <button class="input-button number-char" data-action='6'>6</button>
+
+            <br />
+            <button class="mode-button" data-action='+1000'>+1000</button>
+            <button class="input-button number-char" data-action='7'>7</button>
+            <button class="input-button number-char" data-action='8'>8</button>
+            <button class="input-button number-char" data-action='9'>9</button>
+
+            <br />
+            <button class="input-button numpad-char" data-action='CLEAR' >C</button>
+            <button class="input-button number-char" data-action='0'>0</button>
+            <button class="input-button number-char" t-att-data-action='widget.decimal_point'><t t-esc='widget.decimal_point'/></button>
+            <button class="input-button numpad-backspace" data-action='BACKSPACE' >
+                <img src="/point_of_sale/static/src/img/backspace.png" width="24" height="21" />
+            </button>
+        </div>
+    </t>
+
+    <t t-name="NumpadWidget">
+        <div class="numpad">
+            <button class="input-button numpad-increase" data-value="2">
+    <!--<i class="fa fa-angle-double-up" aria-hidden="true"></i>-->
+                +2
+            </button>
+            <button class="input-button number-char">1</button>
+            <button class="input-button number-char">2</button>
+            <button class="input-button number-char">3</button>
+
+            <br />
+            <button class="input-button numpad-increase" data-value="1">
+    <!--<i class="fa fa-angle-up" aria-hidden="true"></i>-->
+                +1
+            </button>
+            <button class="input-button number-char">4</button>
+            <button class="input-button number-char">5</button>
+            <button class="input-button number-char">6</button>
+
+            <br />
+            <button class="input-button numpad-decrease" data-value="1">
+    <!--<i class="fa fa-angle-down" aria-hidden="true"></i>-->
+                -1
+            </button>
+            <button class="input-button number-char">7</button>
+            <button class="input-button number-char">8</button>
+            <button class="input-button number-char">9</button>
+            <br />
+
+            <button class="input-button numpad-decrease" data-value="2">
+    <!--<i class="fa fa-angle-double-down" aria-hidden="true"></i>-->
+                -2
+            </button>
+            <button class="input-button number-char">0</button>
+            <button class="input-button number-char">.</button>
+            <button class="input-button numpad-backspace">
+                <img style="pointer-events: none;" src="/pos_customize/static/src/img/backspace-white.png" width="24" height="21" />
+            </button>
+
+        </div>
+    </t>
+
+    <t t-name="PosTicket">
+        <div class="pos-sale-ticket">
+            <div id="Company" class="pos-customize-center-align receipt-descript-size">
+                <img t-att-src='receipt.company.pos_logo' style="width:80%;"/><br />
+                <t t-esc="receipt.company.pos_company_name || ''"/><br />
+                สาขา <t t-esc="widget.pos.branch.branch_name || ''"/>
+                สาขาที่ <t t-esc="widget.pos.branch.branch_id || ''"/><br />
+                <!--<div class="billtype">Settlement</div>-->
+            </div>
+            <br />
+            <div id="TaxInfo" class='receipt-descript-size'>
+                <table class='receipt-date receipt-descript-size'>
+                    <colgroup>
+                        <col width='40%' />
+                        <col width='60%' />
+                    </colgroup>
+                    <tr>
+                        <td>TAX INVOICE (ABB)</td>
+                        <td>
+                            Tax ID No.<t t-esc="receipt.company.pos_tax_id || ''"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="2">
+                            POS ID : <t t-esc="widget.pos.config.pos_no || 'XXXXXXXXXXXXX'"/>
+                        </td>
+                    </tr>
+                    <tr class='receipt-descript-align'>
+                        <td>
+                            <!--DATE :-->
+                            <t t-if="!widget.pos.pos_session.past_session">
+                                <t t-esc="moment(order.validation_date).format('DD.MM.YYYY HH:mm')"/>
+                            </t>
+                            <t t-if="widget.pos.pos_session.past_session">
+                                <t t-esc="moment(widget.pos.pos_session.start_at).format('DD.MM.YYYY HH:mm')"/>
+                            </t>
+                        </td>
+                        <td>
+                            <table>
+                                <colgroup>
+                                    <col width='30%' />
+                                    <col width='70%' />
+                                </colgroup>
+                                <tr>
+                                    <td>Rcpt</td>
+                                    <td><t t-esc="order.inv_no"/></td>
+                                </tr>
+                                <!--<tr>-->
+                                    <!--<td>TPNo</td>-->
+                                    <!--<td><t t-esc="order.tp_no || ''"/></td>-->
+                                <!--</tr>-->
+                            </table>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <div id="OrderLine">
+                <table class='receipt-orderlines receipt-descript-size'>
+                    <colgroup>
+                        <col width='38%' />
+                        <col width='26%' />
+                        <col width='26%' />
+                        <col width='10%' />
+                    </colgroup>
+                    <tr t-foreach="receipt.orderlines" t-as="orderline">
+                        <td colspan='4'>
+                            <!--Product Description-->
+                            <table>
+                                <colgroup>
+                                    <col width='38%' />
+                                    <col width='26%' />
+                                    <col width='26%' />
+                                    <col width='10%' />
+                                </colgroup>
+                                <tr class='receipt-descript-align'>
+                                    <td class="receipt-barcode-col">
+                                        <t t-if="orderline.barcode and orderline.barcode != null">
+                                            <t t-esc="orderline.barcode"/>
+                                        </t>
+                                    </td>
+                                    <td colspan='3'>
+                                        <t t-esc="orderline.product_name"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="pos-customize-center-align">
+                                        <t t-esc="widget.format_number(orderline.quantity)"/> *
+                                    </td>
+                                    <td class="pos-right-align">
+                                        <t t-esc="widget.format_currency_no_symbol(orderline.price)"/>
+                                    </td>
+                                    <td class="pos-right-align">
+                                        <t t-esc="widget.format_currency_no_symbol(orderline.price * orderline.quantity)"/>
+                                    </td>
+                                    <td class="pos-right-align">
+                                        <t t-if="(orderline.flag_best_deal)">B</t>
+                                        <t t-if="(orderline.iface_line_tax_included)">V</t>
+                                        <t t-if="(!orderline.iface_line_tax_included)">N</t>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr>
+                        <span class="receipt-discount">
+                            <!--<t t-if="(order.get_total_discount() > 0)">-->
+                                <!--<tr>-->
+                                    <!--<td>Discount</td>-->
+                                    <!--<td></td>-->
+                                    <!--<td class="pos-right-align">-->
+                                        <!--<t t-esc="widget.format_currency_no_symbol(order.get_total_discount())"/>-->
+                                    <!--</td>-->
+                                <!--</tr>-->
+                            <!--</t>-->
+                        </span >
+                        <td class="pos-left-align">Total</td>
+                        <td></td>
+                        <td class="pos-right-align receipt-border-total">
+                            <t t-if="widget.pos.config.iface_tax_included">
+                                <t t-esc="widget.format_currency_no_symbol(order.get_total_with_tax())"/>
+                            </t>
+                            <t t-if="!widget.pos.config.iface_tax_included">
+                                <t t-esc="widget.format_currency_no_symbol(order.get_total_without_tax())"/>
+                            </t>
+                        </td>
+                        <td></td>
+                    </tr>
+                </table>
+            </div>
+            <br />
+            <!--<table class='receipt-total receipt-descript-size'>-->
+                <!--<tr>-->
+                    <!--<td>Subtotal:</td>-->
+                    <!--<td class="pos-right-align">-->
+                        <!--<t t-esc="widget.format_currency_no_symbol(order.get_subtotal())"/>-->
+                    <!--</td>-->
+                <!--</tr>-->
+                <!--<t t-if='order.get_total_discount() > 0'>-->
+                <!--<tr>-->
+                    <!--<td>Discount:</td>-->
+                    <!--<td class="pos-right-align border-bottom">-->
+                        <!--<t t-esc="widget.format_currency_no_symbol(order.get_total_discount())"/>-->
+                    <!--</td>-->
+                <!--</tr>-->
+                <!--</t>-->
+                <!--<tr>-->
+                    <!--<td>Amount Inc Vat</td>-->
+                    <!--<td class="pos-right-align">-->
+                        <!--<t t-if="widget.pos.config.iface_tax_included">-->
+                            <!--<t t-esc="widget.format_currency_no_symbol(order.get_total_with_tax())"/>-->
+                        <!--</t>-->
+                        <!--<t t-if="!widget.pos.config.iface_tax_included">-->
+                            <!--<t t-esc="widget.format_currency_no_symbol(order.get_total_with_tax() - order.get_tax())"/>-->
+                        <!--</t>-->
+                    <!--</td>-->
+                <!--</tr>-->
+                <!--<tr>-->
+                    <!--<td>Amount Ex Vat</td>-->
+                    <!--<td class="pos-right-align">-->
+                        <!--<t t-esc="widget.format_currency_no_symbol(order.get_total_with_tax() - order.get_tax())"/>-->
+                    <!--</td>-->
+                <!--</tr>-->
+                <!--<tr>-->
+                    <!--<td>VAT</td>-->
+                    <!--<td class="pos-right-align">-->
+                        <!--<t t-if="widget.pos.config.iface_tax_included">-->
+                            <!--<t t-esc="widget.format_currency_no_symbol(order.get_tax())"/>-->
+                        <!--</t>-->
+                        <!--<t t-if="!widget.pos.config.iface_tax_included">-->
+                            <!--0-->
+                        <!--</t>-->
+                    <!--</td>-->
+                <!--</tr>-->
+
+                <!--<t t-foreach="order.get_tax_details()" t-as="taxdetail">-->
+                    <!--<tr>-->
+                        <!--<td><t t-esc="taxdetail.name" /></td>-->
+                        <!--<td class="pos-right-align">-->
+                            <!--<t t-esc="widget.format_currency_no_symbol(taxdetail.amount)" />-->
+                        <!--</td>-->
+                    <!--</tr>-->
+                <!--</t>-->
+            <!--</table>-->
+            <br />
+            <div id="PaymentInfo">
+                <table class='receipt-paymentlines receipt-descript-size paymentmethod'>
+                    <colgroup>
+                        <col width='75%' />
+                        <col width='25%' />
+                    </colgroup>
+                    <tbody class="paymentline-tender">
+                        <t t-foreach="paymentlines" t-as="line">
+                            <tr>
+                                <td>
+                                    <t t-esc="line.name"/>
+                                </td>
+                                <td class="pos-right-align">
+                                    <t t-esc="widget.format_currency_no_symbol(line.get_amount())"/>
+                                </td>
+                            </tr>
+                        </t>
+                    </tbody>
+                </table>
+                <table class='receipt-change receipt-descript-size'>
+                    <tr class="receipt-abb-change-cash">
+                        <t t-if="order.is_paid_with_cash()">
+                            <td>Change    CASH</td>
+                            <td class="pos-right-align">
+                                <t t-esc="widget.format_currency_no_symbol(order.get_change())"/>
+                            </td>
+                        </t>
+                    </tr>
+                    <t t-if="order.get_rounding() != 0">
+                        <tr>
+                            <td>Rounding</td>
+                            <td class="change_rounding pos-right-align">
+                                <t t-esc="widget.format_currency_no_symbol(Math.abs(order.get_rounding()))"/>
+                            </td>
+                        </tr>
+                    </t>
+                </table>
+            </div>
+            <br />
+            <div class="pos-customize-center-align receipt-descript-size">
+                *****  VAT INCLUDED  *****
+            </div>
+            <br />
+            <div class='receipt-descript-size' style='padding-left: 5%;'>
+                <t t-if="!widget.pos.pos_session.past_session">
+                    <t t-esc="moment().format('DD.MM.YYYY HH:mm:ss')"/>
+                </t>
+                <t t-if="widget.pos.pos_session.past_session">
+                    <t t-esc="moment(widget.pos.pos_session.start_at).format('DD.MM.YYYY HH:mm:ss')"/>
+                </t>
+            </div>
+            <br />
+            <div id="Cashier" class='receipt-descript-size'>
+                <table width="100%">
+                    <colgroup>
+                        <col width='30%' />
+                        <col width='60%' />
+                        <col width='10%' />
+                    </colgroup>
+                    <tr>
+                        <td colspan="3" style="padding-left: 5%;">
+                            Cashier : <t t-esc="widget.pos.cashier ? widget.pos.cashier.name : widget.pos.user.name"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding-top: 5%;">Cashier Sign : </td>
+                        <td style="border-bottom: dashed 1px;"></td>
+                        <td></td>
+                    </tr>
+                </table>
+            </div>
+            <div id="div_receipt_barcode">
+                <div class='pos-customize-center-align' style='margin-top:8px;'>
+                    <img t-att-src="order.barcode_inv_no_base64" style="width:80%;"/>
+                </div>
+                <div class='pos-customize-center-align' style='font-size:8px; margin-bottom:5px; margin-top: -9px;'>
+                    <t t-esc="order.inv_no" />
+                </div>
+            </div>
+            <div id="abb_receipt_tail" class="pos-customize-center-align receipt-descript-size">
+                Tel. <t t-esc="widget.pos.branch.phone || ''"/><br />
+                รับเปลี่ยน/คืนสินค้าภายใน 30 วัน<br />
+                พร้อมใบเสร็จรับเงิน<br /><br />
+            </div>
+        </div>
+        <div class="page-break" style="clear:both;"></div>
+    </t>
+
+    <t t-extend="Orderline">
+        
+        <t t-jquery=".product-name" t-operation="append">
+            <t t-esc="line.get_product().is_best_deal_promotion?' (B)':''" />
+        </t>
+
+        <t t-jquery=".info-list t:first" t-operation="replace">
+            <li class="info">
+
+                <t t-if="!line.promotion">
+                    <em>
+                        <t t-esc="line.get_quantity_str()" />
+                    </em>
+                    <t t-esc="line.get_unit().name" />
+                    at
+                    <t t-esc="widget.format_currency_no_symbol(line.get_unit_display_price(),'Product Price')" />
+                    /
+                    <t t-esc="line.get_unit().name" />
+                </t>
+
+            </li>
+        </t>
+        <t t-jquery=".info-list" t-operation="append">
+            <t t-if="line.get_discount_acount_str() !== '0'">
+                <li class="info">
+                    With a
+                    <em>
+                        <t t-esc="widget.format_currency_no_symbol(line.get_discount_acount_str())"/>
+                    </em>
+                    discount
+                </li>
+            </t>
+        </t>
+    </t>
+
+    <t t-extend="OrderWidget">
+        <t t-jquery=".label" t-operation="prepend">
+            <div class='total-prod'>รวม <t t-esc="orderlines.length" /> รายการ</div>
+        </t>
+        <t t-jquery=".subentry" t-operation="inner">
+            VAT: <span class="value">0.00€</span>
+        </t>
+    </t>
+
+    <t t-name="ErrorPopupWidget">
+        <div class="modal-dialog">
+            <div class="popup popup-error">
+                <p class="title"><t t-raw=" widget.options.title || 'Error' " /></p>
+                <p class="body"><t t-raw=" widget.options.body || '' "/></p>
+                <div class="footer">
+                    <div class="button cancel">
+                        Ok
+                    </div>
+                </div>
+            </div>
+        </div>
+    </t>
+
+    <t t-name="ReceiptScreenWidget">
+        <div class='receipt-screen screen'>
+            <div class='screen-content'>
+                <div class='top-content'>
+                    <h1 style="font-size: 300%; color:red;">Change: <span class='change-value'>0.00</span></h1>
+                </div>
+                <div class="centered-content touch-scrollable">
+                    <div class="button print">
+                        Next Order
+                    </div>
+                    <div class="pos-receipt-container">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </t>
+
+    <t t-name="OrderSelectorWidget">
+        <div class="order-selector">
+            <span class="orders touch-scrollable">
+
+                <t t-foreach="widget.pos.get_order_list()" t-as="order">
+                    <t t-if='order === widget.pos.get_order()'>
+                        <span class="order-button select-order selected" t-att-data-uid="order.uid">
+                            <span class='order-sequence'>
+                                <t t-esc='order.sequence_number' />
+                            </span>
+                            <t t-esc="moment(order.creation_date).format('HH:mm')"/>
+                        </span>
+                    </t>
+                    <t t-if='order !== widget.pos.get_order()'>
+                        <span class="order-button select-order" t-att-data-uid="order.uid">
+                            <span class='order-sequence'>
+                                <t t-esc='order.sequence_number' />
+                            </span>
+                        </span>
+                    </t>
+                </t>
+            </span>
+            <span class="order-button square neworder-button">
+                <i class='fa fa-plus' />
+            </span>
+            <span class="order-button square deleteorder-button">
+                <i class='fa fa-minus' />
+            </span>
+        </div>
+    </t>
+
+    <t t-extend="PaymentScreen-Paymentlines">
+        <!--fix bug render of standard, it render inputbuffer instead of amount | pox.xml 523-->
+        <t t-jquery="tr.selected > td.col-tendered" t-operation="replace">
+            <td class='col-tendered edit'>
+                <t t-esc='widget.format_currency_no_symbol(line.get_amount())' />
+            </td>
+        </t>
+    </t>
+
+</templates>

@@ -1,0 +1,68 @@
+<?xml version="1.0"?>
+<openerp>
+  <data>
+      <record id="hourly_sale_volume_report_jasper" model="ir.actions.report.xml">
+          <field name="string">Hourly Sale Volume by Category Report</field>
+          <field name="name">Hourly Sale Volume by Category Report</field>
+          <field name="type">ir.actions.report.xml</field>
+          <field name="model">hourly.sale.volume.report.wizard</field>
+          <field name="report_name">hourly.sale.volume.report.jasper</field>
+          <field name="tml_source">file</field>
+          <field name="report_rml">pos_customize/report/hourly_sale_volume_by_cate.jrxml</field>
+          <field name="parser_state">loc</field>
+          <field name="auto">True</field>
+          <field name="menu">True</field>
+          <field name="header">False</field>
+          <field name="jasper_report">True</field>
+          <field name="jasper_output">pdf</field>
+          <field name="jasper_model_id" ref="pos_customize.model_hourly_sale_volume_report_wizard"/>
+      </record>
+
+      <act_window id="action_hourly_sale_volume_report_wizard"
+        name="Hourly Sale Volume by Category Report"
+        res_model="hourly.sale.volume.report.wizard"
+        view_mode="form"
+        target="new"/>
+
+      <menuitem id="menu_hourly_sale_volume_report_wizard"
+          parent="menu_report_sales_user"
+          action="action_hourly_sale_volume_report_wizard"
+          sequence="1"/>
+
+      <record id="view_hourly_sale_volume_report_wizard" model="ir.ui.view">
+
+            <field name="name">hourly.sale.volume.report.form</field>
+            <field name="model">hourly.sale.volume.report.wizard</field>
+            <field name="arch" type="xml">
+             <form string="Approve Licensing Application">
+                  <group>
+                        <group>
+                                <field name="start_date" required="1"/>
+                                <field name="end_date" required="1"/>
+                            </group>
+                              <group>
+                              <field name="start_branch"
+                                     options="{'no_quick_create': True, 'no_create_edit': True}"
+                                     required="1"/>
+                              <field name="end_branch"
+                                     options="{'no_quick_create': True, 'no_create_edit': True}"
+                                     required="1"/>
+                    </group>
+                      <group>
+                          <field name="jasper_output" widget="radio" required="1"/>
+                   </group>
+                   </group>
+                <footer>
+                    <button name="action_print_report"
+                        string="Print Report" type="object"
+                        class="oe_highlight"/>
+                    or
+                    <button string="Cancel" class="oe_link"
+                        special="cancel"/>
+                </footer>
+            </form>
+            </field>
+        </record>
+
+    </data>
+</openerp>

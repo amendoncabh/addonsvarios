@@ -1,0 +1,122 @@
+<?xml version="1.0"?>
+<odoo>
+    <record id="view_cycle_count_report_wizard" model="ir.ui.view">
+        <field name="name">รายงานใบสรุปตรวจสอบ Variance</field>
+        <field name="model">cycle.count.report.wizard</field>
+        <field name="arch" type="xml">
+            <form string="รายงานใบสรุปตรวจสอบ Variance">
+                <group>
+                    <field name="select_diff" string="Product list" widget='radio'/>
+                </group>
+                <group>
+                    <field name="company_id" 
+                        string="Company"
+                        options="{
+                                    'no_quick_create': True,
+                                    'no_create_edit': True,
+                                    'no_open': True
+                                }"/>
+                    <field name="branch_id" 
+                        string="Branch"
+                        options="{
+                                    'no_quick_create': True,
+                                    'no_create_edit': True,
+                                    'no_open': True
+                                }"/>
+                    <field name="start_date"/>
+                    <field name="end_date"/>
+                </group>
+                <field name="cycle_count_ids" domain="[
+                    '&amp;',
+                    ('date', '&gt;=', start_date),
+                    ('date', '&lt;=', end_date),
+                    ('company_id', '=', company_id),
+                    ('branch_id', '=', branch_id)]"/>
+                <footer>
+                    <button name="action_print_report"
+                            string="Print" type="object"
+                            class="oe_highlight"/>
+                    or
+                    <button string="Cancel" class="oe_link"
+                            special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_open_cycle_count_report_wizard" model="ir.actions.act_window">
+        <field name="name">รายงานใบสรุปตรวจสอบ Variance</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">cycle.count.report.wizard</field>
+        <field name="view_type">form</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="view_cycle_count_report_wizard" />
+        <field name="target">new</field>
+    </record>
+
+    <menuitem id="menu_cycle_count_report_wizard"
+                  parent="stock.menu_warehouse_report"
+                  action="action_open_cycle_count_report_wizard"
+                  string="รายงานใบสรุปตรวจสอบ Variance"
+                  sequence="5"/>
+
+    <record id="view_cycle_count_form_wizard" model="ir.ui.view">
+        <field name="name">Cycle count form</field>
+        <field name="model">cycle.count.report.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Cycle count Form">
+                <group>
+                    <field name="select_diff" string="Product list" widget='radio'/>
+                </group>
+                <footer>
+                    <button name="action_print_form"
+                            string="Print" type="object"
+                            class="oe_highlight"/>
+                    or
+                    <button string="Cancel" class="oe_link"
+                            special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_open_cycle_count_form_wizard" model="ir.actions.act_window">
+        <field name="name">Cycle count form</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">cycle.count.report.wizard</field>
+        <field name="view_type">form</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="view_cycle_count_form_wizard" />
+        <field name="target">new</field>
+    </record>
+
+    <record id="view_cycle_count_template_wizard" model="ir.ui.view">
+        <field name="name">Cycle count template</field>
+        <field name="model">cycle.count.report.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Cycle count Template">
+                <group>
+                    <field name="select_diff" string="Product list" widget='radio'/>
+                </group>
+                <footer>
+                    <button name="action_print_template"
+                            string="Print" type="object"
+                            class="oe_highlight"/>
+                    or
+                    <button string="Cancel" class="oe_link"
+                            special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_open_cycle_count_template_wizard" model="ir.actions.act_window">
+        <field name="name">Cycle count template</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">cycle.count.report.wizard</field>
+        <field name="view_type">form</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="view_cycle_count_template_wizard" />
+        <field name="target">new</field>
+    </record>
+</odoo>

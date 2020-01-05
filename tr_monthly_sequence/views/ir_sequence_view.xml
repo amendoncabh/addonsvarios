@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+        <record model="ir.ui.view" id="sequence_view">
+            <field name="name">ir.sequence.form.inherit</field>
+            <field name="model">ir.sequence</field>
+            <field name="inherit_id" ref="base.sequence_view"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='use_date_range']" position="after">
+                    <field name="use_monthly"/>
+                </xpath>
+                <xpath expr="//field[@name='date_range_ids']" position="attributes">
+                    <attribute name="attrs">{'invisible' : [('use_monthly', '=', False)]}</attribute>
+                </xpath>
+                <xpath expr="//field[@name='date_range_ids']" position="after">
+                    <field name="line_ids" attrs="{'invisible' : [('use_monthly', '=', True)]}">
+                        <tree string="Sequence Line" editable="bottom">
+                            <field name="prefix" />
+                            <field name="number_current" />
+                            <field name="number_next" />
+                        </tree>
+                    </field>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</openerp>
+

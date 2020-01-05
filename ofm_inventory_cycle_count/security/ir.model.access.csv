@@ -1,0 +1,8 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+
+inventory_cycle_count,cycle_count,model_stock_inventory_cycle_count,stock.group_stock_user,1,1,1,1
+inventory_cycle_count_line,cycle_count_line,model_stock_inventory_cycle_count_line,stock.group_stock_user,1,1,1,1
+
+
+
+

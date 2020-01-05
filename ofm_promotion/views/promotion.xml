@@ -1,0 +1,377 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="pos_promotion_from_view">
+            <field name="name">pos.promotion.form</field>
+            <field name="model">pos.promotion</field>
+            <field name="arch" type="xml">
+                <form string="Promotion">
+                    <sheet>
+                        <div class="oe_title">
+                            <label class="oe_edit_only" for="promotion_code" string="Promotion Code"/>
+                            <h1>
+                                <field name="promotion_code"/>
+                            </h1>
+                            <label class="oe_edit_only" for="promotion_name" string="Promotion Name"/>
+                            <h1>
+                                <field name="promotion_name"/>
+                            </h1>
+                            <label for="sequence" string="Sequence"/>
+                            <field name="sequence" readonly="1"/>
+                        </div>
+                        <group colspan="4" style="margin-top: 20px;">
+                            <table class="o_group o_inner_group">
+                                <tbody>
+                                    <tr>
+                                        <td class="o_td_label">
+                                            <div><b>Share</b></div>
+                                        </td>
+                                        <td style="width: 100%;">
+                                            <div class="container-fluid">
+                                                <div class="row" style="white-space: nowrap; max-width: 900px;">
+                                                    <div class="col-lg-3 col-md-4 col-xs-8" style="display: inline-flex;">
+                                                        <b style="padding-right:10px;">Bank</b><field name="bank_share" nolabel="1" widget="allow_number"/>
+                                                    </div>
+                                                    <div class="col-lg-3 col-md-4 col-xs-8" style="display: inline-flex;">
+                                                        <b style="padding-right:10px;">Company</b><field name="company_share" nolabel="1" widget="allow_number"/>
+                                                    </div>
+                                                    <div class="col-lg-3 col-md-4 col-xs-8" style="display: inline-flex;">
+                                                        <b style="padding-right:10px;">Vendor</b><field name="vendor_share" nolabel="1" widget="allow_number"/>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </group>
+                        <group colspan="4">
+                            <table class="o_group o_inner_group">
+                                <tbody>
+                                    <tr>
+                                        <td class="o_td_label">
+                                            <div><b>Channel</b></div>
+                                        </td>
+                                        <td style="width: 100%;">
+                                            <div class="container-fluid">
+                                                <div class="row" style="white-space: nowrap; max-width: 900px;">
+                                                    <div class="col-lg-3 col-md-4 col-xs-8" style="padding-left: 1px; padding-right: 1px;">
+                                                        <field name="is_channel_pos" nolabel="1"/> POS
+                                                    </div>
+                                                    <div class="col-lg-3 col-md-4 col-xs-8" style="padding-left: 1px; padding-right: 1px;">
+                                                        <field name="is_channel_instore" nolabel="1"/> In Store
+                                                    </div>
+                                                    <div class="col-lg-3 col-md-4 col-xs-8" style="padding-left: 1px; padding-right: 1px;">
+                                                        <field name="is_channel_dropship" nolabel="1"/> Dropship
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </group>
+
+                        <group>
+                            <group>
+                                <field name="date_start"/>
+                                <field name="tier_id"
+                                       options="{'no_quick_create': True, 'no_create_edit': True, 'no_open': True}"
+                                />
+                                <field name="is_exclude_tier"/>
+                                <field name="exclude_tier_ids" widget="many2many_tags"
+                                       domain="[('start_tier', '&lt;', start_tier)]"
+                                       options="{'no_quick_create': True, 'no_create_edit': True, 'no_open': True}"
+                                       attrs="{
+                                            'invisible': [('is_exclude_tier', '!=', True)]
+                                       }"/>
+                                <field name="tier" invisible="1"/>
+                                <field name="start_tier" invisible="1"/>
+                            </group>
+                            <group>
+                                <field name="date_end"/>
+                                <field name="tier_option_id"
+                                       domain="[('promotion_tier_id', '=', tier_id)]"
+                                       widget="selection"
+                                />
+                                <field name="priority"/>
+                            </group>
+                        </group>
+                        <group col="4">
+                            <field name="is_custom_time" colspan="4"/>
+                            <field name="start_time" widget="float_time"
+                                   attrs="{
+                                    'invisible': [('is_custom_time', '!=', True)],
+                                    'required': [('is_custom_time', '=', True)]}"/>
+                            <field name="end_time" widget="float_time"
+                                   attrs="{
+                                    'invisible': [('is_custom_time', '!=', True)],
+                                    'required': [('is_custom_time', '=', True)]}"/>
+                            <field name="is_custom_day" colspan="4"/>
+                        </group>
+                        <group attrs="{'invisible': [('is_custom_day', '!=', True)]}">
+                            <div class="container">
+                                <div class="row">
+                                    <div class="col-xs-2"><b>Days</b></div>
+                                    <div class="col-xs-1" style="text-align:center;"><b>All</b></div>
+                                    <div class="col-xs-1"><b>1st</b></div>
+                                    <div class="col-xs-1"><b>2nd</b></div>
+                                    <div class="col-xs-1"><b>3rd</b></div>
+                                    <div class="col-xs-1"><b>4th</b></div>
+                                    <div class="col-xs-1" style="text-align:center;"><b>Last</b></div>
+                                </div>
+                                <br/>
+                                <div class="row">
+                                    <div class="col-xs-2"><b>Sunday</b></div>
+                                    <div class="col-xs-1" style="text-align:center;"><field name="all_sunday" nolabel="1"/></div>
+                                    <div class="col-xs-1"><field name="first_sunday" nolabel="1"/></div>
+                                    <div class="col-xs-1"><field name="second_sunday" nolabel="1"/></div>
+                                    <div class="col-xs-1"><field name="third_sunday" nolabel="1"/></div>
+                                    <div class="col-xs-1"><field name="fourth_sunday" nolabel="1"/></div>
+                                    <div class="col-xs-1" style="text-align:center;"><field name="last_sunday" nolabel="1"/></div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-xs-2"><b>Monday</b></div>
+                                    <div class="col-xs-1" style="text-align:center;"><field name="all_monday" nolabel="1"/></div>
+                                    <div class="col-xs-1"><field name="first_monday" nolabel="1"/></div>
+                                    <div class="col-xs-1"><field name="second_monday" nolabel="1"/></div>
+                                    <div class="col-xs-1"><field name="third_monday" nolabel="1"/></div>
+                                    <div class="col-xs-1"><field name="fourth_monday" nolabel="1"/></div>
+                                    <div class="col-xs-1" style="text-align:center;"><field name="last_monday" nolabel="1"/></div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-xs-2"><b>Tuesday</b></div>
+                                    <div class="col-xs-1" style="text-align:center;"><field name="all_tuesday" nolabel="1"/></div>
+                                    <div class="col-xs-1"><field name="first_tuesday" nolabel="1"/></div>
+                                    <div class="col-xs-1"><field name="second_tuesday" nolabel="1"/></div>
+                                    <div class="col-xs-1"><field name="third_tuesday" nolabel="1"/></div>
+                                    <div class="col-xs-1"><field name="fourth_tuesday" nolabel="1"/></div>
+                                    <div class="col-xs-1" style="text-align:center;"><field name="last_tuesday" nolabel="1"/></div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-xs-2"><b>Wednesday</b></div>
+                                    <div class="col-xs-1" style="text-align:center;"><field name="all_wednesday" nolabel="1"/></div>
+                                    <div class="col-xs-1"><field name="first_wednesday" nolabel="1"/></div>
+                                    <div class="col-xs-1"><field name="second_wednesday" nolabel="1"/></div>
+                                    <div class="col-xs-1"><field name="third_wednesday" nolabel="1"/></div>
+                                    <div class="col-xs-1"><field name="fourth_wednesday" nolabel="1"/></div>
+                                    <div class="col-xs-1" style="text-align:center;"><field name="last_wednesday" nolabel="1"/></div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-xs-2"><b>Thursday</b></div>
+                                    <div class="col-xs-1" style="text-align:center;"><field name="all_thursday" nolabel="1"/></div>
+                                    <div class="col-xs-1"><field name="first_thursday" nolabel="1"/></div>
+                                    <div class="col-xs-1"><field name="second_thursday" nolabel="1"/></div>
+                                    <div class="col-xs-1"><field name="third_thursday" nolabel="1"/></div>
+                                    <div class="col-xs-1"><field name="fourth_thursday" nolabel="1"/></div>
+                                    <div class="col-xs-1" style="text-align:center;"><field name="last_thursday" nolabel="1"/></div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-xs-2"><b>Friday</b></div>
+                                    <div class="col-xs-1" style="text-align:center;"><field name="all_friday" nolabel="1"/></div>
+                                    <div class="col-xs-1"><field name="first_friday" nolabel="1"/></div>
+                                    <div class="col-xs-1"><field name="second_friday" nolabel="1"/></div>
+                                    <div class="col-xs-1"><field name="third_friday" nolabel="1"/></div>
+                                    <div class="col-xs-1"><field name="fourth_friday" nolabel="1"/></div>
+                                    <div class="col-xs-1" style="text-align:center;"><field name="last_friday" nolabel="1"/></div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-xs-2"><b>Saturday</b></div>
+                                    <div class="col-xs-1" style="text-align:center;"><field name="all_saturday" nolabel="1"/></div>
+                                    <div class="col-xs-1"><field name="first_saturday" nolabel="1"/></div>
+                                    <div class="col-xs-1"><field name="second_saturday" nolabel="1"/></div>
+                                    <div class="col-xs-1"><field name="third_saturday" nolabel="1"/></div>
+                                    <div class="col-xs-1"><field name="fourth_saturday" nolabel="1"/></div>
+                                    <div class="col-xs-1" style="text-align:center;"><field name="last_saturday" nolabel="1"/></div>
+                                </div>
+                            </div>
+                        </group>
+                        <group>
+                            <group>
+                                <field
+                                    name="promotion_segment"
+                                    widget="radio"
+                                    options="{'horizontal': true}"
+                                />
+                                <field
+                                        name="is_best_deal"
+                                />
+                                <field
+                                        name="promotion_type"
+                                        widget="radio"
+                                        options="{'horizontal': true}"
+                                />
+                            </group>
+                            <group>
+                                <field name="condition_type"/>
+                                <field name="reward_type"/>
+                                <!--<field
+                                        name="condition_type_general"
+                                        widget="radio"
+                                        options="{'horizontal': true}"
+                                        attrs="{
+                                            'invisible': [
+                                                ('promotion_type', '=', 'mapping')
+                                            ]
+                                        }"
+                                />
+                                <field
+                                        name="condition_type_mapping"
+                                        widget="radio"
+                                        options="{'horizontal': true}"
+                                        attrs="{
+                                            'invisible': [
+                                                ('promotion_type', '!=', 'mapping')
+                                            ]
+                                        }"
+                                />
+                                <field
+                                        name="reward_type"
+                                        widget="radio"
+                                        options="{'horizontal': true}"
+                                />-->
+                            </group>
+                        </group>
+                        <group>
+                            <field name="apply_with_coupon" invisible="1"/>
+                            <field name="apply_with_coupon_wo_reward" widget="radio" options="{'horizontal': true}"
+                                   attrs="{'invisible': [('reward_type', '=', 'coupon')]}"/>
+                            <field name="apply_with_coupon_w_reward" widget="radio" options="{'horizontal': true}"
+                                   attrs="{'invisible': [('reward_type', '!=', 'coupon')]}"/>
+                        </group>
+                        <group>
+                            <field name="active"/>
+                            <field name="promotion_condition_can_create" invisible="1"/>
+                        </group>
+                        <!--<div class="oe_button_box" name="button_box">
+                            <button name="%(action_open_import_promotion)d"
+                                    string="Import (.csv)"
+                                    icon="fa-stack-overflow"
+                                    type="action"
+                                    class="oe_stat_button"/>
+                        </div>-->
+                        <notebook colspan="4">
+                            <page string="Condition Detail">
+                                <field name="promotion_condition_ids" invisible="1"/>
+                                <field
+                                    name="promotion_step_condition_ids"
+                                    mode="tree"
+                                    context="{
+                                        'promotion_type': promotion_type,
+                                        'condition_type': condition_type,
+                                        'reward_type': reward_type,
+                                        'promotion_id': id,
+                                        'branch_ids': branch_ids,
+                                        'promotion_condition_can_create': promotion_condition_can_create,
+                                        'tree_view_ref': 'ofm_promotion.promotion_condition_tree_view',
+                                        'form_view_ref': 'ofm_promotion.promotion_step_condition_form_view',
+                                        'apply_with_coupon': apply_with_coupon,
+                                    }"
+                                    attrs="{
+                                        'invisible': [('promotion_type', '!=', 'step')],
+                                    }"
+                                />
+                                <field
+                                        name="promotion_loop_condition_ids"
+                                        mode="tree"
+                                        context="{
+                                            'promotion_type': promotion_type,
+                                            'condition_type': condition_type,
+                                            'reward_type': reward_type,
+                                            'promotion_id': id,
+                                            'branch_ids': branch_ids,
+                                            'promotion_condition_can_create': promotion_condition_can_create,
+                                            'tree_view_ref': 'ofm_promotion.promotion_condition_tree_view',
+                                            'form_view_ref': 'ofm_promotion.promotion_loop_condition_form_view',
+                                            'apply_with_coupon': apply_with_coupon,
+                                        }"
+                                        attrs="{
+                                            'invisible': [('promotion_type', '!=', 'loop')],
+                                        }"
+                                />
+                            </page>
+                            <page string="Branch">
+                                <field name="branch_ids">
+                                    <tree string="Promotion">
+                                        <field name="name"/>
+                                    </tree>
+                                </field>
+                            </page>
+                            <page string="Internal Note">
+                                <field name="internal_note" placeholder="Internal Note..." nolabel="1"
+                                       style="min-height: 150px; max-height: 150px;
+                                       min-width:100%; max-width:100%; overflow-y: scroll;"/>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="pos_promotion_tree_view">
+            <field name="name">pos.promotion.form.view</field>
+            <field name="model">pos.promotion</field>
+            <field name="arch" type="xml">
+                <tree string="Promotion">
+                    <field name="tier"/>
+                    <field name="priority"/>
+                    <field name="promotion_segment"/>
+                    <!--<field name="sequence" widget="handle"/>-->
+                    <!--<field name="sequence"/>-->
+                    <field name="promotion_code"/>
+                    <field name="promotion_name"/>
+                    <field name="promotion_type"/>
+                    <field name="condition_type"/>
+                    <field name="reward_type"/>
+                    <field name="date_start"/>
+                    <field name="date_end"/>
+                    <field name="create_uid"/>
+                    <field name="write_uid"/>
+                    <field name="write_date"/>
+                    <field name="active"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="view_pos_promotion_search" model="ir.ui.view">
+            <field name="name">pos.promotion.search</field>
+            <field name="model">pos.promotion</field>
+            <field name="arch" type="xml">
+                <search string="Branch">
+                    <field name="promotion_name" string="Name" filter_domain="[('promotion_name', 'ilike', self)]"/>
+                    <field name="promotion_code" string="Code" filter_domain="[('promotion_code', 'ilike', self)]"/>
+                    <filter name="active" string="Inactive" domain="[('active', '=', False)]"/>
+                    <separator/>
+                    <filter name="date_end" string="In Progress" domain="[('date_end', '&gt;=', time.strftime('%Y-%m-%d %H:%M:%S'))]"/>
+                    <group expand="0" string="Group By">
+                        <filter string="End Date" domain="[]" context="{'group_by':'date_end'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record model="ir.actions.act_window" id="action_promotion_form">
+            <field name="name">Promotion</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">pos.promotion</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="context">{'search_default_date_end': 1}</field>
+            <field name="search_view_id" ref="view_pos_promotion_search"/>
+            <field name="help" type="html">
+                <p class="oe_view_nocontent_create">
+                    Click to create a Promotion.
+                </p>
+
+            </field>
+        </record>
+
+        <menuitem
+                parent="point_of_sale.menu_point_config_product"
+                action="action_promotion_form"
+                id="menu_pos_promotion"
+                sequence="32"
+                groups="base.group_no_one,base.group_system,point_of_sale.group_pos_central_manager"
+        />
+    </data>
+</odoo>

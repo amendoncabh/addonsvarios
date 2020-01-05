@@ -1,0 +1,11 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+ofm_product_dept_user_group,ofm_product_dept user_group,model_ofm_product_dept,base.group_user,1,1,1,0
+product_brand_user_group,product_brand user_group,model_product_brand,base.group_user,1,1,1,0
+product_price_log_user_group,product.price.log user_group,model_product_price_log,base.group_user,1,1,1,0
+
+stock.access_product_product_stock_user,product_product_stock_user,product.model_product_product,stock.group_stock_user,1,0,0,0
+stock.access_product_template_stock_user,product.template stock user,product.model_product_template,stock.group_stock_user,1,0,0,0
+product_product_group_ofm_hq,product_product group_ofm_hq,model_product_product,ofm_access_right_center.group_ofm_hq,1,1,1,0
+product_template_group_ofm_hq,product_template group_ofm_hq,model_product_template,ofm_access_right_center.group_ofm_hq,1,1,1,0
+
+product_price_dropship_user_group,product.price.dropship user_group,model_product_price_dropship,base.group_user,1,1,1,1

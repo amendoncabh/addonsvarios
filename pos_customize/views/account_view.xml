@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="view_account_bnk_stmt_cashbox_pos_user" model="ir.ui.view">
+            <field name="name">account.bnk_stmt_cashbox.form.pos.user</field>
+            <field name="model">account.bank.statement.cashbox</field>
+            <field name="inherit_id" ref="account.view_account_bnk_stmt_cashbox"/>
+            <field name="arch" type="xml">
+                <xpath expr="//tree" position="attributes">
+                    <attribute name="create">0</attribute>
+                </xpath>
+                <xpath expr="//field[@name='cashbox_lines_ids']/.." position="after">
+                    <group>
+                        <field name="balance_session" invisible="1"/>
+                    </group>
+                </xpath>
+                <xpath expr="//field[@name='cashbox_lines_ids']/tree" position="attributes">
+                    <attribute name="delete">0</attribute>
+                </xpath>
+                <xpath expr="//field[@name='cashbox_lines_ids']" position="attributes">
+                    <attribute name="attrs">{'readonly': [('balance_session', '=', 'start')]}</attribute>
+                </xpath>
+                <xpath expr="//field[@name='coin_value']" position="attributes">
+                    <attribute name="readonly">1</attribute>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="view_account_bnk_stmt_cashbox_pos_manager" model="ir.ui.view">
+            <field name="name">account.bnk_stmt_cashbox.form.pos.manager</field>
+            <field name="model">account.bank.statement.cashbox</field>
+            <field name="inherit_id" ref="view_account_bnk_stmt_cashbox_pos_user"/>
+            <field name="groups_id" eval="[(6, 0, [ref('point_of_sale.group_pos_manager')])]"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='coin_value']" position="attributes">
+                    <attribute name="readonly">1</attribute>
+                </xpath>
+            </field>
+        </record>
+
+    </data>
+</odoo>

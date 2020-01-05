@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="ir_config_parameter_account_deposit_hide_cancel_button" model="ir.config_parameter">
+            <field name="key">account_deposit_hide_cancel_button</field>
+            <field name="value">True</field>
+        </record>
+    </data>
+</odoo>

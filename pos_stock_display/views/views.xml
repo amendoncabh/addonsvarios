@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<openerp>
+    <data>
+
+        <!-- improved idea categories list -->
+        <!--<record model="ir.ui.view" id="view_pos_config_form">-->
+            <!--<field name="name">pos.config.form.view</field>-->
+            <!--<field name="model">pos.config</field>-->
+            <!--<field name="inherit_id" ref="point_of_sale.view_pos_config_form"/>-->
+            <!--<field name="arch" type="xml">-->
+                <!--&lt;!&ndash; find field description and add the field-->
+                     <!--idea_ids after it &ndash;&gt;-->
+                <!--<xpath expr="//field[@name='journal_ids']" position="after">-->
+                    <!--<separator string="Select Products" colspan="4"/>-->
+                    <!--<field name="product_ids" colspan="4" nolabel="1">-->
+                        <!--<tree string="Product">-->
+                            <!--<field name="name"/>-->
+                        <!--</tree>-->
+                    <!--</field>-->
+                <!--</xpath>-->
+            <!--</field>-->
+        <!--</record>-->
+
+    </data>
+</openerp>

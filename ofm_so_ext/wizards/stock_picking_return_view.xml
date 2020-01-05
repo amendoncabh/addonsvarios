@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_stock_return_picking_form_inherit" model="ir.ui.view">
+            <field name="name">Return lines</field>
+            <field name="model">stock.return.picking</field>
+            <field name="inherit_id" ref="pos_customize.view_stock_return_picking_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='location_id']" position="before">
+                    <field name="is_hide_pin_approve" invisible="1"/>
+                </xpath>
+                <xpath expr="//field[@name='return_reason_id']" position="after">
+                    <field
+                            name="manager_id"
+                            options="{
+                               'no_quick_create': True,
+                               'no_create_edit': True,
+                               'no_open': True
+                           }"
+                            attrs="{
+                                'invisible': [
+                                    ('is_hide_pin_approve', '=', True)
+                                ],
+                                'required': [
+                                    ('is_hide_pin_approve', '=', False)
+                                ]
+                            }"
+                    />
+                    <field
+                            name="pos_security_pin"
+                            attrs="{
+                                'invisible': [
+                                    ('is_hide_pin_approve', '=', True)
+                                ],
+                                'required': [
+                                    ('is_hide_pin_approve', '=', False)
+                                ]
+                            }"
+                            password="1"
+                            widget="allow_number"
+                    />
+                </xpath>
+            </field>
+    </record>
+</odoo>

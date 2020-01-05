@@ -1,0 +1,16 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+purchase_request_standard,purchase.request.standard,purchase_request.model_purchase_request,base.group_user,0,0,0,0
+purchase_request_line_standard,purchase.request.line.standard,purchase_request.model_purchase_request_line,base.group_user,0,0,0,0
+
+purchase_order_standard,purchase.order.standard,purchase.model_purchase_order,base.group_user,1,1,1,1
+purchase_order_header_ofm,purchase.order.header_ofm,model_ofm_purchase_order_header,base.group_user,1,1,1,1
+purchase_order_line_standard,purchase.order.line.standard,purchase.model_purchase_order_line,base.group_user,1,1,1,1
+purchase_order_line_ofm,purchase.order.line.ofm,model_ofm_purchase_order_line,base.group_user,1,1,1,1
+purchase_orders_confirm_all_group_user,purchase.orders.confirm.all group_user,model_purchase_orders_confirm_all,base.group_user,1,1,1,0
+
+ofm_purchase_order_hq,purchase_order group_hq,purchase.model_purchase_order,ofm_access_right_center.group_ofm_hq,1,1,1,0
+ofm_purchase_order_admin,purchase_order group_admin,purchase.model_purchase_order,ofm_access_right_center.group_ofm_admin,1,1,1,1
+
+
+
+

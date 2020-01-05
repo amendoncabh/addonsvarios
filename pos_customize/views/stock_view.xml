@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+
+        <record id="view_pickingtype_filter" model="ir.ui.view">
+            <field name="name">stock.picking.type.filter</field>
+            <field name="model">stock.picking.type</field>
+            <field name="inherit_id" ref="stock.view_pickingtype_filter"/>
+            <field name="arch" type="xml">
+                <field name="name" filter_domain="['|',('name','ilike',self),('warehouse_id','ilike',self)]" position="replace" />
+            </field>
+        </record>
+
+        <record id="stock.action_picking_tree_ready" model="ir.actions.act_window">
+            <field name="context">{
+                    'search_default_picking_type_id': [active_id],
+                    'default_picking_type_id': active_id,
+                    'contact_display': 'partner_address',
+                    'search_default_available': 1,
+                    'search_default_source_location_zone': 1,
+            }
+            </field>
+        </record>
+
+        <record id="view_picking_internal_search" model="ir.ui.view">
+            <field name="name">stock.picking.internal.search</field>
+            <field name="model">stock.picking</field>
+            <field name="inherit_id" ref="stock.view_picking_internal_search"/>
+            <field name="arch" type="xml">
+                <xpath expr="//filter[@name='picking_type']" position="after">
+                    <filter name="source_location_zone" string="Source Location Zone" domain="[]" context="{'group_by':'location_id'}"/>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="view_warehouse_waraporn" model="ir.ui.view">
+            <field name="name">stock.warehouse</field>
+            <field name="model">stock.warehouse</field>
+            <field name="inherit_id" ref="stock.view_warehouse"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='wh_output_stock_loc_id']" position="after">
+                    <field name="wh_shelf_stock_loc_id" groups="stock.group_locations"/>
+                </xpath>
+                <xpath expr="//field[@name='wh_output_stock_loc_id']" position="attributes">
+                    <attribute name="readonly">0</attribute>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="view_picking_form_inherited" model="ir.ui.view">
+            <field name="name">stock.picking.form</field>
+            <field name="model">stock.picking</field>
+            <field name="inherit_id" ref="stock.view_picking_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//button[@name='%(stock.action_report_delivery)d']" position="attributes">
+                    <attribute name="invisible">True</attribute>
+                </xpath>
+
+                <xpath expr="//button[@name='do_print_picking']" position="attributes">
+                    <attribute name="invisible">True</attribute>
+                </xpath>
+
+                <xpath expr="//field[@name='location_id']" position="before">
+                    <field name="warehouse_code" invisible="1"/>
+                    <field name="reverse_invisible" invisible="1"/>
+                    <field name="check_flag_reverse" invisible="1"/>
+                    <field name="is_from_po" invisible="1"/>
+                </xpath>
+                <xpath expr="//header/button[@name='%(stock.act_stock_return_picking)d']" position="replace">
+                    <field name="picking_type_name" invisible="1" />
+                    <button name="%(stock.act_stock_return_picking)d"
+                            string="Reverse"
+                            type="action"
+                            attrs="{'invisible': [('reverse_invisible', '=', True)]}"/>
+                </xpath>
+
+                <xpath expr="//field[@name='min_date']" position="replace">
+                    <field name="min_date" widget="date"/>
+                </xpath>
+
+                <xpath expr="//sheet/notebook/page/field[@name='pack_operation_product_ids']/tree" position="replace">
+                    <tree editable="bottom" delete="0"
+                          decoration-muted="result_package_id and qty_real!=0"
+                          decoration-danger="qty_done&gt;product_qty and qty_real!=0"
+                          decoration-success="qty_done==product_qty and state!='done' and not result_package_id and qty_real!=0">
+                        <field name="package_id" groups="stock.group_tracking_lot" invisible="1"/>
+                        <field name="product_id" required="1" attrs="{'readonly': [('fresh_record', '=', False)]}"/>
+                        <field name="fresh_record" invisible="1"/>
+                        <field name="product_uom_id" attrs="{'readonly': [('fresh_record', '=', False)]}" groups="product.group_uom"/>
+                        <field name="lots_visible" invisible="1"/>
+                        <field name="owner_id" groups="stock.group_tracking_owner"/>
+                        <field name="location_id" domain="[('id', 'child_of', parent.location_id)]" invisible="1"/>
+                        <field name="location_dest_id" domain="[('id', 'child_of', parent.location_dest_id)]" invisible="1"/>
+                        <field name="from_loc" groups="stock.group_locations,stock.group_tracking_lot"/>
+                        <field name="to_loc" groups="stock.group_locations,stock.group_tracking_lot"/>
+                        <field name="result_package_id" groups="stock.group_tracking_lot" context="{'location_id': location_dest_id}" invisible="1"/>
+                        <field name="state" invisible="1"/>
+                        <field name="product_qty" readonly="1" attrs="{'required': [('product_id', '!=', False)]}"/>
+                        <field name="qty_done" attrs="{'readonly': [('lots_visible', '=', True)]}"/>
+                        <!--<field name="qty_left"/>-->
+                        <field name="qty_real"/>
+                        <button name="split_lot" string="Lot Split" type="object" icon="fa-list" groups="stock.group_production_lot"
+                                attrs="{'invisible': ['|', ('lots_visible', '=', False), ('state', 'not in', ['confirmed', 'assigned', 'waiting', 'partially_available','done'])]}"/>
+                        <button name="show_details" string="Modify" type="object" icon="fa-pencil" groups="stock.group_locations"
+                                states="confirmed,assigned,waiting,partially_available"/>
+                    </tree>
+                </xpath>
+
+                <xpath expr="//sheet/notebook/page/field[@name='pack_operation_product_ids']" position="after">
+                    <field name="pack_operation_product_remove_ids"
+                           options="{'reload_on_button': True}"
+                           attrs="{'invisible': [('state', '!=', 'done')]}"
+                           context="{'default_picking_id': id, 'default_location_id': location_id, 'default_location_dest_id': location_dest_id}"
+                           mode="tree,kanban">
+                        <tree editable="bottom">
+                            <field name="package_id" groups="stock.group_tracking_lot" invisible="1"/>
+                            <field name="product_id" required="1" attrs="{'readonly': [('fresh_record', '=', False)]}"/>
+                            <field name="fresh_record" invisible="1"/>
+                            <field name="product_uom_id" attrs="{'readonly': [('fresh_record', '=', False)]}" groups="product.group_uom"/>
+                            <field name="lots_visible" invisible="1"/>
+                            <field name="owner_id" groups="stock.group_tracking_owner"/>
+                            <field name="location_id" domain="[('id', 'child_of', parent.location_id)]" invisible="1"/>
+                            <field name="location_dest_id" domain="[('id', 'child_of', parent.location_dest_id)]" invisible="1"/>
+                            <field name="from_loc" groups="stock.group_locations,stock.group_tracking_lot"/>
+                            <field name="to_loc" groups="stock.group_locations,stock.group_tracking_lot"/>
+                            <field name="result_package_id" groups="stock.group_tracking_lot" context="{'location_id': location_dest_id}" invisible="1"/>
+                            <field name="state" invisible="1"/>
+                            <field name="product_qty" readonly="1" attrs="{'required': [('product_id', '!=', False)]}"/>
+                            <field name="qty_done" attrs="{'readonly': [('lots_visible', '=', True)]}"/>
+                            <!--<field name="qty_left"/>-->
+                            <field name="qty_real"/>
+                            <button name="split_lot" string="Lot Split" type="object" icon="fa-list" groups="stock.group_production_lot"
+                                    attrs="{'invisible': ['|', ('lots_visible', '=', False), ('state', 'not in', ['confirmed', 'assigned', 'waiting', 'partially_available','done'])]}"/>
+                            <button name="show_details" string="Modify" type="object" icon="fa-pencil" groups="stock.group_locations"
+                                    states="confirmed,assigned,waiting,partially_available"/>
+                        </tree>
+                        <kanban class="o_kanban_mobile">
+                            <field name="package_id" groups="stock.group_tracking_lot" invisible="1"/>
+                            <field name="product_id" required="1" attrs="{'readonly': [('fresh_record', '=', False)]}"/>
+                            <field name="fresh_record" invisible="1"/>
+                            <field name="product_uom_id" attrs="{'readonly': [('fresh_record', '=', False)]}" groups="product.group_uom"/>
+                            <field name="lots_visible" invisible="1"/>
+                            <field name="owner_id" groups="stock.group_tracking_owner"/>
+                            <field name="location_id" domain="[('id', 'child_of', parent.location_id)]" invisible="1"/>
+                            <field name="location_dest_id" domain="[('id', 'child_of', parent.location_dest_id)]" invisible="1"/>
+                            <field name="from_loc" groups="stock.group_locations,stock.group_tracking_lot"/>
+                            <field name="to_loc" groups="stock.group_locations,stock.group_tracking_lot"/>
+                            <field name="result_package_id" groups="stock.group_tracking_lot" context="{'location_id': location_dest_id}" invisible="1"/>
+                            <field name="state" invisible="1"/>
+                            <field name="product_qty" readonly="1" attrs="{'required': [('product_id', '!=', False)]}"/>
+                            <field name="qty_done" attrs="{'readonly': [('lots_visible', '=', True)]}"/>
+                            <templates>
+                                <t t-name="kanban-box">
+                                    <div t-attf-class="oe_kanban_card oe_kanban_global_click
+                                                       #{record.qty_done.raw_value&gt;record.product_qty.raw_value ? 'oe_kanban_color_2' : ''}
+                                                       #{record.qty_done.raw_value==record.product_qty.raw_value &amp;&amp; record.state.raw_value!='done' &amp;&amp; ! record.result_package_id.raw_value ? 'oe_kanban_color_3' : ''}">
+                                        <div class="row">
+                                            <div class="col-xs-12">
+                                                <strong><span><t t-esc="record.product_id.value"/></span></strong>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-xs-6 text-muted">
+                                                <span><t t-esc="record.from_loc.string"/>: <t t-esc="record.from_loc.value"/></span>
+                                            </div>
+                                            <div class="col-xs-6 text-muted">
+                                                <span><t t-esc="record.to_loc.string"/>: <t t-esc="record.to_loc.value"/></span>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-xs-6 text-muted">
+                                                <span><t t-esc="record.product_qty.string"/>: <t t-esc="record.product_qty.value"/></span>
+                                            </div>
+                                            <div class="col-xs-6 text-muted">
+                                                <span>
+                                                    <t t-esc="record.qty_done.string"/>: <t t-esc="record.qty_done.value"/>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </t>
+                            </templates>
+                        </kanban>
+                    </field>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="inherit_vpicktree_waraporn" model="ir.ui.view">
+            <field name="name">stock.picking.tree</field>
+            <field name="model">stock.picking</field>
+            <field name="inherit_id" ref="stock.vpicktree"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='min_date']" position="replace">
+                    <field name="min_date" widget="date"/>
+                </xpath>
+            </field>
+        </record>
+
+        <menuitem
+            id="stock.menu_reordering_rules_config"
+            action="stock.action_orderpoint_form"
+            name="Reordering Rules"
+            parent="stock.menu_stock_inventory_control"
+            groups="stock.group_stock_manager"
+            sequence="2"/>
+
+        <menuitem
+                id="stock.menu_warehouse_report"
+                name="Reports"
+                sequence="99"
+                parent="stock.menu_stock_root"
+                groups="stock.group_stock_user,stock.group_stock_manager"/>
+ก
+        <menuitem
+                action="stock.stock_move_action"
+                id="stock.stock_move_menu"
+                parent="stock.menu_warehouse_report"
+                sequence="130"
+                groups="stock.group_stock_user,stock.group_stock_manager"/>
+
+        <menuitem
+                id="stock.menu_quants"
+                name="Inventory Valuation"
+                parent="stock.menu_warehouse_report"
+                sequence="120"
+                action="stock.quantsact"
+                groups="stock.group_stock_user,stock.group_stock_manager"/>
+
+    </data>
+</openerp>

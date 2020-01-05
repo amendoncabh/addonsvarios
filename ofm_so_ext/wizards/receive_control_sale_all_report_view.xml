@@ -1,0 +1,59 @@
+<?xml version="1.0"?>
+<openerp>
+    <data>
+        <record id="receive_control_sale_all_report_excel_jasper" model="ir.actions.report.xml">
+            <field name="string">receive control sale all report</field>
+            <field name="auto">True</field>
+            <field name="model">receive.control.sale.all.report.wizard</field>
+            <field name="name">receive control sale all report</field>
+            <field name="report_name">receive.control.all.report.excel.jasper</field>
+            <field name="rml">ofm_so_ext/report/receive_control_all_report_excel.jrxml</field>
+            <field name="report_rml">ofm_so_ext/report/receive_control_all_report_excel.jrxml</field>
+            <field name="menu">False</field>
+            <field name="header">False</field>
+            <field name="jasper_report">True</field>
+            <field name="jasper_output">xls</field>
+        </record>
+
+        <act_window id="action_receive_control_sale_all_report_wizard"
+                    name="Receive Control Sale All Report"
+                    res_model="receive.control.sale.all.report.wizard"
+                    view_mode="form"
+                    target="new"/>
+
+        <menuitem id="menu_receive_control_sale_all_report_wizard"
+                  parent="sales_team.menu_sale_report"
+                  action="action_receive_control_sale_all_report_wizard"
+                  sequence="13"/>
+
+        <record id="view_receive_control_sale_all_report_wizard" model="ir.ui.view">
+            <field name="name">receive.control.sale.all.report.form</field>
+            <field name="model">receive.control.sale.all.report.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Receive Control Sale All Report">
+                    <group>
+                        <group>
+                            <field name="start_date" required="1"/>
+                            <field name="end_date" required="1"/>
+                        </group>
+                        <group>
+                            <field name="branch_id"
+                                   options="{'no_quick_create': True, 'no_create_edit': True}"/>
+                        </group>
+                        <group>
+                          <field name="jasper_output" widget="radio" required="1"/>
+                        </group>
+                    </group>
+                    <footer>
+                        <button name="action_print_report"
+                                string="Print Report" type="object"
+                                class="oe_highlight"/>
+                        or
+                        <button string="Cancel" class="oe_link"
+                                special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+    </data>
+</openerp>

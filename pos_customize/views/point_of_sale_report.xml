@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<openerp>
+    <data>
+        <report
+            id="point_of_sale.report_user_label"
+            model="res.users"
+            string="User Labels"
+            report_type="qweb-pdf"
+            name="point_of_sale.report_userlabel"
+            file="point_of_sale.report_userlabel"
+        />
+
+        <report
+            id="point_of_sale.pos_invoice_report"
+            string="Invoice"
+            model="pos.order"
+            report_type="qweb-pdf"
+            name="point_of_sale.report_invoice"
+            file="point_of_sale.report_invoice"
+            menu="False"
+        />
+
+        <report
+            id="point_of_sale.pos_lines_report"
+            string="Sales Lines"
+            model="pos.order"
+            report_type="qweb-pdf"
+            name="point_of_sale.report_saleslines"
+            file="point_of_sale.report_saleslines"
+            auto="False"
+            menu="False"
+         />
+
+        <report
+            id="point_of_sale.pos_lines_detail"
+            string="Details of Sales"
+            model="pos.order"
+            report_type="qweb-pdf"
+            name="point_of_sale.report_detailsofsales"
+            file="point_of_sale.report_detailsofsales"
+            menu="False"
+         />
+
+        <report
+            id="point_of_sale.pos_payment_report"
+            string="Today's Payment"
+            model="pos.order"
+            report_type="qweb-pdf"
+            menu="False"
+            name="point_of_sale.report_payment"
+            file="point_of_sale.report_payment"
+         />
+
+        <report
+            id="point_of_sale.action_report_pos_session_summary"
+            string="Session Summary"
+            model="pos.session"
+            report_type="qweb-pdf"
+            menu="False"
+            name="point_of_sale.report_sessionsummary"
+            file="point_of_sale.report_sessionsummary"
+         />
+    </data>
+</openerp>

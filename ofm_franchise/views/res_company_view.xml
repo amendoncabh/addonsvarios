@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_company_form_franchise">
+            <field name="name">res.company.form.franchise</field>
+            <field name="model">res.company</field>
+            <field name="inherit_id" ref="base.view_company_form"/>
+            <field name="priority">17</field>
+            <field name="arch" type="xml">
+                <xpath expr="//sheet" position="before">
+					<header>
+                        <button name="action_com_expire"
+                            class="btn-primary"
+                            string="Expire"
+                            groups="base.group_system"
+                            states="active"
+                            type="object"/>
+                        <button name="action_com_cancel"
+                            class="btn-primary"
+                            string="Cancel"
+                            groups="base.group_system"
+                            states="active,expire"
+                            type="object"/>
+                        <button name="action_com_active"
+                            class="btn-primary"
+                            string="Set to Active"
+                            groups="base.group_system"
+                            states="cancel,expire"
+                            type="object"/>
+                        <field name="state" widget="statusbar" states="active,expire"/>
+					</header>
+                </xpath>
+                <xpath expr="//field[@name='phone']" position="before">
+					<field name="company_type" widget="radio" options="{'horizontal': true}"/>
+                </xpath>
+                <xpath expr="//field[@name='phone']" position="attributes">
+                    <attribute name="required">1</attribute>
+                </xpath>
+                <xpath expr="//notebook" position="inside">
+					<page string="Key Contact">
+						<div>
+                            <field name="contact_ids">
+                                <tree string="" editable="bottom">
+                                    <field name="owner_name"/>
+                                    <field name="contact_name"/>
+                                    <field name="telephone"/>
+                                    <field name="mobile"/>
+                                    <field name="email"/>
+                                </tree>
+                            </field>
+						</div>
+					</page>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="view_company_tree_franchise" model="ir.ui.view">
+            <field name="name">res.company.tree.franchise</field>
+            <field name="model">res.company</field>
+            <field name="inherit_id" ref="base.view_company_tree"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='partner_id']" position="after">
+					<field name="state"/>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

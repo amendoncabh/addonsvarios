@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<openerp>
+   <data>
+       <record id="view_multi_coupon_wizard" model="ir.ui.view">
+           <field name="name">Multi Coupon</field>
+           <field name="model">multi.coupon.wizard</field>
+           <field name="arch" type="xml">
+               <form string="Multi Coupon">
+                   <group>
+                       <group>
+                           <field name="coupon_prefix"/>
+                       </group>
+                       <group>
+                           <field name="quantity"/>
+                       </group>
+                   </group>
+                   <footer>
+                       <button name="action_generate_multi_coupon"
+                               string="Confirm" type="object"
+                               class="oe_highlight"/>
+                       or
+                       <button string="Cancel" class="oe_link"
+                               special="cancel"/>
+                   </footer>
+               </form>
+           </field>
+       </record>
+
+       <record id="action_open_multi_coupon" model="ir.actions.act_window">
+            <field name="name">Multi Coupon</field>
+            <field name="res_model">multi.coupon.wizard</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+        </record>
+   </data>
+</openerp>

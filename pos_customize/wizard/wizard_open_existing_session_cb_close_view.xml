@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<openerp>
+  <data>
+
+        <record id="view_confirm_session_close" model="ir.ui.view">
+            <field name="name">Confirm Close Session</field>
+            <field name="model">pos.config.confirm.close</field>
+            <field name="arch" type="xml">
+                <form string="Confirm Close Session">
+                    <group>
+                        <label string="Do you really want to close this session?"/>
+                    </group>
+                    <footer>
+                        <button name="action_close" string="Yes" type="object" class="oe_highlight"/>
+                        or
+                        <button string="Cancel" class="oe_link" special="cancel" />
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+    </data>
+</openerp>

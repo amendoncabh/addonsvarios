@@ -1,0 +1,60 @@
+.product_pack{
+    background: green;
+    position: absolute;
+    top: 61px;
+    vertical-align: top;
+    color: white;
+    line-height: 10px;
+    padding: 2px 2px;
+    border-radius: 2px;
+    opacity: 0.6;
+    width: 100%;
+}
+
+.product_hold_sale{
+    font-size: large;
+    background: red;
+    position: absolute;
+    top: 0px;
+    vertical-align: top;
+    color: white;
+    line-height: 70px;
+    padding: 2px 5px;
+    border-radius: 2px;
+    opacity: 0.6;
+    width: 100%;
+}
+
+.combo_background{
+	background: lawngreen !important;
+	opacity: 0.5 !important;
+    line-height: 14px;
+}
+.pos .product .product-qty {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    vertical-align: top;
+    color: white;
+    line-height: 13px;
+    background: green;
+    opacity: 0.6;
+    padding: 2px 5px;
+    border-radius: 2px;
+}
+.pos .product .product-qty-low {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    vertical-align: top;
+    color: white;
+    line-height: 13px;
+    background: red;
+    padding: 2px 5px;
+    border-radius: 2px;
+}
+
+.pos .product .product-name{
+    line-height: 10px;
+}
+

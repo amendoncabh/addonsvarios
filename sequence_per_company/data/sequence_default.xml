@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+        <record id="ofm_seq_template_no_date" model="ir.sequence">
+            <field name="name">Draft</field>
+            <field name="code">Draft</field>
+            <field name="padding">5</field>
+        </record>
+    </data>
+</odoo>

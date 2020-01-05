@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+
+        <record id="full_tax_invoice_deposit_jasper" model="ir.actions.report.xml">
+                <field name="string">Full Tax Invoice Deposit</field>
+                <field name="name">Full Tax Invoice Deposit</field>
+                <field name="model">sale.order</field>
+                <field name="auto">True</field>
+                <field name="report_name">full.tax.invoice.deposit.jasper</field>
+                <field name="rml">tr_account_deposit/report/full_tax_invoice_deposit.jrxml</field>
+                <field name="report_rml">tr_account_deposit/report/full_tax_invoice_deposit.jrxml</field>
+                <field name="jasper_model_id" ref="base.model_res_users"/>
+                <field name="menu">False</field>
+                <field name="header">False</field>
+                <field name="jasper_report">True</field>
+                <field name="jasper_output">pdf</field>
+        </record>
+        <!-- Inherit Form View to Modify it -->
+        <record id="tr_deposit_sale_order_form_inherit" model="ir.ui.view">
+            <field name="name">tr.deposit.sale.order.form.inherit</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="ofm_so_ext.sale_order_form_inherit"/>
+            <field name="arch" type="xml">
+                <xpath expr="//button[@name='action_cancel_so']" position="before">
+                    <field name="is_hide_action_cancel_payment_type" invisible="1"/>
+                    <button name="action_cancel_payment_type"
+                            string="Cancel Payment Type"
+                            type="object"
+                            attrs="{
+                                'invisible': [
+                                    ('is_hide_action_cancel_payment_type', '=', True),
+                                ]
+                            }"
+                    />
+                </xpath>
+                <xpath expr="//button[@name='action_view_invoice']" position="before">
+                    <button type="object"
+                            name="action_open_deposit"
+                            string="Deposit"
+                            class="oe_stat_button"
+                            icon="fa-money"
+                            context="{'customer_type': customer_type}"
+                            attrs="{
+                                'invisible': [
+                                    '|',
+                                    ('is_hide_deposit', '=', True),
+                                    ('type_sale_ofm', '=', False),
+                                ]
+                            }"
+                    >
+                    </button>
+                    <button type="object"
+                            name="action_open_deposit"
+                            string="Cash/ Credit"
+                            class="oe_stat_button"
+                            icon="fa-money"
+                            context="{'customer_type': customer_type}"
+                            attrs="{
+                                'invisible': [
+                                    '|',
+                                    ('is_hide_deposit', '=', True),
+                                    ('type_sale_ofm', '=', True),
+                                ]
+                            }"
+                    >
+                    </button>
+                    <button type="object"
+                            name="action_open_so_payments_form_wizard"
+                            string="Payment"
+                            class="oe_stat_button"
+                            icon="fa-money"
+                            context="{'customer_type': customer_type}"
+                            attrs="{
+                                'invisible': [
+                                    ('is_hide_payment', '=', True)
+                                ]
+                            }"
+                    >
+                    </button>
+                    <field name="is_hide_confirm_so" invisible="1"/>
+                    <field name="is_hide_deposit" invisible="1"/>
+                    <field name="is_hide_payment" invisible="1"/>
+                     <field name="is_hide_credit_term_tender" invisible="1"/>
+                </xpath>
+                <xpath expr="//button[@name='action_confirm_so']" position="replace">
+                </xpath>
+                <xpath expr="//field[@name='quotation_no']" position="after">
+                    <field name="sale_payment_type" readonly="1"/>
+                    <field name="credit_term_tender" readonly="1"
+                        attrs="{'invisible':[('is_hide_credit_term_tender', '=', True)]}"
+                    />
+                </xpath>
+                <xpath expr="//button[@name='print_form']" position="after">
+                    <field name="count_deposit_amount" invisible="1"/>
+                    <button name="print_deposit_form"
+                            class="oe_stat_button oe_read_only"
+                            icon="fa-print"
+                            type="object"
+                            attrs="{
+                                'invisible': [
+                                    '|',
+                                    ('count_deposit_amount', '=', 0),
+                                    ('type_sale_ofm', '!=', True)
+                                ]
+                            }">
+                        <span attrs="{'invisible':[('type_sale_ofm', '!=', True)]}">Print Deposit</span>
+                        <!--<span attrs="{'invisible':[('type_sale_ofm', '=', True)]}">Print Receipt</span>-->
+                    </button>
+                </xpath>
+                <xpath expr="//notebook" position="inside">
+                    <page string="Payment" name="deposit_payment_line_ids">
+                        <field name="deposit_ids" invisible="1"/>
+                        <field name="deposit_payment_line_ids">
+                            <tree string="Payment" readonly="1">
+                                <field name="payment_method_id"/>
+                                <field name="journal_id"/>
+                                <field name="tender"/>
+                                <field name="credit_card_no_encrypt"/>
+                                <field name="paid_total"/>
+                            </tree>
+                        </field>
+                    </page>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="tr_deposit_view_order_form_inherit_sale_stock" model="ir.ui.view">
+            <field name="name">tr.deposit.view.order.form.inherit.sale.stock</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale_stock.view_order_form_inherit_sale_stock"/>
+            <field name="arch" type="xml">
+                <xpath expr="//button[@name='action_view_delivery']" position="replace">
+                    <field name="is_hide_delivery" invisible="1"/>
+                    <button type="object"
+                        name="action_view_delivery"
+                        class="oe_stat_button"
+                        icon="fa-truck"
+                        attrs="{
+                            'invisible': ['|',
+                                ('is_hide_delivery', '=', True),
+                            ]
+                        }"
+                        groups="base.group_user">
+                        <field name="delivery_count" widget="statinfo" string="Shipping"/>
+                    </button>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</openerp>

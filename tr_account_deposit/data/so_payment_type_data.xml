@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data noupdate="1">
+        <record id="so_payment_type_1" model="so.payment.type">
+            <field name="customer_type">cash</field>
+            <field name="name">Deposit</field>
+            <field name="type_sale_ofm">True</field>
+        </record>
+
+        <record id="so_payment_type_2" model="so.payment.type">
+            <field name="customer_type">credit</field>
+            <field name="name">Deposit</field>
+            <field name="type_sale_ofm">True</field>
+        </record>
+
+        <record id="so_payment_type_3" model="so.payment.type">
+            <field name="customer_type">credit</field>
+            <field name="name">Credit Term</field>
+            <field name="type_sale_ofm">True</field>
+        </record>
+        <record id="so_payment_type_4" model="so.payment.type">
+            <field name="customer_type">cash</field>
+            <field name="name">Cash/ Credit Card</field>
+            <field name="type_sale_ofm">False</field>
+        </record>
+
+        <record id="so_payment_type_5" model="so.payment.type">
+            <field name="customer_type">credit</field>
+            <field name="name">Cash/ Credit Card</field>
+            <field name="type_sale_ofm">False</field>
+        </record>
+
+        <record id="so_payment_type_6" model="so.payment.type">
+            <field name="customer_type">credit</field>
+            <field name="name">Credit Term</field>
+            <field name="type_sale_ofm">False</field>
+        </record>
+    </data>
+</openerp>

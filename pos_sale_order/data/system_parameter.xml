@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="ir_config_parameter_pos_sale_order_discount_see" model="ir.config_parameter">
+            <field name="key">pos_sale_order_discount_see</field>
+            <field name="value">False</field>
+        </record>
+        <record id="ir_config_parameter_pos_sale_order_discount_see_dropship" model="ir.config_parameter">
+            <field name="key">pos_sale_order_discount_see_dropship</field>
+            <field name="value">False</field>
+        </record>
+    </data>
+</odoo>

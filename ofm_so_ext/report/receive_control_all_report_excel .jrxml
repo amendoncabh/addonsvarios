@@ -1,0 +1,915 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.9.0.final using JasperReports Library version 4.0.0  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="receive_control_all_report_excel.jrxml" language="groovy" pageWidth="945" pageHeight="500" whenNoDataType="NoDataSection" columnWidth="905" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20">
+	<property name="ireport.zoom" value="1.2396694214876038"/>
+	<property name="ireport.x" value="276"/>
+	<property name="ireport.y" value="0"/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w1" value="0"/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w2" value="1000"/>
+	<style name="thai" lineSpacing="Single" fontName="TH SarabunPSK" fontSize="13"/>
+	<parameter name="end_date" class="java.lang.String"/>
+	<parameter name="start_date" class="java.lang.String"/>
+	<parameter name="branch_id" class="java.lang.String"/>
+	<queryString>
+		<![CDATA[with 
+sale_data as (
+	select 
+	so.branch_id,
+	so.id as so_id,
+	ai.id as ai_id,
+	ad.id as ad_id,
+	ad.payment_method,
+	so.sale_payment_type,
+	(case when so.sale_payment_type in ('cash','deposit') and ad.id notnull
+			then case when ad.payment_method = 'Cash'
+				then 'Cash'
+				else ad.payment_method
+				end
+			when so.sale_payment_type = 'deposit' and ad.id is null
+			then 'Cash'
+			when so.sale_payment_type = 'credit' and ad.id is null
+			then 'Credit Term'	
+		else so.sale_payment_type
+		end
+	)as sale_payment_method,
+	dsfc.total_zread as zread,
+	so.type_sale_ofm as is_dropship,
+	so.amount_total as so_total,
+	ai.amount_total_signed as ai_total,
+	ad.paid_total as ad_total,
+	ai.type as ai_type,
+	ad.type as ad_type
+	from sale_order so 
+	left join (
+		select dsf.branch_id as branch_id,
+		sum(dsfc.total) as total_zread 
+		from daily_summary_franchise as dsf
+		inner join daily_summary_franchise_cash as dsfc on dsf.id = dsfc.daily_summary_franchise_id
+			  and dsf.state = 'active'
+			  and dsfc.name = 'Cash (Sale Order)'
+	          and dsf.branch_id = $P{branch_id}::integer
+	    group by dsf.branch_id
+	) dsfc on so.branch_id = dsfc.branch_id
+	left join account_invoice ai 
+		on so.id = ai.so_id
+		and ai.type in ('out_invoice','out_refund')
+		and ai.state in ('open','paid')
+	left join (
+			select	ad.id as id,
+			ad.sale_id as sale_id,
+			apmm.name as payment_method,
+			aj.is_credit_card as is_credit_card,
+			coalesce(sum(adpl.paid_total),0.0) as paid_total,
+			ad.state as state,
+			ad.type
+			from account_deposit ad
+			inner join account_deposit_payment_line adpl on ad.id = adpl.payment_id
+			inner join account_payment_method_multi apmm on adpl.payment_method_id = apmm.id
+			inner join account_journal aj on adpl.journal_id = aj.id
+			group by ad.sale_id,
+			ad.id,
+			apmm.name,
+			aj.is_credit_card,
+			ad.state
+		) ad 
+		on so.id = ad.sale_id
+		and ad.state in ('open','paid')
+	where 
+		so.state in ('sale','done')
+		and so.sale_payment_type is not null
+		and so.branch_id = $P{branch_id}::integer
+		and (so_date_order + interval '7 hours')::date between $P{start_date}::date and $P{end_date}::date 
+),
+income as (
+	select 
+	(case when sd.is_dropship = true and sd.sale_payment_type in ('cash','deposit') and (sd.ad_id notnull or sd.ai_id notnull)
+		then case when sd.ad_id is null 
+					then sd.ai_total
+				else sd.ad_total
+				end
+		when sd.is_dropship = true and sd.sale_payment_type = 'credit'
+		then sd.so_total
+		when sd.is_dropship = false and sd.sale_payment_type in ('cash','deposit')
+		then sd.ai_total
+		when sd.is_dropship = false and sd.sale_payment_type = 'credit'
+		then sd.so_total
+		end
+	) as total,
+	*
+	from sale_data sd
+		where sd.ai_type = 'out_invoice'
+			and sd.ad_type = 'out_deposit'
+			or sd.sale_payment_type = 'credit'
+),
+outcome as (
+	select 
+		sd.ai_total as total,
+		*
+		from sale_data sd
+		where sd.ai_type = 'out_refund' 
+),
+company_info as (
+    select
+    rp_com.name  ||
+    coalesce(
+        CASE when pob.branch_id = '00000'
+        then 'สำนักงานใหญ่'
+        else ' สาขาที่ ' || pob.branch_id
+        end
+        , ''
+        ) AS company_name,
+    coalesce(pob.street,'') || ' ' ||
+    coalesce(pob.moo,'') || ' ' ||
+    coalesce(pob.alley,'') || ' ' ||
+    coalesce(pob.street2,'') AS company_addr1,
+    coalesce(case when pv_rp.code = '10'
+        then 'แขวง'
+        else 'ตำบล'
+        end || tmb_rp.name,'') || ' ' ||
+    coalesce(case when pv_rp.code = '10'
+        then 'เขต'
+        else 'อำเภอ'
+        end || amp_rp.name,'') || ' ' ||
+    coalesce(
+        case when pv_rp.name like '%กรุงเทพ%'
+        then pv_rp.name
+        else ('จังหวัด' || pv_rp.name)
+        end
+        , ''
+        ) || ' ' ||
+    coalesce(zp_rp.name,'')
+    || ' โทร.' || coalesce(pob.phone,'') AS company_addr2,
+    'เลขประจำตัวผู้เสียภาษีอากร: ' || coalesce(rp_com.vat, rp_com.number) AS company_number
+    from (
+        SELECT *
+        FROM pos_branch
+        /* Parameter branch_id */
+        WHERE id = $P{branch_id}::integer
+        ) pob
+    inner join res_company res_com ON pob.pos_company_id = res_com.id
+    inner join res_partner rp_com ON res_com.partner_id = rp_com.id
+    inner join res_partner rp_pob on pob.partner_id = rp_pob.id
+    inner join province pv_rp ON rp_pob.province_id = pv_rp.id
+    inner join amphur amp_rp ON rp_pob.amphur_id = amp_rp.id
+    inner join tambon tmb_rp ON rp_pob.tambon_id = tmb_rp.id
+    inner join zip zp_rp ON rp_pob.zip_id = zp_rp.id
+    ),
+backend as (
+	select ic.sale_payment_method as payment_type_name,
+	coalesce(sum(ic.total),0.0) as amount_payment,
+	coalesce(sum(oc.total),0.0) as return_system_amount,
+	coalesce(sum(ic.total),0.0) - abs(coalesce(sum(oc.total),0.0)) AS net_sales_amount,
+	case when ic.sale_payment_method not in ('Cash','Credit Term')
+		then coalesce(sum(ic.total),0.0) - abs(coalesce(sum(oc.total),0.0))
+		else coalesce(sum(ic.zread),0.0)
+		end as zread_amount_payment,	
+	0.0 as payment_rounding,
+	0.0 as return_rounding,
+	0.0 as net_seles_rounding
+	from income ic
+	left join outcome oc on ic.so_id = oc.so_id 
+	group by ic.sale_payment_method
+),
+pos as (
+	SELECT case when redeem_type_id is not null
+	then  rt.name
+	else	payment_type
+	end as payment_type_name,
+	SUM(amount_payment) as amount_payment,
+	SUM(return_system_amount) as return_system_amount,
+	SUM(amount_payment) - abs(SUM(return_system_amount)) AS net_sales_amount,
+	(
+		case when is_credit_card is true or redeem_type_id is not null
+		then SUM(amount_payment) - abs(SUM(return_system_amount))
+		else sum(zread_amount_payment)
+		end
+		) as zread_amount_payment,
+	sum(change_rounding) as payment_rounding,
+	sum(return_rounding) as return_rounding,
+	sum(change_rounding) + abs(sum(return_rounding)) as net_seles_rounding
+	FROM (
+		SELECT pss.payment_type AS payment_type,
+		pss.is_credit_card,
+		pss.redeem_type_id,
+		sum(case when pss.is_return_order is false and pss.payment_type = 'Cash'
+		    then change_rounding else 0 end
+		   ) as change_rounding,
+		sum(case when pss.is_return_order is true and pss.payment_type = 'Cash'
+		    then change_rounding else 0 end
+		   ) as return_rounding,
+		sum(
+			case when pss.is_return_order is false
+			then pss.pos_order_values
+			else 0
+			end
+			) AS amount_payment,
+		sum(
+			case when pss.is_return_order is true
+			then pss.pos_order_values
+			else 0
+			end
+			) AS return_system_amount,
+		case when pss.is_credit_card is true
+				then 0
+			when pss.redeem_type_id is not null
+				then 0
+		else cash_abs.balance_end_real - cash_abs.balance_start
+		end AS zread_amount_payment
+		from (
+			select coalesce(abl.amount, 0) AS pos_order_values,
+			psi.user_id,
+			psi.id as session_id,
+			psi.cash_register_id,
+			psi.company_name,
+			psi.company_addr1,
+			psi.company_addr2,
+			psi.company_number,
+			acj.name AS payment_type,
+			acj.is_credit_card,
+			acj.redeem_type_id,
+			pod.is_return_order,
+			pod.is_void_order,
+			case when coalesce(abl.amount, 0) < 0 and pod.is_return_order is not true and pod.is_void_order is not true
+			then 0
+			else pod.change_rounding end
+			from pos_order pod
+			inner join (
+				select *
+				from pos_session psi
+				inner join (
+					select pcf1.id AS config_id,
+					rpc.name  ||
+					coalesce(
+						CASE when pob.branch_id = '00000'
+						then 'สำนักงานใหญ่'
+						else ' สาขาที่ ' || pob.branch_id
+						end
+						, ''
+						) AS company_name,
+					coalesce(pob.street,'') || ' ' ||
+					coalesce(pob.alley,'') || ' ' ||
+					coalesce(pob.street2,'') || ' ' ||
+					coalesce(pob.moo,'') || ' ' ||
+					coalesce(pob.city,'') AS company_addr1,
+					coalesce(
+		case when pv.name like '%กรุงเทพ%'
+		then pv.name
+		else ('จังหวัด' || pv.name)
+		end
+		, ''
+		) || ' ' ||
+					coalesce(amp.name, '') || ' ' ||
+					coalesce(tmb.name, '') || ' ' ||
+					coalesce(zp.name,'')
+					|| ' โทร.' || coalesce(pob.phone,'') AS company_addr2,
+					'เลขประจำตัวผู้เสียภาษีอากร: ' || coalesce(rpc.vat, rpc.number) AS company_number
+					from pos_config pcf1
+					INNER JOIN (
+						SELECT *
+						FROM pos_branch
+						/* Parameter branch_id */
+						WHERE id = $P{branch_id}::integer
+						) pob on pcf1.branch_id = pob.id
+					left join res_country_state branch_province on pob.state_id = branch_province.id
+					LEFT JOIN res_company rec ON pcf1.company_id = rec.id
+					LEFT JOIN res_partner rpc ON rec.partner_id = rpc.id
+					LEFT JOIN province pv ON pob.province_id = pv.id
+					LEFT JOIN amphur amp ON pob.amphur_id = amp.id
+					LEFT JOIN tambon tmb ON pob.tambon_id = tmb.id
+					LEFT JOIN zip zp ON pob.zip_id = zp.id
+					) pcf2 on psi.config_id = pcf2.config_id
+				/* Parameter start_date, end_date, cashier_id */
+				where DATE(stop_at + INTERVAL '7 hours') between $P{start_date}::date and $P{end_date}::date
+				and (user_id = $P{cashier_id}::integer or coalesce($P{cashier_id}, '') = '')
+				) psi on pod.session_id = psi.id
+			inner join account_bank_statement abs on psi.id = abs.pos_session_id
+			left join account_bank_statement_line abl on abs.id = abl.statement_id and pod.id = abl.pos_statement_id
+			inner join account_journal acj on abs.journal_id = acj.id
+			left join redeem_type rt on acj.redeem_type_id = rt.id
+			group by pod.id,
+			abl.amount,
+			psi.user_id,
+			psi.id,
+			psi.cash_register_id,
+			psi.company_name,
+			psi.company_addr1,
+			psi.company_addr2,
+			psi.company_number,
+			acj.is_credit_card,
+			acj.redeem_type_id,
+			acj.name,
+			pod.is_return_order,
+			pod.is_void_order,
+			abs.journal_id
+			) pss
+		inner join account_bank_statement cash_abs on pss.cash_register_id = cash_abs.id
+		inner join res_users rus on pss.user_id = rus.id
+		inner join res_partner usr_rpn ON rus.partner_id = usr_rpn.id
+		group by usr_rpn.id,
+	         pss.session_id,
+		pss.user_id,
+		pss.payment_type,
+		pss.is_credit_card,
+		pss.redeem_type_id,
+		pss.company_name,
+		pss.company_addr1,
+		pss.company_addr2,
+		pss.company_number,
+		cash_abs.balance_start,
+		cash_abs.balance_end_real
+		) result
+		left join redeem_type rt on redeem_type_id = rt.id
+	group by payment_type_name,
+	is_credit_card,
+	redeem_type_id,
+	rt.name
+),	
+all_sale as (
+	select
+		case when payment_type_name like 'Credit Card%'
+			then 'Credit Card'
+			else payment_type_name
+			end as payment_type_name,
+		amount_payment,
+		return_system_amount,
+		net_sales_amount,
+		zread_amount_payment,	
+		payment_rounding,
+		return_rounding,
+		net_seles_rounding
+	from backend bk
+	union all
+	select 
+		* 
+	from
+		pos
+)
+select 
+	payment_type_name,
+	sum(amount_payment) as amount_payment,
+	sum(return_system_amount) as return_system_amount,
+	sum(net_sales_amount) as net_sales_amount,
+	sum(zread_amount_payment) as zread_amount_payment,	
+	company_logo,
+	(select company_name from company_info) as company_name,
+    (select company_addr1 from company_info) as company_addr1,
+    (select company_addr2 from company_info) as company_addr2,
+    (select company_number from company_info) as company_number,
+	sum(payment_rounding) as payment_rounding,
+	sum(return_rounding) as return_rounding,
+	sum(net_seles_rounding) as net_seles_rounding
+from all_sale
+cross join (
+			SELECT (value || '/web/binary/company_logo?dbname=' || current_database()) AS company_logo
+			FROM ir_config_parameter
+			WHERE key = 'report.image.url'
+			) as company_logo
+group by 
+	payment_type_name,
+	company_logo,
+	company_name,
+    company_addr1,
+    company_addr2,
+    company_number
+]]>
+	</queryString>
+	<field name="payment_type_name" class="java.lang.String"/>
+	<field name="amount_payment" class="java.math.BigDecimal"/>
+	<field name="return_system_amount" class="java.math.BigDecimal"/>
+	<field name="net_sales_amount" class="java.math.BigDecimal"/>
+	<field name="zread_amount_payment" class="java.math.BigDecimal"/>
+	<field name="company_logo" class="java.lang.String"/>
+	<field name="company_name" class="java.lang.String">
+		<fieldDescription><![CDATA[Company Name]]></fieldDescription>
+	</field>
+	<field name="company_addr1" class="java.lang.String"/>
+	<field name="company_addr2" class="java.lang.String"/>
+	<field name="company_number" class="java.lang.String"/>
+	<field name="print_date" class="java.sql.Date"/>
+	<field name="print_time" class="java.sql.Time">
+		<fieldDescription><![CDATA[Print time]]></fieldDescription>
+	</field>
+	<field name="payment_rounding" class="java.math.BigDecimal"/>
+	<field name="return_rounding" class="java.math.BigDecimal"/>
+	<field name="net_seles_rounding" class="java.math.BigDecimal"/>
+	<variable name="diff_amount" class="java.math.BigDecimal">
+		<variableExpression><![CDATA[$F{zread_amount_payment} - $F{net_sales_amount}]]></variableExpression>
+	</variable>
+	<variable name="short_diff" class="java.math.BigDecimal">
+		<variableExpression><![CDATA[($V{diff_amount} < 0)?$V{diff_amount}:0]]></variableExpression>
+	</variable>
+	<variable name="over_diff" class="java.math.BigDecimal">
+		<variableExpression><![CDATA[($V{diff_amount} > 0)?$V{diff_amount}:0]]></variableExpression>
+	</variable>
+	<variable name="sum_amount_payment" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{amount_payment}]]></variableExpression>
+	</variable>
+	<variable name="sum_return_system_amount" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{return_system_amount}]]></variableExpression>
+	</variable>
+	<variable name="sum_net_sales_amount" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{net_sales_amount}]]></variableExpression>
+	</variable>
+	<variable name="sum_zread_amount_payment" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{zread_amount_payment}]]></variableExpression>
+	</variable>
+	<variable name="sum_short_diff" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$V{short_diff}]]></variableExpression>
+	</variable>
+	<variable name="sum_over_diff" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$V{over_diff}]]></variableExpression>
+	</variable>
+	<variable name="short_over_amount" class="java.math.BigDecimal" >
+		<variableExpression><![CDATA[$V{sum_short_diff} + $V{sum_over_diff}]]></variableExpression>
+	</variable>
+	<variable name="date_end" class="java.util.Date" resetType="Page">
+		<initialValueExpression><![CDATA[new SimpleDateFormat("yyyy-MM-dd").parse($P{end_date})]]></initialValueExpression>
+	</variable>
+	<variable name="date_start" class="java.util.Date" resetType="Page">
+		<initialValueExpression><![CDATA[new SimpleDateFormat("yyyy-MM-dd").parse($P{start_date})]]></initialValueExpression>
+	</variable>
+	<variable name="sum_payment_rounding" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{payment_rounding}]]></variableExpression>
+	</variable>
+	<variable name="sum_return_rounding" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{return_rounding}]]></variableExpression>
+	</variable>
+	<variable name="sum_net_sales_rounding" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{net_seles_rounding}]]></variableExpression>
+	</variable>
+	<variable name="check_sum_rounding" class="java.math.BigDecimal" >
+		<variableExpression><![CDATA[$V{sum_payment_rounding} + $V{sum_return_rounding}]]></variableExpression>
+	</variable>
+	<group name="cashier">
+		<groupHeader>
+			<band height="204">
+				<textField isStretchWithOverflow="true">
+					<reportElement positionType="Float" mode="Transparent" x="228" y="50" width="428" height="16" forecolor="#000000" backcolor="#FFFFFF"/>
+					<textElement textAlignment="Center" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+						<font fontName="TH SarabunPSK" size="12" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+					</textElement>
+					<textFieldExpression class="java.lang.String"><![CDATA[$F{company_addr1}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true">
+					<reportElement positionType="Float" mode="Transparent" x="228" y="25" width="428" height="25" forecolor="#000000" backcolor="#FFFFFF"/>
+					<textElement textAlignment="Center" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+						<font fontName="TH SarabunPSK" size="18" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+					</textElement>
+					<textFieldExpression class="java.lang.String"><![CDATA[$F{company_name}]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement mode="Transparent" x="228" y="98" width="428" height="26" forecolor="#000000" backcolor="#FFFFFF"/>
+					<textElement textAlignment="Center" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+						<font fontName="TH SarabunPSK" size="18" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+					</textElement>
+					<text><![CDATA[Receive Control By Sale All Report]]></text>
+				</staticText>
+				<staticText>
+					<reportElement mode="Transparent" x="656" y="82" width="109" height="16" forecolor="#000000" backcolor="#FFFFFF"/>
+					<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+						<font fontName="TH SarabunPSK" size="12" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="false"/>
+					</textElement>
+					<text><![CDATA[พิมพ์:]]></text>
+				</staticText>
+				<textField pattern="dd/MM/yyyy">
+					<reportElement mode="Transparent" x="765" y="82" width="70" height="16" forecolor="#000000" backcolor="#FFFFFF"/>
+					<textElement textAlignment="Left" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+						<font fontName="TH SarabunPSK" size="12" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="false"/>
+					</textElement>
+					<textFieldExpression class="java.lang.String"><![CDATA[$F{print_date}]]></textFieldExpression>
+				</textField>
+				<textField pattern="HH:mm" isBlankWhenNull="false">
+					<reportElement mode="Transparent" x="835" y="82" width="70" height="16" forecolor="#000000" backcolor="#FFFFFF"/>
+					<textElement textAlignment="Left" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+						<font fontName="TH SarabunPSK" size="12" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="false"/>
+					</textElement>
+					<textFieldExpression class="java.lang.String"><![CDATA[$F{print_time}]]></textFieldExpression>
+				</textField>
+				<image>
+					<reportElement x="0" y="50" width="100" height="74"/>
+					<imageExpression class="java.lang.String"><![CDATA[$F{company_logo}]]></imageExpression>
+				</image>
+				<textField isStretchWithOverflow="true">
+					<reportElement positionType="Float" mode="Transparent" x="228" y="66" width="428" height="16" forecolor="#000000" backcolor="#FFFFFF"/>
+					<textElement textAlignment="Center" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+						<font fontName="TH SarabunPSK" size="12" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+					</textElement>
+					<textFieldExpression class="java.lang.String"><![CDATA[$F{company_addr2}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true">
+					<reportElement positionType="Float" mode="Transparent" x="228" y="82" width="428" height="16" forecolor="#000000" backcolor="#FFFFFF"/>
+					<textElement textAlignment="Center" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+						<font fontName="TH SarabunPSK" size="12" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+					</textElement>
+					<textFieldExpression class="java.lang.String"><![CDATA[$F{company_number}]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement style="thai" x="0" y="161" width="100" height="25"/>
+					<box rightPadding="3">
+						<topPen lineWidth="1.0"/>
+						<leftPen lineWidth="1.0"/>
+						<bottomPen lineWidth="1.0"/>
+						<rightPen lineWidth="1.0"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Middle" lineSpacing="Single">
+						<font isBold="true"/>
+					</textElement>
+					<text><![CDATA[Payment Type]]></text>
+				</staticText>
+				<staticText>
+					<reportElement style="thai" x="100" y="161" width="128" height="25"/>
+					<box rightPadding="3">
+						<topPen lineWidth="1.0"/>
+						<leftPen lineWidth="1.0"/>
+						<bottomPen lineWidth="1.0"/>
+						<rightPen lineWidth="1.0"/>
+					</box>
+					<textElement textAlignment="Right" verticalAlignment="Middle" lineSpacing="Single">
+						<font isBold="true"/>
+					</textElement>
+					<text><![CDATA[Amount Payment (System)]]></text>
+				</staticText>
+				<staticText>
+					<reportElement style="thai" x="228" y="161" width="128" height="25"/>
+					<box rightPadding="3">
+						<topPen lineWidth="1.0"/>
+						<leftPen lineWidth="1.0"/>
+						<bottomPen lineWidth="1.0"/>
+						<rightPen lineWidth="1.0"/>
+					</box>
+					<textElement textAlignment="Right" verticalAlignment="Middle" lineSpacing="Single">
+						<font isBold="true"/>
+					</textElement>
+					<text><![CDATA[Return System Amount]]></text>
+				</staticText>
+				<staticText>
+					<reportElement style="thai" x="356" y="161" width="128" height="25"/>
+					<box rightPadding="3">
+						<topPen lineWidth="1.0"/>
+						<leftPen lineWidth="1.0"/>
+						<bottomPen lineWidth="1.0"/>
+						<rightPen lineWidth="1.0"/>
+					</box>
+					<textElement textAlignment="Right" verticalAlignment="Middle" lineSpacing="Single">
+						<font isBold="true"/>
+					</textElement>
+					<text><![CDATA[Net Sales System Amount]]></text>
+				</staticText>
+				<staticText>
+					<reportElement style="thai" x="484" y="161" width="172" height="25"/>
+					<box rightPadding="3">
+						<topPen lineWidth="1.0"/>
+						<leftPen lineWidth="1.0"/>
+						<bottomPen lineWidth="1.0"/>
+						<rightPen lineWidth="1.0"/>
+					</box>
+					<textElement textAlignment="Right" verticalAlignment="Middle" lineSpacing="Single">
+						<font isBold="true"/>
+					</textElement>
+					<text><![CDATA[Z - Read Amount Payment]]></text>
+				</staticText>
+				<staticText>
+					<reportElement style="thai" x="656" y="161" width="109" height="25"/>
+					<box rightPadding="3">
+						<topPen lineWidth="1.0"/>
+						<leftPen lineWidth="1.0"/>
+						<bottomPen lineWidth="1.0"/>
+						<rightPen lineWidth="1.0"/>
+					</box>
+					<textElement textAlignment="Right" verticalAlignment="Middle" lineSpacing="Single">
+						<font isBold="true"/>
+					</textElement>
+					<text><![CDATA[Finance Count Amount]]></text>
+				</staticText>
+				<staticText>
+					<reportElement style="thai" x="765" y="161" width="70" height="25"/>
+					<box rightPadding="3">
+						<topPen lineWidth="1.0"/>
+						<leftPen lineWidth="1.0"/>
+						<bottomPen lineWidth="1.0"/>
+						<rightPen lineWidth="1.0"/>
+					</box>
+					<textElement textAlignment="Right" verticalAlignment="Middle" lineSpacing="Single">
+						<font isBold="true"/>
+					</textElement>
+					<text><![CDATA[Short Diff]]></text>
+				</staticText>
+				<staticText>
+					<reportElement style="thai" x="835" y="161" width="70" height="25"/>
+					<box rightPadding="3">
+						<topPen lineWidth="1.0"/>
+						<leftPen lineWidth="1.0"/>
+						<bottomPen lineWidth="1.0"/>
+						<rightPen lineWidth="1.0"/>
+					</box>
+					<textElement textAlignment="Right" verticalAlignment="Middle" lineSpacing="Single">
+						<font isBold="true"/>
+					</textElement>
+					<text><![CDATA[Over Diff]]></text>
+				</staticText>
+				<staticText>
+					<reportElement mode="Transparent" x="0" y="149" width="905" height="11" forecolor="#000000" backcolor="#FFFFFF"/>
+					<box>
+						<topPen lineWidth="1.0"/>
+					</box>
+					<textElement textAlignment="Center" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+						<font fontName="TH SarabunPSK" size="18" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+					</textElement>
+					<text><![CDATA[]]></text>
+				</staticText>
+				<textField isStretchWithOverflow="true">
+					<reportElement positionType="Float" mode="Transparent" x="228" y="124" width="428" height="16" forecolor="#000000" backcolor="#FFFFFF"/>
+					<textElement textAlignment="Center" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+						<font fontName="TH SarabunPSK" size="12" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+					</textElement>
+					<textFieldExpression class="java.lang.String"><![CDATA[" Selection From: " + new SimpleDateFormat("dd/MM/yyyy").format($V{date_start}) + " To " +new SimpleDateFormat("dd/MM/yyyy").format($V{date_end})]]></textFieldExpression>
+				</textField>
+			</band>
+		</groupHeader>
+		<groupFooter>
+			<band height="101">
+				<staticText>
+					<reportElement mode="Transparent" x="0" y="67" width="905" height="34" forecolor="#000000" backcolor="#FFFFFF"/>
+					<textElement textAlignment="Center" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+						<font fontName="TH SarabunPSK" size="18" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+					</textElement>
+					<text><![CDATA[]]></text>
+				</staticText>
+				<staticText>
+					<reportElement style="thai" x="0" y="0" width="100" height="17"/>
+					<box leftPadding="0"/>
+					<textElement textAlignment="Right" lineSpacing="Single">
+						<font size="13" isBold="true"/>
+					</textElement>
+					<text><![CDATA[ยอดรวมทั้งสิ้น]]></text>
+				</staticText>
+				<textField pattern="#,##0.00;(#,##0.00)" isBlankWhenNull="true">
+					<reportElement style="thai" x="100" y="0" width="128" height="17"/>
+					<textElement textAlignment="Right" lineSpacing="Single">
+						<font size="13"/>
+					</textElement>
+					<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{sum_amount_payment}]]></textFieldExpression>
+				</textField>
+				<textField pattern="#,##0.00;(#,##0.00)" isBlankWhenNull="true">
+					<reportElement style="thai" x="228" y="0" width="128" height="17"/>
+					<textElement textAlignment="Right" lineSpacing="Single">
+						<font size="13"/>
+					</textElement>
+					<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{sum_return_system_amount}]]></textFieldExpression>
+				</textField>
+				<textField pattern="#,##0.00;(#,##0.00)" isBlankWhenNull="true">
+					<reportElement style="thai" x="356" y="0" width="128" height="17"/>
+					<textElement textAlignment="Right" lineSpacing="Single">
+						<font size="13"/>
+					</textElement>
+					<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{sum_net_sales_amount}]]></textFieldExpression>
+				</textField>
+				<textField pattern="#,##0.00;(#,##0.00)" isBlankWhenNull="true">
+					<reportElement style="thai" x="484" y="0" width="172" height="17"/>
+					<textElement textAlignment="Right" lineSpacing="Single">
+						<font size="13"/>
+					</textElement>
+					<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{sum_zread_amount_payment}]]></textFieldExpression>
+				</textField>
+				<textField pattern="#,##0.00;-###0.00" isBlankWhenNull="true">
+					<reportElement style="thai" x="656" y="0" width="109" height="17"/>
+					<textElement textAlignment="Right" lineSpacing="Single">
+						<font size="13"/>
+					</textElement>
+					<textFieldExpression class="java.math.BigDecimal"><![CDATA[0]]></textFieldExpression>
+				</textField>
+				<textField pattern="#,##0.00;(#,##0.00)" isBlankWhenNull="true">
+					<reportElement style="thai" mode="Transparent" x="765" y="0" width="70" height="17" forecolor="#000000" backcolor="#FFFFFF"/>
+					<box rightPadding="0"/>
+					<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+						<font fontName="TH SarabunPSK" size="13" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					</textElement>
+					<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{sum_short_diff}]]></textFieldExpression>
+				</textField>
+				<textField pattern="#,##0.00;(#,##0.00)" isBlankWhenNull="true">
+					<reportElement style="thai" mode="Transparent" x="835" y="0" width="70" height="17" forecolor="#000000" backcolor="#FFFFFF"/>
+					<box rightPadding="0"/>
+					<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+						<font fontName="TH SarabunPSK" size="13" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					</textElement>
+					<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{sum_over_diff}]]></textFieldExpression>
+				</textField>
+				<line>
+					<reportElement x="0" y="19" width="905" height="1" forecolor="#999999"/>
+				</line>
+				<textField pattern="#,##0.00;(#,##0.00)" isBlankWhenNull="true">
+					<reportElement style="thai" mode="Transparent" x="835" y="20" width="70" height="17" forecolor="#000000" backcolor="#FFFFFF"/>
+					<box rightPadding="0"/>
+					<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+						<font fontName="TH SarabunPSK" size="13" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					</textElement>
+					<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{short_over_amount}]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement style="thai" x="765" y="20" width="70" height="17"/>
+					<textElement textAlignment="Right" lineSpacing="Single">
+						<font size="13" isBold="true"/>
+					</textElement>
+					<text><![CDATA[(Short) / Over]]></text>
+				</staticText>
+				<staticText>
+					<reportElement style="thai" x="765" y="38" width="140" height="3"/>
+					<box>
+						<pen lineStyle="Double"/>
+						<topPen lineWidth="1.0" lineStyle="Double"/>
+						<leftPen lineStyle="Double"/>
+						<bottomPen lineStyle="Double"/>
+						<rightPen lineStyle="Double"/>
+					</box>
+					<textElement lineSpacing="Single">
+						<font size="8"/>
+					</textElement>
+					<text><![CDATA[]]></text>
+				</staticText>
+				<line>
+					<reportElement x="0" y="44" width="905" height="1" forecolor="#999999"/>
+					<graphicElement>
+						<pen lineStyle="Dotted"/>
+					</graphicElement>
+				</line>
+				<staticText>
+					<reportElement x="0" y="45" width="100" height="17">
+						<printWhenExpression><![CDATA[$V{check_sum_rounding} > 0]]></printWhenExpression>
+					</reportElement>
+					<textElement lineSpacing="Single">
+						<font fontName="TH SarabunPSK" size="13"/>
+					</textElement>
+					<text><![CDATA[Rounding]]></text>
+				</staticText>
+				<textField pattern="#,##0.00;-###0.00" isBlankWhenNull="true">
+					<reportElement style="thai" x="765" y="45" width="70" height="17">
+						<printWhenExpression><![CDATA[$V{check_sum_rounding} > 0]]></printWhenExpression>
+					</reportElement>
+					<textElement textAlignment="Right" lineSpacing="Single">
+						<font size="13"/>
+					</textElement>
+					<textFieldExpression class="java.math.BigDecimal"><![CDATA[0]]></textFieldExpression>
+				</textField>
+				<textField pattern="#,##0.00;-###0.00" isBlankWhenNull="true">
+					<reportElement style="thai" x="835" y="45" width="70" height="17">
+						<printWhenExpression><![CDATA[$V{check_sum_rounding} > 0]]></printWhenExpression>
+					</reportElement>
+					<textElement textAlignment="Right" lineSpacing="Single">
+						<font size="13"/>
+					</textElement>
+					<textFieldExpression class="java.math.BigDecimal"><![CDATA[0]]></textFieldExpression>
+				</textField>
+				<textField pattern="#,##0.00;-###0.00" isBlankWhenNull="true">
+					<reportElement style="thai" x="656" y="45" width="109" height="17">
+						<printWhenExpression><![CDATA[$V{check_sum_rounding} > 0]]></printWhenExpression>
+					</reportElement>
+					<textElement textAlignment="Right" lineSpacing="Single">
+						<font size="13"/>
+					</textElement>
+					<textFieldExpression class="java.math.BigDecimal"><![CDATA[0]]></textFieldExpression>
+				</textField>
+				<textField pattern="#,##0.00;(#,##0.00)" isBlankWhenNull="true">
+					<reportElement mode="Transparent" x="100" y="45" width="128" height="17" forecolor="#000000" backcolor="#FFFFFF">
+						<printWhenExpression><![CDATA[$V{check_sum_rounding} > 0]]></printWhenExpression>
+					</reportElement>
+					<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+						<font fontName="TH SarabunPSK" size="13" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					</textElement>
+					<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{sum_payment_rounding}]]></textFieldExpression>
+				</textField>
+				<textField pattern="#,##0.00;(#,##0.00)" isBlankWhenNull="true">
+					<reportElement mode="Transparent" x="228" y="45" width="128" height="17" forecolor="#000000" backcolor="#FFFFFF">
+						<printWhenExpression><![CDATA[$V{check_sum_rounding} > 0]]></printWhenExpression>
+					</reportElement>
+					<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+						<font fontName="TH SarabunPSK" size="13" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					</textElement>
+					<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{sum_return_rounding}]]></textFieldExpression>
+				</textField>
+				<textField pattern="#,##0.00;(#,##0.00)" isBlankWhenNull="true">
+					<reportElement mode="Transparent" x="356" y="45" width="128" height="17" forecolor="#000000" backcolor="#FFFFFF">
+						<printWhenExpression><![CDATA[$V{check_sum_rounding} > 0]]></printWhenExpression>
+					</reportElement>
+					<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+						<font fontName="TH SarabunPSK" size="13" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					</textElement>
+					<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{sum_net_sales_rounding}]]></textFieldExpression>
+				</textField>
+				<textField pattern="#,##0.00;(#,##0.00)" isBlankWhenNull="true">
+					<reportElement mode="Transparent" x="484" y="45" width="172" height="17" forecolor="#000000" backcolor="#FFFFFF">
+						<printWhenExpression><![CDATA[$V{check_sum_rounding} > 0]]></printWhenExpression>
+					</reportElement>
+					<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+						<font fontName="TH SarabunPSK" size="13" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+					</textElement>
+					<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{sum_net_sales_rounding}]]></textFieldExpression>
+				</textField>
+			</band>
+		</groupFooter>
+	</group>
+	<detail>
+		<band height="22">
+			<textField isBlankWhenNull="true">
+				<reportElement style="thai" x="0" y="0" width="100" height="17"/>
+				<box leftPadding="0"/>
+				<textElement lineSpacing="Single">
+					<font size="13"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{payment_type_name}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00;(#,##0.00)" isBlankWhenNull="true">
+				<reportElement style="thai" x="100" y="0" width="128" height="17"/>
+				<textElement textAlignment="Right" lineSpacing="Single">
+					<font size="13"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{amount_payment}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00;(#,##0.00)" isBlankWhenNull="true">
+				<reportElement style="thai" x="228" y="0" width="128" height="17"/>
+				<textElement textAlignment="Right" lineSpacing="Single">
+					<font size="13"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{return_system_amount}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00;(#,##0.00)" isBlankWhenNull="true">
+				<reportElement style="thai" x="356" y="0" width="128" height="17"/>
+				<textElement textAlignment="Right" lineSpacing="Single">
+					<font size="13"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{net_sales_amount}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00;(#,##0.00)" isBlankWhenNull="true">
+				<reportElement style="thai" x="484" y="0" width="172" height="17"/>
+				<textElement textAlignment="Right" lineSpacing="Single">
+					<font size="13"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{zread_amount_payment}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00;-###0.00" isBlankWhenNull="true">
+				<reportElement style="thai" x="656" y="0" width="109" height="17"/>
+				<textElement textAlignment="Right" lineSpacing="Single">
+					<font size="13"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[0]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00;(#,##0.00)" isBlankWhenNull="true">
+				<reportElement style="thai" mode="Transparent" x="765" y="0" width="70" height="17" forecolor="#000000" backcolor="#FFFFFF"/>
+				<box rightPadding="0"/>
+				<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="13" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{short_diff}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00;(#,##0.00)" isBlankWhenNull="true">
+				<reportElement style="thai" mode="Transparent" x="835" y="0" width="70" height="17" forecolor="#000000" backcolor="#FFFFFF"/>
+				<box rightPadding="0"/>
+				<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="13" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{over_diff}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement x="0" y="18" width="905" height="1" forecolor="#999999"/>
+				<graphicElement>
+					<pen lineStyle="Dotted"/>
+				</graphicElement>
+			</line>
+		</band>
+	</detail>
+	<pageFooter>
+		<band height="10">
+			<staticText>
+				<reportElement style="thai" x="765" y="0" width="140" height="10"/>
+				<textElement lineSpacing="Single">
+					<font size="8"/>
+				</textElement>
+				<text><![CDATA[สกุลเงินทั้งหมดเป็น สกุลเงินบาท THB]]></text>
+			</staticText>
+		</band>
+	</pageFooter>
+	<lastPageFooter>
+		<band height="35">
+			<line>
+				<reportElement x="0" y="11" width="905" height="1" forecolor="#000000"/>
+			</line>
+			<staticText>
+				<reportElement style="thai" x="0" y="17" width="905" height="17"/>
+				<textElement textAlignment="Center" lineSpacing="Single">
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[***End of Report***]]></text>
+			</staticText>
+		</band>
+	</lastPageFooter>
+	<noData>
+		<band height="20">
+			<staticText>
+				<reportElement x="0" y="0" width="905" height="20"/>
+				<textElement textAlignment="Center" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="14" isBold="true"/>
+				</textElement>
+				<text><![CDATA[No Data]]></text>
+			</staticText>
+		</band>
+	</noData>
+</jasperReport>

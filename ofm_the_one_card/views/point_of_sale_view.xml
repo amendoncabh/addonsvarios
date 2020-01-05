@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<odoo>
+    <data>
+        <record id="view_pos_pos_form_inherit" model="ir.ui.view">
+            <field name="name">pos.order.form.inherit</field>
+            <field name="model">pos.order</field>
+            <field name="inherit_id" ref="point_of_sale.view_pos_pos_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='picking_id']" position="after">
+                   <field name="show_cancel_t1cp" invisible="1"/>
+                </xpath>
+                <xpath expr="//page[@name='extra']" position="inside">
+                    <group name="t1c" string="The One Card">
+                        <field name="the_one_card_no" />
+                        <field name="phone_number" />
+                        <field name="member_name" />
+                        <field name="points_balance" />
+                        <field name="points_expiry_this_year" />
+                    </group>
+                </xpath>
+                <xpath expr="//button[@name='print_receipt_ofm']" position="after">
+                    <button name="button_cancel_t1cp"
+                            class="oe_stat_button oe_read_only"
+                            icon="fa-remove"
+                            string="Cancel T1CP"
+                            type="object"
+                            groups="point_of_sale.group_pos_manager,point_of_sale.group_pos_user"
+                            attrs="{'invisible':[('show_cancel_t1cp','=', False)]}" />
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

@@ -1,0 +1,837 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="promotion_report_by_promotion" language="groovy" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20">
+	<property name="ireport.zoom" value="1.5"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<property name="net.sf.jasperreports.export.xls.white.page.background" value="false"/>
+	<subDataset name="promotion">
+		<parameter name="start_date" class="java.lang.String"/>
+		<parameter name="end_date" class="java.lang.String"/>
+		<parameter name="branch_id" class="java.lang.String"/>
+		<parameter name="ids" class="java.math.BigDecimal"/>
+		<parameter name="name" class="java.lang.String"/>
+		<queryString>
+			<![CDATA[select
+
+	pt.name,
+	pp.default_code,
+	po.id,
+	sum(pol.qty) as qty,
+	(case when pt.name='Promotion Discount' then abs(pol.price_unit) else pt.list_price end) as list_price,
+	(case when pt.name='Promotion Discount' then abs(pol.price_unit*sum(pol.qty)) else ((sum(pol.qty))*pt.list_price)end) as sale_price,
+	(po.date_order+interval '7 hours') as date_order,
+	rp.name as sale_name,
+	po.inv_no,
+	pc.company_name,
+	pb.branch_name,
+	pb.branch_id,
+	pc.street,
+	pc.street2,
+	pc.city,
+	pc.zip,
+	pc.phone,
+	rcs.name as province
+,
+(
+		select sum(qty)
+		from
+		(
+			select  pol1.qty as qty
+
+			from pos_order po1
+			left join pos_order_line pol1 on po1.id=pol1.order_id
+			LEFT JOIN pos_session ps1 ON po1.session_id = ps1.id
+			LEFT JOIN pos_config pf1 ON ps1.config_id = pf1.id
+			LEFT JOIN pos_branch pb1 ON pf1.branch_id = pb1.id
+			left JOIN product_product pp1 ON pol1.product_id = pp1.id
+			left JOIN product_template pt1 ON pp1.product_tmpl_id = pt1.id
+			left JOIN product_category pcg1 ON pt1.categ_id = pcg1.id
+			left join pos_promotion posp1 on posp1.id = pol1.promotion_id
+			where
+			DATE(ps1.start_at+interval '7 hours') BETWEEN
+			$P{start_date}::date AND $P{end_date} ::date
+			and pb1.id =$P{branch_id}::integer
+			and
+			pol1.qty>0
+			and po1.is_return_order <> True
+			and
+			case when posp.promotion_name is null
+			then posp1.promotion_name = posp.promotion_name
+			else posp1.promotion_name=posp.promotion_name
+			end
+			and pol1.promotion is True
+
+		) as temp
+	) as qty_all,
+          (
+		select sum(qty*price)
+		from(
+			select sum(pol1.qty) as qty,
+				(case when pt1.name='Promotion Discount' then abs(pol1.price_unit) else pt1.list_price end) as price
+			from pos_order po1
+			left join pos_order_line pol1 on po1.id=pol1.order_id
+			LEFT JOIN pos_session ps1 ON po1.session_id = ps1.id
+			LEFT JOIN pos_config pf1 ON ps1.config_id = pf1.id
+			LEFT JOIN pos_branch pb1 ON pf1.branch_id = pb1.id
+			left JOIN product_product pp1 ON pol1.product_id = pp1.id
+			left JOIN product_template pt1 ON pp1.product_tmpl_id = pt1.id
+			left JOIN product_category pcg1 ON pt1.categ_id = pcg1.id
+			left join pos_promotion posp1 on posp1.id = pol1.promotion_id
+			where
+			DATE(ps1.start_at+interval '7 hours') BETWEEN
+                               $P{start_date}::date AND  $P{end_date}::date
+			and pb1.id = $P{branch_id}::integer
+			and
+			pol1.qty>0
+			and po1.is_return_order <> True
+			and pol1.promotion is True
+			and
+			case when posp1.id is null
+			then posp1.promotion_name = posp.promotion_name
+			else posp1.promotion_name=posp.promotion_name
+			end
+			group by pt1.list_price,pt1.name,pol1.price_unit
+
+
+		)as temp
+
+	)as price_all,
+(
+		select sum(qty)
+		from
+		(
+			select  pol1.qty as qty
+
+			from pos_order po1
+			left join pos_order_line pol1 on po1.id=pol1.order_id
+			LEFT JOIN pos_session ps1 ON po1.session_id = ps1.id
+			LEFT JOIN pos_config pf1 ON ps1.config_id = pf1.id
+			LEFT JOIN pos_branch pb1 ON pf1.branch_id = pb1.id
+			left JOIN product_product pp1 ON pol1.product_id = pp1.id
+			left JOIN product_template pt1 ON pp1.product_tmpl_id = pt1.id
+			left JOIN product_category pcg1 ON pt1.categ_id = pcg1.id
+			where
+			DATE(ps1.start_at+interval '7 hours') BETWEEN
+			$P{start_date}::date AND  $P{end_date}::date
+			and pb1.id =$P{branch_id}::integer
+			and
+			po1.is_return_order <> True
+			and pol1.qty>0
+			and pol1.promotion is True
+
+		) as temp
+	) as qty_all_footer,
+(
+		select sum(qty*price)
+		from(
+			select sum(pol1.qty) as qty,
+				(case when pt1.name='Promotion Discount' then abs(pol1.price_unit) else pt1.list_price end) as price
+			from pos_order po1
+			left join pos_order_line pol1 on po1.id=pol1.order_id
+			LEFT JOIN pos_session ps1 ON po1.session_id = ps1.id
+			LEFT JOIN pos_config pf1 ON ps1.config_id = pf1.id
+			LEFT JOIN pos_branch pb1 ON pf1.branch_id = pb1.id
+			left JOIN product_product pp1 ON pol1.product_id = pp1.id
+			left JOIN product_template pt1 ON pp1.product_tmpl_id = pt1.id
+			left JOIN product_category pcg1 ON pt1.categ_id = pcg1.id
+			where
+			DATE(ps1.start_at+interval '7 hours') BETWEEN
+                               $P{start_date}::date AND $P{end_date} ::date
+			and pb1.id = $P{branch_id}::integer
+			and
+			pol1.qty>0
+			and po1.is_return_order <> True
+			and pol1.promotion is True
+			group by pt1.list_price,pt1.name,pol1.price_unit
+
+
+		)as temp
+
+	)as price_all_footer
+          from pos_order po
+	LEFT JOIN pos_session ps ON po.session_id = ps.id
+	LEFT JOIN pos_config pf ON ps.config_id = pf.id
+	LEFT JOIN pos_branch pb ON pf.branch_id = pb.id
+	LEFT JOIN pos_company pc ON pb.pos_company_id = pc.id
+	left join pos_order_line pol on po.id=pol.order_id
+	left join res_country_state rcs on pc.state_id=rcs.id
+	left join res_users ru on ru.id=po.user_id
+	left join res_partner rp on rp.id=ru.partner_id
+	left JOIN product_product pp ON pol.product_id = pp.id
+	left JOIN product_template pt ON pp.product_tmpl_id = pt.id
+	left JOIN product_category pcg ON pt.categ_id = pcg.id
+	left join pos_promotion posp on posp.id = pol.promotion_id
+	where
+	po.is_return_order <> True
+	and
+	DATE(ps.start_at+interval '7 hours') BETWEEN
+	$P{start_date}::date AND  $P{end_date}::date
+	and pb.id = $P{branch_id}::integer
+	and
+	pol.promotion is True
+	and
+	case when
+	posp.promotion_name is null
+	then posp.promotion_name = $P{name}
+	else posp.promotion_name = $P{name}
+	end
+	group by
+	posp.id,
+	pb.id,
+	pc.id,
+	rcs.id ,
+	posp.promotion_name,
+	po.id,
+	pt.id,
+	pp.id,
+	pol.price_unit,
+	rp.name
+	order by posp.promotion_name,(po.date_order+interval '7 hours'),pp.default_code desc]]>
+		</queryString>
+		<field name="name" class="java.lang.String"/>
+		<field name="default_code" class="java.lang.String">
+			<fieldDescription><![CDATA[Internal Reference]]></fieldDescription>
+		</field>
+		<field name="id" class="java.lang.Integer"/>
+		<field name="qty" class="java.math.BigDecimal">
+			<fieldDescription><![CDATA[Quantity]]></fieldDescription>
+		</field>
+		<field name="list_price" class="java.math.BigDecimal">
+			<fieldDescription><![CDATA[Sale Price]]></fieldDescription>
+		</field>
+		<field name="sale_price" class="java.math.BigDecimal"/>
+		<field name="date_order" class="java.sql.Timestamp">
+			<fieldDescription><![CDATA[Order Date]]></fieldDescription>
+		</field>
+		<field name="sale_name" class="java.lang.String"/>
+		<field name="inv_no" class="java.lang.String">
+			<fieldDescription><![CDATA[Invoice No]]></fieldDescription>
+		</field>
+		<field name="company_name" class="java.lang.String">
+			<fieldDescription><![CDATA[Company Name]]></fieldDescription>
+		</field>
+		<field name="branch_name" class="java.lang.String">
+			<fieldDescription><![CDATA[Branch Name]]></fieldDescription>
+		</field>
+		<field name="branch_id" class="java.lang.String"/>
+		<field name="street" class="java.lang.String">
+			<fieldDescription><![CDATA[Street]]></fieldDescription>
+		</field>
+		<field name="street2" class="java.lang.String">
+			<fieldDescription><![CDATA[Street2]]></fieldDescription>
+		</field>
+		<field name="city" class="java.lang.String">
+			<fieldDescription><![CDATA[City]]></fieldDescription>
+		</field>
+		<field name="zip" class="java.lang.String">
+			<fieldDescription><![CDATA[Zip]]></fieldDescription>
+		</field>
+		<field name="phone" class="java.lang.String">
+			<fieldDescription><![CDATA[Phone]]></fieldDescription>
+		</field>
+		<field name="province" class="java.lang.String"/>
+		<field name="qty_all" class="java.math.BigDecimal"/>
+		<field name="price_all" class="java.math.BigDecimal"/>
+		<field name="qty_all_footer" class="java.math.BigDecimal"/>
+		<field name="price_all_footer" class="java.math.BigDecimal"/>
+		<variable name="sum_qty" class="java.math.BigDecimal" calculation="Sum">
+			<variableExpression><![CDATA[$F{qty}]]></variableExpression>
+		</variable>
+	</subDataset>
+	<parameter name="start_date" class="java.lang.String"/>
+	<parameter name="end_date" class="java.lang.String"/>
+	<parameter name="branch_id" class="java.lang.String"/>
+	<parameter name="start_branch" class="java.lang.String"/>
+	<parameter name="end_branch" class="java.lang.String"/>
+	<queryString>
+		<![CDATA[select
+posp.promotion_name,
+rpc.name as company_name,
+pb.branch_name,
+pb.branch_id,
+rpc.street,
+pb.id as pb_id,
+rpc.street2,
+rpc.city,
+rpc.zip,
+rpc.phone,
+rcs.name as province ,
+(now()+interval '7 hour')::date as print_date,
+(now()+interval '7 hour')::time as print_time,
+(
+	select branch_name
+	from
+	(
+		select pb1.branch_name as branch_name
+		from  pos_branch pb1
+		where pb1.sequence = $P{start_branch}::integer
+		) as temp
+	) as start_branch_name,
+(
+	select branch_name
+	from
+	(
+		select pb1.branch_name as branch_name
+		from  pos_branch pb1
+		where pb1.sequence = $P{end_branch}::integer
+		) as temp
+	) as end_branch_name,
+(
+	select branch_id
+	from
+	(
+		select pb1.branch_id as branch_id
+		from  pos_branch pb1
+		where pb1.sequence = $P{start_branch}::integer
+		) as temp
+	) as start_branch_id,
+(
+	select branch_id
+	from
+	(
+		select pb1.branch_id as branch_id
+		from  pos_branch pb1
+		where pb1.sequence = $P{end_branch}::integer
+		) as temp
+	) as end_branch_id
+from pos_order po
+LEFT JOIN pos_session ps ON po.session_id = ps.id
+LEFT JOIN pos_config pf ON ps.config_id = pf.id
+LEFT JOIN pos_branch pb ON pf.branch_id = pb.id
+LEFT JOIN res_company pc ON pb.pos_company_id = pc.id
+LEFT JOIN res_partner rpc ON pc.partner_id = rpc.id
+left join pos_order_line pol on po.id=pol.order_id
+left join res_country_state rcs on rpc.state_id=rcs.id
+left join res_users ru on ru.id=po.user_id
+left join res_partner rp on rp.id=ru.partner_id
+left JOIN product_product pp ON pol.product_id = pp.id
+left JOIN product_template pt ON pp.product_tmpl_id = pt.id
+left JOIN product_category pcg ON pt.categ_id = pcg.id
+left join pos_promotion posp on posp.id = pol.promotion_id
+where DATE(ps.start_at+interval '7 hours') BETWEEN
+$P{start_date}::date AND $P{end_date}::date
+and pb.sequence BETWEEN $P{start_branch}::integer and $P{end_branch}::integer
+and pol.promotion = true and po.is_return_order = False
+group by
+posp.id,
+pb.id,
+rpc.id,
+rcs.id,
+posp.promotion_name
+order by pb.sequence,posp.promotion_name]]>
+	</queryString>
+	<field name="promotion_name" class="java.lang.String">
+		<fieldDescription><![CDATA[Promotion]]></fieldDescription>
+	</field>
+	<field name="company_name" class="java.lang.String">
+		<fieldDescription><![CDATA[Company Name]]></fieldDescription>
+	</field>
+	<field name="branch_name" class="java.lang.String">
+		<fieldDescription><![CDATA[Branch Name]]></fieldDescription>
+	</field>
+	<field name="branch_id" class="java.lang.String">
+		<fieldDescription><![CDATA[Branch]]></fieldDescription>
+	</field>
+	<field name="street" class="java.lang.String">
+		<fieldDescription><![CDATA[Street]]></fieldDescription>
+	</field>
+	<field name="pb_id" class="java.lang.Integer"/>
+	<field name="street2" class="java.lang.String">
+		<fieldDescription><![CDATA[Street2]]></fieldDescription>
+	</field>
+	<field name="city" class="java.lang.String">
+		<fieldDescription><![CDATA[City]]></fieldDescription>
+	</field>
+	<field name="zip" class="java.lang.String">
+		<fieldDescription><![CDATA[Zip]]></fieldDescription>
+	</field>
+	<field name="phone" class="java.lang.String">
+		<fieldDescription><![CDATA[Phone]]></fieldDescription>
+	</field>
+	<field name="province" class="java.lang.String"/>
+	<field name="print_date" class="java.sql.Date"/>
+	<field name="print_time" class="java.sql.Time"/>
+	<field name="start_branch_name" class="java.lang.String"/>
+	<field name="end_branch_name" class="java.lang.String"/>
+	<field name="start_branch_id" class="java.lang.String"/>
+	<field name="end_branch_id" class="java.lang.String"/>
+	<variable name="date_start" class="java.util.Date" resetType="Page">
+		<initialValueExpression><![CDATA[new SimpleDateFormat("yyyy-MM-dd").parse($P{start_date})]]></initialValueExpression>
+	</variable>
+	<variable name="date_end" class="java.util.Date" resetType="Page">
+		<initialValueExpression><![CDATA[new SimpleDateFormat("yyyy-MM-dd").parse($P{end_date})]]></initialValueExpression>
+	</variable>
+	<group name="branch" isStartNewPage="true">
+		<groupExpression><![CDATA[$F{branch_id}]]></groupExpression>
+		<groupFooter>
+			<band height="15">
+				<componentElement>
+					<reportElement key="table" x="0" y="0" width="555" height="15" printWhenGroupChanges="branch"/>
+					<jr:table xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd">
+						<datasetRun subDataset="promotion">
+							<datasetParameter name="start_date">
+								<datasetParameterExpression><![CDATA[$P{start_date}]]></datasetParameterExpression>
+							</datasetParameter>
+							<datasetParameter name="end_date">
+								<datasetParameterExpression><![CDATA[$P{end_date}]]></datasetParameterExpression>
+							</datasetParameter>
+							<datasetParameter name="branch_id">
+								<datasetParameterExpression><![CDATA[$F{pb_id}]]></datasetParameterExpression>
+							</datasetParameter>
+							<datasetParameter name="name">
+								<datasetParameterExpression><![CDATA[$F{promotion_name}]]></datasetParameterExpression>
+							</datasetParameter>
+							<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+						</datasetRun>
+						<jr:column width="75">
+							<jr:columnFooter height="18" rowSpan="1">
+								<box>
+									<topPen lineWidth="1.0"/>
+									<bottomPen lineWidth="2.0" lineStyle="Double"/>
+								</box>
+							</jr:columnFooter>
+							<jr:detailCell height="0" rowSpan="1"/>
+						</jr:column>
+						<jr:column width="100">
+							<jr:columnFooter height="18" rowSpan="1">
+								<box>
+									<topPen lineWidth="1.0"/>
+									<bottomPen lineWidth="2.0" lineStyle="Double"/>
+								</box>
+								<staticText>
+									<reportElement mode="Transparent" x="0" y="0" width="100" height="18" forecolor="#000000" backcolor="#FFFFFF"/>
+									<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+										<font fontName="TH SarabunPSK" size="12" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+									</textElement>
+									<text><![CDATA[รวมทั้งหมด]]></text>
+								</staticText>
+							</jr:columnFooter>
+							<jr:detailCell height="0" rowSpan="1"/>
+						</jr:column>
+						<jr:column width="122">
+							<jr:columnFooter height="18" rowSpan="1">
+								<box>
+									<topPen lineWidth="1.0"/>
+									<bottomPen lineWidth="2.0" lineStyle="Double"/>
+								</box>
+							</jr:columnFooter>
+							<jr:detailCell height="0" rowSpan="1"/>
+						</jr:column>
+						<jr:column width="58">
+							<jr:columnFooter height="18" rowSpan="1">
+								<box>
+									<topPen lineWidth="1.0"/>
+									<bottomPen lineWidth="2.0" lineStyle="Double"/>
+								</box>
+								<textField pattern="#,##0;-#,##0" isBlankWhenNull="false">
+									<reportElement mode="Transparent" x="0" y="0" width="58" height="18" forecolor="#000000" backcolor="#FFFFFF"/>
+									<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+										<font fontName="TH SarabunPSK" size="12" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+									</textElement>
+									<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{qty_all_footer}]]></textFieldExpression>
+								</textField>
+							</jr:columnFooter>
+							<jr:detailCell height="0" rowSpan="1"/>
+						</jr:column>
+						<jr:column width="55">
+							<jr:columnFooter height="18" rowSpan="1">
+								<box>
+									<topPen lineWidth="1.0"/>
+									<bottomPen lineWidth="2.0" lineStyle="Double"/>
+								</box>
+							</jr:columnFooter>
+							<jr:detailCell height="0" rowSpan="1"/>
+						</jr:column>
+						<jr:column width="63">
+							<jr:columnFooter height="18" rowSpan="1">
+								<box>
+									<topPen lineWidth="1.0"/>
+									<bottomPen lineWidth="2.0" lineStyle="Double"/>
+								</box>
+								<textField pattern="#,##0.00;-#,##0.00" isBlankWhenNull="false">
+									<reportElement mode="Transparent" x="0" y="0" width="63" height="18" forecolor="#000000" backcolor="#FFFFFF"/>
+									<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+										<font fontName="TH SarabunPSK" size="12" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+									</textElement>
+									<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{price_all_footer}]]></textFieldExpression>
+								</textField>
+							</jr:columnFooter>
+							<jr:detailCell height="0" rowSpan="1"/>
+						</jr:column>
+						<jr:column width="81">
+							<jr:columnFooter height="18" rowSpan="1">
+								<box>
+									<topPen lineWidth="1.0"/>
+									<bottomPen lineWidth="2.0" lineStyle="Double"/>
+								</box>
+							</jr:columnFooter>
+							<jr:detailCell height="0" rowSpan="1"/>
+						</jr:column>
+					</jr:table>
+				</componentElement>
+			</band>
+		</groupFooter>
+	</group>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<pageHeader>
+		<band height="157" splitType="Stretch">
+			<textField pattern="" isBlankWhenNull="false">
+				<reportElement positionType="Float" mode="Transparent" x="97" y="99" width="357" height="17" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Center" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="14" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[new SimpleDateFormat("dd/MM/yyyy").format($V{date_start}) + " - " +new SimpleDateFormat("dd/MM/yyyy").format($V{date_end})]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement positionType="Float" mode="Transparent" x="497" y="28" width="10" height="14" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="12" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$V{PAGE_NUMBER}+"/"]]></textFieldExpression>
+			</textField>
+			<textField pattern="dd/MM/yyyy">
+				<reportElement positionType="Float" mode="Transparent" x="497" y="0" width="57" height="14" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Left" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="12" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<textFieldExpression class="java.util.Date"><![CDATA[$F{print_date}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="" isBlankWhenNull="false">
+				<reportElement positionType="Float" mode="Transparent" x="0" y="42" width="555" height="19" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Center" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="16" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[($P{start_branch} == $P{end_branch})? ("สาขาที่"+" "+String.format("%05d",Integer.parseInt($F{start_branch_id}))
++" "+$F{start_branch_name}):("สาขาที่"+" "+String.format("%05d",Integer.parseInt($F{start_branch_id}))
++" "+$F{start_branch_name}+" "
++" - "+"สาขาที่"+" "+String.format("%05d",Integer.parseInt($F{end_branch_id}))+" "+$F{end_branch_name}
+)]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement positionType="Float" mode="Transparent" x="454" y="0" width="43" height="14" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Left" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="12" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<text><![CDATA[วันที่พิมพ์:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="Float" mode="Transparent" x="454" y="14" width="43" height="14" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Left" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="12" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<text><![CDATA[เวลาที่พิมพ์:]]></text>
+			</staticText>
+			<textField pattern="" isBlankWhenNull="false">
+				<reportElement positionType="Float" mode="Transparent" x="97" y="20" width="357" height="22" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Center" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="18" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{company_name}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement positionType="Float" mode="Transparent" x="454" y="28" width="43" height="14" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Left" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="12" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<text><![CDATA[หน้า:]]></text>
+			</staticText>
+			<textField pattern="HH:mm:ss">
+				<reportElement positionType="Float" mode="Transparent" x="497" y="14" width="57" height="14" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Left" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="12" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<textFieldExpression class="java.util.Date"><![CDATA[$F{print_time}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement positionType="Float" mode="Transparent" x="97" y="61" width="357" height="38" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Center" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="16" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<text><![CDATA[รายงานโปรโมชั่น (ตามประเภทโปรโมชั่น)
+Promotion Report by Promotion]]></text>
+			</staticText>
+			<textField evaluationTime="Report">
+				<reportElement positionType="Float" mode="Transparent" x="507" y="28" width="47" height="14" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Left" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="12" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$V{PAGE_NUMBER}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement positionType="Float" mode="Transparent" x="75" y="134" width="100" height="23" forecolor="#000000" backcolor="#FFFFFF"/>
+				<box>
+					<topPen lineWidth="2.0" lineStyle="Double"/>
+					<bottomPen lineWidth="2.0" lineStyle="Double"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="13" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<text><![CDATA[เลขที่สลิป]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="Float" mode="Transparent" x="0" y="134" width="75" height="23" forecolor="#000000" backcolor="#FFFFFF"/>
+				<box>
+					<topPen lineWidth="2.0" lineStyle="Double"/>
+					<bottomPen lineWidth="2.0" lineStyle="Double"/>
+				</box>
+				<textElement textAlignment="Left" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="13" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<text><![CDATA[วัน/เดือน/ปี : เวลา]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="Float" mode="Transparent" x="297" y="134" width="58" height="23" forecolor="#000000" backcolor="#FFFFFF"/>
+				<box>
+					<topPen lineWidth="2.0" lineStyle="Double"/>
+					<bottomPen lineWidth="2.0" lineStyle="Double"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="13" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<text><![CDATA[จำนวน]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="Float" mode="Transparent" x="175" y="134" width="122" height="23" forecolor="#000000" backcolor="#FFFFFF"/>
+				<box>
+					<topPen lineWidth="2.0" lineStyle="Double"/>
+					<bottomPen lineWidth="2.0" lineStyle="Double"/>
+				</box>
+				<textElement verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="13" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<text><![CDATA[รายการสินค้า]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="Float" mode="Transparent" x="355" y="134" width="55" height="23" forecolor="#000000" backcolor="#FFFFFF"/>
+				<box>
+					<topPen lineWidth="2.0" lineStyle="Double"/>
+					<bottomPen lineWidth="2.0" lineStyle="Double"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="13" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<text><![CDATA[ส่วนลด/หน่วย]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="Float" mode="Transparent" x="410" y="134" width="63" height="23" forecolor="#000000" backcolor="#FFFFFF"/>
+				<box>
+					<topPen lineWidth="2.0" lineStyle="Double"/>
+					<bottomPen lineWidth="2.0" lineStyle="Double"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="13" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<text><![CDATA[รวมส่วนลด]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="Float" mode="Transparent" x="473" y="134" width="81" height="23" forecolor="#000000" backcolor="#FFFFFF"/>
+				<box>
+					<topPen lineWidth="2.0" lineStyle="Double"/>
+					<bottomPen lineWidth="2.0" lineStyle="Double"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="13" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<text><![CDATA[ชื่อพนักงาน]]></text>
+			</staticText>
+			<textField>
+				<reportElement positionType="Float" mode="Transparent" x="0" y="118" width="555" height="15" printWhenGroupChanges="branch" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="12" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[" สาขาที่"+" "+String.format("%05d",Integer.parseInt($F{branch_id}))+" "+$F{branch_name}]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageHeader>
+	<detail>
+		<band height="30" splitType="Stretch">
+			<staticText>
+				<reportElement mode="Transparent" x="1" y="0" width="74" height="15" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="12" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<text><![CDATA[ประเภทโปรโมชั่น :]]></text>
+			</staticText>
+			<componentElement>
+				<reportElement key="table" x="0" y="15" width="555" height="15" printWhenGroupChanges="branch"/>
+				<jr:table xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd">
+					<datasetRun subDataset="promotion">
+						<datasetParameter name="start_date">
+							<datasetParameterExpression><![CDATA[$P{start_date}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="end_date">
+							<datasetParameterExpression><![CDATA[$P{end_date}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="branch_id">
+							<datasetParameterExpression><![CDATA[$F{pb_id}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="name">
+							<datasetParameterExpression><![CDATA[$F{promotion_name}]]></datasetParameterExpression>
+						</datasetParameter>
+						<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					</datasetRun>
+					<jr:column width="75">
+						<jr:columnFooter height="18" rowSpan="1">
+							<box>
+								<topPen lineWidth="1.0"/>
+								<bottomPen lineWidth="2.0" lineStyle="Double"/>
+							</box>
+						</jr:columnFooter>
+						<jr:detailCell height="15" rowSpan="1">
+							<textField pattern="dd/MM/yyyy  HH:mm" isBlankWhenNull="false">
+								<reportElement mode="Transparent" x="0" y="0" width="75" height="15" forecolor="#000000" backcolor="#FFFFFF"/>
+								<textElement textAlignment="Left" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+									<font fontName="TH SarabunPSK" size="12" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+								</textElement>
+								<textFieldExpression class="java.sql.Timestamp"><![CDATA[$F{date_order}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="100">
+						<jr:columnFooter height="18" rowSpan="1">
+							<box>
+								<topPen lineWidth="1.0"/>
+								<bottomPen lineWidth="2.0" lineStyle="Double"/>
+							</box>
+							<staticText>
+								<reportElement mode="Transparent" x="0" y="0" width="100" height="18" forecolor="#000000" backcolor="#FFFFFF"/>
+								<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+									<font fontName="TH SarabunPSK" size="12" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+								</textElement>
+								<text><![CDATA[ยอดรวม]]></text>
+							</staticText>
+						</jr:columnFooter>
+						<jr:detailCell height="15" rowSpan="1">
+							<textField pattern="" isBlankWhenNull="false">
+								<reportElement mode="Transparent" x="0" y="0" width="100" height="15" forecolor="#000000" backcolor="#FFFFFF"/>
+								<textElement textAlignment="Center" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+									<font fontName="TH SarabunPSK" size="12" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+								</textElement>
+								<textFieldExpression class="java.lang.String"><![CDATA[$F{inv_no}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="122">
+						<jr:columnFooter height="18" rowSpan="1">
+							<box>
+								<topPen lineWidth="1.0"/>
+								<bottomPen lineWidth="2.0" lineStyle="Double"/>
+							</box>
+						</jr:columnFooter>
+						<jr:detailCell height="15" rowSpan="1">
+							<textField pattern="" isBlankWhenNull="false">
+								<reportElement mode="Transparent" x="0" y="0" width="122" height="15" forecolor="#000000" backcolor="#FFFFFF"/>
+								<textElement verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+									<font fontName="TH SarabunPSK" size="12" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+								</textElement>
+								<textFieldExpression class="java.lang.String"><![CDATA[$F{name}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="58">
+						<jr:columnFooter height="18" rowSpan="1">
+							<box>
+								<topPen lineWidth="1.0"/>
+								<bottomPen lineWidth="2.0" lineStyle="Double"/>
+							</box>
+							<textField pattern="#,##0;-#,##0" isBlankWhenNull="false">
+								<reportElement mode="Transparent" x="0" y="0" width="58" height="18" forecolor="#000000" backcolor="#FFFFFF"/>
+								<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+									<font fontName="TH SarabunPSK" size="12" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+								</textElement>
+								<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{qty_all}]]></textFieldExpression>
+							</textField>
+						</jr:columnFooter>
+						<jr:detailCell height="15" rowSpan="1">
+							<textField pattern="#,##0;-#,##0" isBlankWhenNull="false">
+								<reportElement mode="Transparent" x="0" y="0" width="58" height="15" forecolor="#000000" backcolor="#FFFFFF"/>
+								<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+									<font fontName="TH SarabunPSK" size="12" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+								</textElement>
+								<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{qty}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="55">
+						<jr:columnFooter height="18" rowSpan="1">
+							<box>
+								<topPen lineWidth="1.0"/>
+								<bottomPen lineWidth="2.0" lineStyle="Double"/>
+							</box>
+						</jr:columnFooter>
+						<jr:detailCell height="15" rowSpan="1">
+							<textField pattern="#,##0.00;-#,##0.00" isBlankWhenNull="false">
+								<reportElement mode="Transparent" x="0" y="0" width="55" height="15" forecolor="#000000" backcolor="#FFFFFF"/>
+								<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+									<font fontName="TH SarabunPSK" size="12" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+								</textElement>
+								<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{list_price}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="63">
+						<jr:columnFooter height="18" rowSpan="1">
+							<box>
+								<topPen lineWidth="1.0"/>
+								<bottomPen lineWidth="2.0" lineStyle="Double"/>
+							</box>
+							<textField pattern="#,##0.00;-#,##0.00" isBlankWhenNull="false">
+								<reportElement mode="Transparent" x="0" y="0" width="63" height="18" forecolor="#000000" backcolor="#FFFFFF"/>
+								<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+									<font fontName="TH SarabunPSK" size="12" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+								</textElement>
+								<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{price_all}]]></textFieldExpression>
+							</textField>
+						</jr:columnFooter>
+						<jr:detailCell height="15" rowSpan="1">
+							<textField pattern="#,##0.00;-#,##0.00" isBlankWhenNull="false">
+								<reportElement mode="Transparent" x="0" y="0" width="63" height="15" forecolor="#000000" backcolor="#FFFFFF"/>
+								<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+									<font fontName="TH SarabunPSK" size="12" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+								</textElement>
+								<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{sale_price}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="81">
+						<jr:columnFooter height="18" rowSpan="1">
+							<box>
+								<topPen lineWidth="1.0"/>
+								<bottomPen lineWidth="2.0" lineStyle="Double"/>
+							</box>
+						</jr:columnFooter>
+						<jr:detailCell height="15" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="" isBlankWhenNull="false">
+								<reportElement mode="Transparent" x="0" y="0" width="81" height="15" forecolor="#000000" backcolor="#FFFFFF"/>
+								<textElement textAlignment="Center" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+									<font fontName="TH SarabunPSK" size="12" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+								</textElement>
+								<textFieldExpression class="java.lang.String"><![CDATA[$F{sale_name}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+				</jr:table>
+			</componentElement>
+			<textField pattern="" isBlankWhenNull="false">
+				<reportElement mode="Transparent" x="75" y="0" width="479" height="15" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="12" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{promotion_name}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<summary>
+		<band height="52">
+			<staticText>
+				<reportElement mode="Transparent" x="0" y="32" width="555" height="20" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Center" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="13" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<text><![CDATA[<สิ้นสุดรายงาน>]]></text>
+			</staticText>
+		</band>
+	</summary>
+</jasperReport>

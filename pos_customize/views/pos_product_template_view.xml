@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="_form" model="ir.ui.view">
+            <field name="name">pos_product.template.form.view</field>
+            <field name="model">pos_product.template</field>
+            <field name="inherit_id" ref="pos_select_product.view_select_product_template"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='product_id']" position="attributes">
+                    <attribute name="context">{
+                        'exclude_order_line': parent.product_ids,
+                        'exclude_model': 'pos.product.template.line'
+                    }</attribute>
+                </xpath>
+                <xpath expr="//field[@name='default_code']" position="after">
+                    <field name="price"/>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

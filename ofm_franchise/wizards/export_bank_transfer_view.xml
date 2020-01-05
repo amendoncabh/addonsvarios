@@ -1,0 +1,59 @@
+<?xml version="1.0"?>
+<odoo>
+    <data>
+        <record id="view_export_bank_transfer_wizard" model="ir.ui.view">
+            <field name="name">export.bank.transfer.view.wizard</field>
+            <field name="model">export.bank.transfer.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Export">
+                    <group>
+                        <group>
+                            <field name="sale_date"/>
+                            <field name="from_branch_id"
+                                  options="{
+                                               'no_quick_create': True,
+                                               'no_create_edit': True,
+                                               'no_open': True,
+                                           }"/>
+                            <field name="binary_data" filename="filename" readonly="1"/>
+                            <field name="filename" invisible="1"/>
+                        </group>
+                        <group>
+                            <field name="bank"/>
+                            <field name="to_branch_id"
+                                  options="{
+                                               'no_quick_create': True,
+                                               'no_create_edit': True,
+                                               'no_open': True,
+                                           }"/>
+                        </group>
+                    </group>
+                    <footer>
+                        <button name="action_export_bank_transfer"
+                                string="Export" type="object"
+                                class="oe_highlight"/>
+                        or
+                        <button string="Cancel" class="oe_link"
+                                special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_open_export_bank_transfer_wizard" model="ir.actions.act_window">
+            <field name="name">Export Bank Transfer</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">export.bank.transfer.wizard</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+        </record>
+
+        <menuitem id="menu_export_bank_transfer_wizard"
+                  parent="ofm_franchise.menu_daily_summary_franchise_main_franchise"
+                  action="ofm_franchise.action_open_export_bank_transfer_wizard"
+                  sequence="3"
+                  groups="ofm_access_right_center.group_ofm_hq"/>
+
+    </data>
+</odoo>

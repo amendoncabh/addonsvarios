@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="pos_promotion_tier_from_view">
+            <field name="name">pos.promotion.tier.form</field>
+            <field name="model">pos.promotion.tier</field>
+            <field name="arch" type="xml">
+                <form string="Promotion Tier">
+                    <sheet>
+                        <div class="oe_title">
+                            <label class="oe_edit_only" for="name" string="Rule Name"/>
+                            <h1>
+                                <field name="name"/>
+                            </h1>
+                        </div>
+                        <group>
+                            <field name="condition_type" widget="radio" options="{'horizontal': true}"/>
+                            <field name="reward_type" widget="radio" options="{'horizontal': true}"/>
+                        </group>
+                        <group>
+                            <group>
+                                <div class="oe_title o_td_label">
+                                    <label class="o_form_label" for="start_tier" string="Start Tier&#160;"/>
+                                    <field name="start_tier" nolabel="1" colspan="1"/>
+                                    <span attrs="{
+                                        'invisible': [
+                                            '|',
+                                            ('start_tier', '=', False),
+                                            ('tier_range', '=', False),
+                                        ]
+                                    }">
+                                        to
+                                    </span>
+                                    <field name="end_tier" readonly="1" nolabel="1"
+                                           attrs="{
+                                            'invisible': [
+                                                    '|',
+                                                    ('start_tier', '=', False),
+                                                    ('tier_range', '=', False),
+                                            ]
+                                        }"/>
+                                </div>
+                            </group>
+                            <group>
+                                <field name="tier_range"/>
+                                <!--<field name="priority_size" readonly="1"/>-->
+                                <!--<field name="allow_mapping"/>-->
+                            </group>
+                        </group>
+                        <field name="tier_option_ids"
+                               groups="base.group_no_one,base.group_system">
+                            <tree>
+                                <field name="name" readonly="1"/>
+                            </tree>
+                        </field>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="pos_promotion_tier_tree_view">
+            <field name="name">pos.promotion.tier.tree.view</field>
+            <field name="model">pos.promotion.tier</field>
+            <field name="arch" type="xml">
+                <tree string="Promotion">
+                    <field name="name"/>
+                    <field name="condition_type"/>
+                    <field name="reward_type"/>
+                    <field name="start_tier"/>
+                    <field name="end_tier"/>
+                    <field name="tier_range"/>
+                    <!--<field name="priority_size"/>-->
+                </tree>
+            </field>
+        </record>
+
+        <record model="ir.actions.act_window" id="action_promotion_tier_form">
+            <field name="name">Promotion Tier</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">pos.promotion.tier</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="help" type="html">
+                <p class="oe_view_nocontent_create">
+                    Click to create a Promotion Tier.
+                </p>
+            </field>
+        </record>
+
+        <menuitem
+                parent="point_of_sale.menu_point_config_product"
+                action="action_promotion_tier_form"
+                id="menu_pos_promotion_tier"
+                sequence="33"
+                groups="base.group_no_one,base.group_system"
+        />
+    </data>
+</odoo>

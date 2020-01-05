@@ -1,0 +1,7 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+point_of_sale.access_bank_statement_cashbox_user,account.bank.statement.cashbox user,account.model_account_bank_statement_cashbox,point_of_sale.group_pos_user,1,0,1,0
+access_bank_statement_cashbox_manager,account.bank.statement.cashbox Manager,account.model_account_bank_statement_cashbox,point_of_sale.group_pos_manager,1,1,1,0
+access_account_move_line_ofm_invoice,account.move.line.ofm,model_account_move_line_ofm,account.group_account_invoice,1,1,1,1
+access_account_move_line_ofm_user,account.move.line.ofm,model_account_move_line_ofm,account.group_account_user,1,1,1,1
+access_account_move_line_ofm_manager,account.move.line.ofm,model_account_move_line_ofm,account.group_account_manager,1,1,1,1
+base.access_res_company_group_user,res_company group_user,model_res_company,,1,1,0,0

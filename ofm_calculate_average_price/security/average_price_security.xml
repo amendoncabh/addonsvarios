@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="ofm_access_right_center.group_ofm_hq" model="res.groups">
+            <field name="implied_ids" eval="[(4, ref('stock.group_stock_manager'))]"/>
+        </record>
+
+        <record id="rule_average_price_user" model="ir.rule">
+            <field name="name">Average Price User</field>
+            <field name="model_id" ref="model_average_price" />
+            <field name="groups" eval="[(4, ref('stock.group_stock_user'))]"/>
+            <field name="domain_force">[('branch_id', '=', user.branch_id.id)]</field>
+        </record>
+
+        <record id="rule_average_price_manager" model="ir.rule">
+            <field name="name">Average Price Manager</field>
+            <field name="model_id" ref="model_average_price" />
+            <field name="groups" eval="[(4, ref('stock.group_stock_manager'))]"/>
+            <field name="domain_force">[('branch_id.id', 'in', user.branch_ids.ids)]</field>
+        </record>
+
+        <record id="rule_average_price_hq_admin" model="ir.rule">
+            <field name="name">Average Price HQ/Admin</field>
+            <field name="model_id" ref="model_average_price" />
+            <field name="groups" eval="[(4, ref('ofm_access_right_center.group_ofm_hq')),
+            (4, ref('ofm_access_right_center.group_ofm_admin'))]"/>
+            <field name="domain_force">[]</field>
+        </record>
+    </data>
+</odoo>

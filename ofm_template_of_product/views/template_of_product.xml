@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_template_of_product_form" model="ir.ui.view">
+        <field name="name">Template of Product</field>
+        <field name="model">template.of.product</field>
+        <field name="arch" type="xml">
+            <form string="Tempalte of Product">
+                <div class="oe_title">
+                    <label for="name" class="oe_edit_only"/>
+                    <h1><field name="name" placeholder="e.g. Annual inventory"/></h1>
+                    <p/>
+                    <label for="company_id" class="oe_edit_only"/>
+                    <field name="company_id" string="Company"
+                    options="{
+                                    'no_quick_create': True,
+                                    'no_create_edit': True,
+                                    'no_open': True
+                                }"/>
+                    <p/>
+                </div>
+                <label for="dept_ids" class="oe_edit_only"/>
+                <field name="dept_ids">
+                    <tree editable="top">
+                        <field name="parent_dept_ofm" invisible="True"/>
+                        <field name="dept_id"
+                        options="{
+                                    'no_quick_create': True,
+                                    'no_create_edit': True,
+                                    'no_open': True
+                                }"/>
+                        <field name="brand_id"
+                        options="{
+                                    'no_quick_create': True,
+                                    'no_create_edit': True,
+                                    'no_open': True
+                                }"/>
+                    </tree>
+                </field>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_template_of_product_tree" model="ir.ui.view">
+        <field name="name">Template of Product</field>
+        <field name="model">template.of.product</field>
+        <field name="arch" type="xml">
+            <tree string="Tempalte of Product">
+                <field name="name"/>
+                <field name="company_id" string="Company"
+                options="{
+                                    'no_quick_create': True,
+                                    'no_create_edit': True,
+                                    'no_open': True
+                                }"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="action_template_of_product_form" model="ir.actions.act_window">
+        <field name="name">template of Product</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">template.of.product</field>
+        <field name="view_type">form</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_id" ref="view_template_of_product_tree"/>
+    </record>
+
+    <menuitem name="Template of Product" action="action_template_of_product_form" id="menu_action_template_of_product_form" parent="stock.menu_stock_config_settings" sequence="29" groups="stock.group_stock_manager"/>
+</odoo>

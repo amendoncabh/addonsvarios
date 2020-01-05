@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+po_status_user,po.status,ofm_purchases_ext.model_po_status,base.group_user,1,1,1,1
+product_status_user,product.status,ofm_purchases_ext.model_product_status,base.group_user,1,1,1,1
+type_to_ofm_user,type.to.ofm,ofm_purchases_ext.model_type_to_ofm,base.group_user,1,1,1,1

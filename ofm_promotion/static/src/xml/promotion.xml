@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+
+    <t t-name="SuggestPromotionList">
+        <t t-if="promotions.length >0">
+            <t t-set="idx" t-value="0"/>
+            <t t-foreach="promotions" t-as="tier">
+                <ul class='lines'>
+                    <t t-set="jdx" t-value="0"/>
+                    <t t-foreach="tier.promotions" t-as="promotion">
+                        <li t-att-idx="idx" t-att-jdx="jdx"
+                            t-attf-class='line #{(promotion.killed)?"text-line-through":(!promotion.selected)?"promotion-off":""} #{promotion.promotion_onclick?"pointer":""}'>
+                            <span class="promotion-name">
+                                <t t-esc='promotion.name'/>
+                            </span>
+                            <span class="promotion-amount">
+                                <t t-if="promotion.killed">ยกเลิก</t>
+                                <t t-else="">
+                                    <t t-esc='promotion.amount'/>
+                                </t>
+                            </span>
+                        </li>
+                        <t t-set="jdx" t-value="jdx+1"/>
+                    </t>
+                </ul>
+            <t t-set="idx" t-value="idx+1"/>
+            </t>
+        </t>
+        <t t-else="">
+            <div class="lines no-promotions">
+                No Promotion
+            </div>
+        </t>
+    </t>
+
+    <t t-name="TotalToPaid">
+        <span>ยอดที่ต้องชำระ:<span class="total-paid"><t t-esc="amount_total"/></span></span>
+    </t>
+   
+    <t t-name="PromotionScreenWidget">
+        <div class='promotion-screen screen'>
+            <div class='screen-content'>
+                <div class='top-content'>
+                    <span class='button back'>
+                        <i class='fa fa-angle-double-left'></i>
+                        Back
+                    </span>
+                    <h1>Promotions</h1>
+                    <span class="title-before-next"></span>
+                    <span class='button next confirm'>
+                        Confirm
+                        <i class='fa fa-angle-double-right'></i>
+                    </span>
+                </div>
+                <div class='left-content pc50'>
+                    <div class="window">
+                        <div class="subwindow pv70">
+                            <div class="show-scroller">
+                                <div class="suggest-title">
+                                    <h2>โปรโมชั่นที่ได้รับ</h2>
+                                </div>
+                                <div class='list-container promotions-container'>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="subwindow pv30">
+                            <div class="show-scroller">
+                                <div class="suggest-title">
+                                    <h2>คูปองที่ไม่เข้าร่วมโปรโมชั่น</h2>
+                                </div>
+                                <div class='list-container return-coupons-container'>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class='right-content pc50'>
+                    <div class="window">
+                        <div class="subwindow pv50">
+                            <div class="show-scroller">
+                                <div class="suggest-title">
+                                    <h2>แนะนำโปรโมชั่น</h2>
+                                </div>
+                                <div class='list-container suggest-container'>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="subwindow pv50">
+                            <div class="show-scroller padding-top-promotion-title">
+                                <div class="suggest-title">
+                                    <h2>ของแถมที่ต้องหยิบ</h2>
+                                </div>
+                                <div class='list-container free-product-container'>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </t>
+
+    <t t-name="ConfirmPromotionPopupWidget">
+        <div class="modal-dialog">
+            <div class="popup popup-confirm">
+                <p class="title"><t t-raw=" widget.options.title || 'Confirm ?' " /></p>
+                <div class="body" style="height: 274px; overflow-y: auto; font-size: 18px;">
+                    <t t-raw="  widget.options.body || '' "/>
+                </div>
+                <div class="footer">
+                    <div class="button confirm">
+                        <t t-esc="widget.options.confirm_title||'Confirm'"/>
+                    </div>
+                    <div class="button cancel">
+                        <t t-esc="widget.options.cancel_title||'Cancel'"/>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </t>
+
+    <t t-name="ZeroTotalWithTaxPopupWidget">
+        <div class="modal-dialog">
+            <div class="popup popup-confirm">
+                <p class="title"><t t-raw=" widget.options.title" /></p>
+                <div class="body" style="height: 200px; overflow-y: auto; font-size: 18px;">
+                    <t t-raw="  widget.options.body || '' "/>
+                </div>
+                <div class="footer">
+                    <div class="button cancel">
+                        <t t-esc="widget.options.cancel_title||'Cancel'"/>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </t>
+
+    <t t-name="ConfirmPromotionOrderlinePopupWidget">
+        <div class="modal-dialog">
+            <div class="popup popup-confirm">
+                <p class="title"><t t-raw=" widget.options.title || 'Confirm ?' " /></p>
+                <div class="body-order" style="height: 240px; overflow-y: auto; font-size: 18px;">
+                    <t t-raw="  widget.options.body || '' "/>
+                </div>
+                <div class="footer">
+                    <div class="bottom-title">
+                        <t t-raw="widget.options.bottom_tittle || '' "/>
+                    </div>
+                    <div class="button confirm">
+                        Confirm
+                    </div>
+                    <div class="button cancel">
+                        Cancel
+                    </div>
+                </div>
+            </div>
+        </div>
+    </t>
+
+    <t t-extend="Orderline">
+        <t t-jquery='span.product-name' t-operation='prepend'>
+            <t t-if="line.get_product().is_coupon">
+                <t t-raw="line.get_html_coupon_barcode()"/>
+            </t>
+        </t>
+        <t t-jquery="span.price" t-operation="replace">
+            <span class="price">
+                <t t-if="line.line_coupon">
+                </t>
+                <t t-else="">
+                    <t t-esc="widget.format_currency(line.get_display_price())"/>
+                </t>
+            </span>
+        </t>
+        <t t-jquery='ul.info-list' t-operation='append'>
+            <!--<t t-if="line.promotion">-->
+                <!--<div><t t-esc="line.promotion_name" /></div>-->
+            <!--</t>-->
+            <li class="info">
+                <t t-if="line.promotion">
+                    <t t-if="line.line_coupon"/>
+                    <t t-else="">
+                        <em>
+                            <t t-esc="line.get_quantity_str()" />
+                        </em>
+                        <t t-esc="line.get_unit().name" />
+                    </t>
+                </t>
+            </li>
+        </t>
+    </t>
+
+    <t t-extend="PosTicket">
+        <t t-jquery=".receipt-discount" t-operation="replace">
+            <t t-if="receipt.discount_lines.length > 0 and receipt.total_discount != 0">
+                <tr class="receipt-discount-subtotal">
+                    <td>Subtotal</td>
+                    <td></td>
+                    <td class="pos-right-align">
+                        <t t-esc="widget.format_currency_no_symbol(receipt.sub_total)"/>
+                    </td>
+                </tr>
+                <t t-foreach="receipt.discount_lines" t-as="discount_line">
+                    <tr>
+                        <td colspan="2" style="padding-right:6px;">
+                            <t t-esc="discount_line.promotion_name"/>
+                        </td>
+                        <td class="pos-right-align" style="vertical-align: bottom;">
+                            <t t-esc="widget.format_currency_no_symbol(discount_line.price * discount_line.quantity)"/>
+                        </td>
+                    </tr>
+                </t>
+            </t>
+        </t>
+        <t t-jquery="div.pos-sale-ticket" t-operation="append">
+            <t t-if="receipt.reward_coupons and receipt.reward_coupons.length > 0">
+                <br/>
+                <t t-foreach="receipt.reward_coupons" t-as="coupon">
+                    <div class="reward-coupon-ticket">
+                        <div class="pos-customize-center-align reward-coupon-title">
+                            <t t-esc="coupon.product_name"/>
+                        </div>
+                        <t t-if="coupon.coupon_image_base64">
+                            <div class="pos-customize-center-align reward-coupon-img">
+                                <img t-att-src="coupon.coupon_image_base64"/>
+                            </div>
+                        </t>
+                        <t t-if="coupon.coupon_barcode_image_base64">
+                            <div class="pos-customize-center-align reward-coupon-barcode">
+                                <img t-att-src="coupon.coupon_barcode_image_base64" height="50"/>
+                            </div>
+                            <div class='pos-customize-center-align reward-coupon-barcode-label' >
+                                <t t-esc="coupon.coupon_barcode" />
+                            </div>
+                        </t>
+                        <t t-if="coupon.product_description">
+                            <div class="reward-coupon-description">
+                                <t t-raw="coupon.product_description"/>
+                            </div>
+                        </t>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </t>
+
+</templates>

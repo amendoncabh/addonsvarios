@@ -1,0 +1,13 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+
+ofm_sale_order_center_hq,pos group_hq,ofm_so_ext.model_sale_order,ofm_access_right_center.group_ofm_hq,1,1,1,1
+ofm_sale_order_center_admin,pos group_admin,ofm_so_ext.model_sale_order,ofm_access_right_center.group_ofm_admin,1,1,1,1
+ofm_sale_order_admin,sale group_admin,ofm_so_ext.model_sale_order,ofm_so_ext.group_sale_admin,1,1,1,1
+
+ofm_sale_order_line_center_hq,pos group_hq,ofm_so_ext.model_sale_order_line,ofm_access_right_center.group_ofm_hq,1,1,1,1
+ofm_sale_order_line_center_admin,pos group_admin,ofm_so_ext.model_sale_order_line,ofm_access_right_center.group_ofm_admin,1,1,1,1
+ofm_sale_order_line_admin,sale group_admin,ofm_so_ext.model_sale_order_line,ofm_so_ext.group_sale_admin,1,1,1,1
+
+
+
+

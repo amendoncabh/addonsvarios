@@ -1,0 +1,6 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+
+average_price_group_user,average price group_user,model_average_price,stock.group_stock_user,1,1,1,1
+average_price_group_manager,average price group_manager,model_average_price,stock.group_stock_manager,1,1,1,1
+average_price_group_hq,average price group_hq,model_average_price,ofm_access_right_center.group_ofm_hq,1,1,1,1
+average_price_group_admin,average price group_admin,model_average_price,ofm_access_right_center.group_ofm_admin,1,1,1,1

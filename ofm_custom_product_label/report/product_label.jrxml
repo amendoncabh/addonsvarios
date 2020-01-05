@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.8.0.final using JasperReports Library version 4.0.0  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="product_label" language="groovy" columnCount="3" pageWidth="595" pageHeight="842" columnWidth="175" columnSpacing="17" leftMargin="20" rightMargin="15" topMargin="20" bottomMargin="0">
+	<property name="ireport.zoom" value="4.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="product_ids" class="java.lang.Object"/>
+	<parameter name="price_type" class="java.lang.String"/>
+	<parameter name="branch_id" class="java.lang.Integer">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[select case when 'retail' = $P{price_type}
+            then to_char(now() + INTERVAL '7 hour', 'dd/mm/yy')
+            when 'promotion' = $P{price_type}
+            then concat(to_char(ptm.date_promotion_start + INTERVAL '7 hour', 'dd/mm/yy'),
+                        ' - ',
+                        to_char(ptm.date_promotion_end + INTERVAL '7 hour', 'dd/mm/yy'))
+            when 'pricelists' = $P{price_type}
+            then concat(to_char(ptp.pricelists_start_date + INTERVAL '7 hour', 'dd/mm/yy'),
+                        ' - ',
+                        to_char(ptp.pricelists_end_date + INTERVAL '7 hour', 'dd/mm/yy'))
+       end AS label_date,
+       ppd.id,
+       ppd.default_code,
+       barcode,
+       ptp.printed_price,
+       ptm.name
+from (
+      select *
+      from printed_product
+      where branch_id = $P{branch_id}
+            and product_id in ($P!{product_ids})
+     ) ptp
+inner join product_product ppd on ptp.product_id = ppd.id
+inner join product_template ptm on ptm.id = ppd.product_tmpl_id]]>
+	</queryString>
+	<field name="label_date" class="java.lang.String"/>
+	<field name="id" class="java.lang.Integer"/>
+	<field name="default_code" class="java.lang.String">
+		<fieldDescription><![CDATA[Internal Reference]]></fieldDescription>
+	</field>
+	<field name="barcode" class="java.lang.String">
+		<fieldDescription><![CDATA[Barcode]]></fieldDescription>
+	</field>
+	<field name="printed_price" class="java.lang.Double">
+		<fieldDescription><![CDATA[Printed Price]]></fieldDescription>
+	</field>
+	<field name="name" class="java.lang.String"/>
+	<group name="id">
+		<groupExpression><![CDATA[$F{id}]]></groupExpression>
+	</group>
+	<detail>
+		<band height="93">
+			<textField>
+				<reportElement x="72" y="46" width="103" height="13"/>
+				<textElement textAlignment="Right" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="11" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA["รหัสสินค้า " + $F{default_code}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="0" y="22" width="175" height="24"/>
+				<textElement lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="11" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{name}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.##">
+				<reportElement x="72" y="59" width="77" height="20"/>
+				<box rightPadding="2"/>
+				<textElement textAlignment="Right" verticalAlignment="Top" lineSpacing="Single">
+					<font fontName="SansSerif" size="16" isBold="true" pdfFontName="/usr/share/fonts/truetype/SansSerif.ttf" pdfEncoding="Identity-H" isPdfEmbedded="false"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{printed_price}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="149" y="59" width="26" height="20"/>
+				<textElement textAlignment="Right" verticalAlignment="Bottom" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="14" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H"/>
+				</textElement>
+				<text><![CDATA[บาท]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="126" y="79" width="49" height="11"/>
+				<textElement textAlignment="Right" verticalAlignment="Top" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="9" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H"/>
+				</textElement>
+				<text><![CDATA[รวม VAT]]></text>
+			</staticText>
+			<textField pattern="">
+				<reportElement x="0" y="79" width="126" height="11"/>
+				<textElement textAlignment="Left" verticalAlignment="Top" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="9" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{label_date}]]></textFieldExpression>
+			</textField>
+			<componentElement>
+				<reportElement x="0" y="59" width="72" height="20"/>
+				<jr:Code128 xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd" moduleWidth="0.7" textPosition="none">
+					<jr:codeExpression><![CDATA[$F{barcode}]]></jr:codeExpression>
+				</jr:Code128>
+			</componentElement>
+			<textField>
+				<reportElement x="0" y="46" width="72" height="13"/>
+				<textElement textAlignment="Center" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="11" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{barcode}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+</jasperReport>

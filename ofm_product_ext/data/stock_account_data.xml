@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record forcecreate="True" id="stock_account.default_category_valuation" model="ir.property">
+            <field name="name">Valuation Property</field>
+            <field name="fields_id" ref="stock_account.field_product_category_property_valuation"/>
+            <field name="value">real_time</field>
+            <field name="type">selection</field>
+        </record>
+    </data>
+</odoo>

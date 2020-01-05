@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+
+        <template id="assets" inherit_id="point_of_sale.assets">
+            <xpath expr="." position="inside">
+                <script type="text/javascript" src="/ofm_promotion/static/src/js/promotion.js"></script>
+                <script type="text/javascript" src="/ofm_promotion/static/src/js/promotion_view.js"></script>
+            </xpath>
+            <xpath expr="//link[@id='pos-stylesheet']" position="after">
+                <link rel="stylesheet" href="/ofm_promotion/static/src/css/promotion.css" />
+            </xpath>
+        </template>
+
+        <template id="assets_backend" name="promotion assets" inherit_id="web.assets_backend">
+            <xpath expr="." position="inside">
+                <link rel="stylesheet" href="ofm_promotion/static/src/css/web.asset_backend.css"/>
+            </xpath>
+        </template>
+    </data>
+</openerp>

@@ -1,0 +1,82 @@
+<?xml version="1.0"?>
+<openerp>
+  <data>
+    <record id="net_sale_product_line_by_cate_jasper" model="ir.actions.report.xml">
+        <field name="string">net sale product lines by categories report</field>
+        <field name="name">net sale product lines by categories report</field>
+        <field name="model">net.sale.product.line.by.cate.wizard</field>
+        <field name="auto">True</field>
+        <field name="report_name">net.sale.product.line.by.cate.jasper</field>
+        <field name="rml">pos_customize/report/net_sale_product_line_by_cate.jrxml</field>
+        <field name="report_rml">pos_customize/report/net_sale_product_line_by_cate.jrxml</field>
+        <field name="jasper_model_id" ref="base.model_res_users"/>
+        <field name="menu">True</field>
+        <field name="header">False</field>
+        <field name="jasper_report">True</field>
+        <field name="jasper_output">pdf</field>
+    </record>
+
+    <record id="net_sale_product_line_by_cate_jasper_values" model="ir.values">
+        <field name="name">net sale product lines by categories report</field>
+        <field name="model">net.sale.product.line.by.cate.wizard</field>
+        <field name="key2" eval="'client_print_multi'"/>
+        <field name="value_unpickle" eval="'ir.actions.report.xml, ' +str(net_sale_product_line_by_cate_jasper)"/>
+    </record>
+
+    <!-- <report string="net sale product lines by categories report"
+      model="net.sale.product.line.by.cate.wizard"
+      auto="True"
+      name="net.sale.product.line.by.cate.jasper"
+      rml="pos_customize/report/net_sale_product_line_by_cate.jrxml"
+      id="net_sale_product_line_by_cate_jasper"
+      menu="True"
+      header="False" /> -->
+
+      <act_window id="action_net_sale_product_line_by_cate_wizard"
+        name="Net Sales Product Lines By Categories Report"
+        res_model="net.sale.product.line.by.cate.wizard"
+        view_mode="form"
+        target="new"/>
+
+      <menuitem id="menu_net_sale_product_line_by_cate_wizard"
+          parent="menu_report_sales"
+          action="action_net_sale_product_line_by_cate_wizard"
+          sequence="3"/>
+
+      <record id="view_net_sale_product_line_by_cate_wizard" model="ir.ui.view">
+
+            <field name="name">net.sale.product.line.by.cate.form</field>
+            <field name="model">net.sale.product.line.by.cate.wizard</field>
+            <field name="arch" type="xml">
+             <form string="Net Sales Product Lines By Categories Report">
+               <group>
+                    <group>
+                        <field name="start_date" required="1"/>
+                        <field name="end_date" required="1"/>
+                    </group>
+                      <group>
+                          <field name="start_branch"
+                                 options="{'no_quick_create': True, 'no_create_edit': True}"
+                                 required="1"/>
+                          <field name="end_branch"
+                                 options="{'no_quick_create': True, 'no_create_edit': True}"
+                                 required="1"/>
+                    </group>
+                   <group>
+                          <field name="jasper_output" widget="radio" required="1"/>
+                   </group>
+                   </group>
+                <footer>
+                    <button name="action_print_report"
+                        string="Print Report" type="object"
+                        class="oe_highlight"/>
+                    or
+                    <button string="Cancel" class="oe_link"
+                        special="cancel"/>
+                </footer>
+            </form>
+            </field>
+        </record>
+
+    </data>
+</openerp>

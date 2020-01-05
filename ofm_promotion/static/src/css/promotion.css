@@ -1,0 +1,331 @@
+
+.pos .show-scroller{
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    overflow-y: scroll;
+    -webkit-overflow-scrolling: touch;
+}
+
+.control-button.promotions{
+    width: 100px;
+}
+
+/*  ********* The OrderLineWidget  ********* */
+
+.pos .list-container .box{
+    padding-bottom: 8px;
+    padding-top: 8px;
+    font-size: 16px;
+    text-align: left;
+    max-width: 500px;
+    -webkit-transform: translate3d(0,0,0);
+}
+
+.pos .list-container .line{
+    width:100%;
+    margin:0px;
+    padding-top:3px;
+    padding-bottom:10px;
+    padding-left:15px;
+    padding-right:15px;
+    /*cursor: pointer;*/
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -ms-box-sizing: border-box;
+    box-sizing: border-box;
+    -webkit-transition: background 250ms ease-in-out;
+    -moz-transition: background 250ms ease-in-out;
+    transition: background 250ms ease-in-out;
+}
+.pos .list-container .line:active{
+    background: rgba(140,143,183,0.05);
+    -webkit-transition: background 50ms ease-in-out;
+    -moz-transition: background 50ms ease-in-out;
+    transition: background 50ms ease-in-out;
+}
+.pos .list-container .line.empty:active{
+    background: transparent;
+    cursor: default;
+}
+
+.pos .list-container .line.selected{
+    background: rgba(140,143,183,0.2);
+    -webkit-transition: background 250ms ease-in-out;
+    -moz-transition: background 250ms ease-in-out;
+    transition: background 250ms ease-in-out;
+    cursor: default;
+}
+.promotion_line_box {
+    text-indent: 0.3em;
+}
+.promotion_line_box .product-name{
+    padding:0;
+    font-weight: bold;
+    width:80%;
+    overflow:hidden;
+    text-overflow: ellipsis;
+    text-align: left;
+}
+.promotion_line_box .qty{
+    padding-right: 10px;
+    font-weight: bold;
+    float:right;
+}
+.promotion_line_box .info-list{
+    color: #888;
+    margin-left:10px;
+}
+.promotion_line_box .info-list em{
+    color: #777;
+    font-weight: bold;
+    font-style:normal;
+}
+
+.pos .centered-content .button {
+    line-height: 40px;
+    padding: 3px 13px;
+    font-size: 20px;
+    text-align: center;
+    background: rgb(230, 230, 230);
+    margin: 16px;
+    margin-bottom: 0px;
+    border-radius: 3px;
+    border: solid 1px rgb(209, 209, 209);
+    cursor: pointer;
+}
+
+.pos .promotion-screen .title-before-next{
+    right: 120px;
+    margin-right: 16px;
+    display: inline-block;
+    position: absolute;
+    top: 14px;
+    line-height: 32px;
+    padding: 3px 13px;
+    font-size: 18px;
+}
+
+.pos .total-paid{
+    padding: 0 5px 0 10px;
+}
+
+.pos .promotion-screen .button{
+    display: inline-block;
+}
+.text-center{
+    text-align: center;
+}
+
+.pos .button.confirm {
+    background: #6EC89B !important;
+    border: solid 1px #64AF8A !important; 
+    color: white !important;
+}
+
+.pos .button.cancel {
+    /*none repeat scroll 0 0*/
+    background: #D45959 !important;
+    border: solid 1px transparent !important; 
+    color: white !important;
+}
+
+.pos .promotion-screen .qty{
+    padding:0;
+    font-weight: bold;
+    float:right;
+}
+
+.select-product{
+    font-weight: normal;
+    font-style: italic;
+}
+.light-product-name{
+    font-weight: normal;
+    font-style: normal;
+}
+.select-product.select-product-name{
+    font-weight: normal;
+    color: #6EC89B;
+    font-style: normal;
+}
+
+.screen .left-content.pc50{
+    right: 50%;
+}
+
+.screen .right-content.pc50{
+    left: 50%;
+}
+
+.subwindow .pv30{
+    height: 30%  !important;
+}
+
+.subwindow .pv45{
+    height: 45%  !important;
+}
+
+.subwindow .pv50{
+    height: 50%  !important;
+}
+
+.subwindow .pv55{
+    height: 55%  !important;
+}
+
+.subwindow .pv70{
+    height: 70%  !important;
+}
+
+
+.promotion-screen .screen-content .suggest-title{
+    text-align: center;
+    background-color: #E6E6E6;
+    padding: 15px 0 5px 0;
+    text-align: center;
+    position: absolute;
+    width: 100%;
+    line-height: 32px;
+    border: dashed 1px rgb(215,215,215);
+}
+
+.suggest-title > h2{
+    margin: 0;
+    font-size: 21px;
+}
+
+.promotion-screen .screen-content .window .subwindow .lines{
+    padding-top: 6px;
+    padding-bottom: 6px;
+    /*text-indent: 0.3em;*/
+    border-bottom: dashed 1px rgb(215,215,215);
+}
+
+.promotion-screen .screen-content .window .subwindow .lines:first-child{
+    margin-top: 56px;
+    padding-top: 0px;
+}
+
+.promotion-screen .screen-content .window .subwindow .lines:last-child{
+    padding-bottom: 0px;
+    border-bottom: 0px;
+}
+
+.promotion-screen .screen-content .window .subwindow .lines.no-promotions{
+    padding: 12px 20px 10px 20px;
+    line-height: 24px;
+    font-size: 18px;
+    text-align: center;
+}
+
+.promotion-screen .screen-content .window .subwindow .lines .line{
+    padding: 12px 8px 8px 20px;
+    background-color: #FAFAFA;
+    margin-bottom: 3px;
+    line-height: 24px;
+    font-size: 18px;
+    word-wrap: anywhere;
+    text-overflow: ellipsis;
+    text-align: left;
+    display: inline-block;
+    width: 100%;
+}
+
+.promotion-screen .screen-content .window .subwindow .lines .line .promotion-name{
+    padding: 0;
+    display: inline-block;
+    width: 80%;
+}
+
+.promotion-screen .screen-content .window .subwindow .lines .line .promotion-amount{
+    padding: 0;
+    float: right;
+    font-size: 17px;
+}
+
+.text-line-through, .text-line-through > .promotion-name{
+    text-decoration: line-through;
+}
+
+.promotion-off{
+    background-color: #E9E9E9 !important;
+}
+
+.pos .popup .body-order {
+    font-weight: normal;
+    font-size: 18px;
+}
+
+.pos .popup .body-order  .order{
+    background: none;
+    padding-top: 0px;
+    padding-bottom: 0px;
+}
+
+.pos .popup .body-order  .order .orderline{
+    background-color: #FFFFFF;
+    margin-bottom: 3px;
+}
+
+.pos .popup .body-order  .order .orderline:last-child{
+    margin-bottom: 0px;
+}
+
+.pos .popup .body-order  .order .orderline.selected {
+    background-color: #FFFFFF;
+}
+
+.pos .popup .bottom-title{
+    float: left;
+    max-width: 220px;
+    max-height: 60px;
+    font-size: 16px;
+    font-weight: normal;
+}
+
+.pos .popup .bottom-title .total-paid{
+    font-size: 17px;
+}
+
+.pos .pointer{
+    cursor: pointer;
+}
+
+.pos-sale-ticket .reward-coupon-ticket{
+    border-top: dashed 1px;
+    padding-top: 4px;
+    padding-bottom: 4px;
+}
+
+.pos-sale-ticket .reward-coupon-img{
+    width: 60%;
+    margin: 0 auto;
+    position: relative;
+}
+
+.pos-sale-ticket .reward-coupon-img > img{
+   width: 100%;
+}
+
+.pos-sale-ticket .reward-coupon-barcode{
+    width:80%;
+    max-height: 35px;
+    margin: 0 auto;
+    position: relative;
+}
+
+.pos-sale-ticket .reward-coupon-barcode > img{
+   width: 100%;
+}
+
+.pos-sale-ticket .reward-coupon-barcode-label{
+    font-size: 8px;
+    margin-bottom: 5px;
+    margin-top: 10px;
+    position: relative;
+}
+
+.pos-sale-ticket .reward-coupon-description{
+    word-break: break-all;
+}

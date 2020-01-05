@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="base.province_json" model="ir.attachment">
+            <field name="datas_fname">province.json</field>
+            <field name="name">province</field>
+        </record>
+        <record id="base.amphur_json" model="ir.attachment">
+            <field name="datas_fname">amphur.json</field>
+            <field name="name">amphur</field>
+        </record>
+        <record id="base.tambon_json" model="ir.attachment">
+            <field name="datas_fname">tambon.json</field>
+            <field name="name">tambon</field>
+        </record>
+        <record id="base.postcode_json" model="ir.attachment">
+            <field name="datas_fname">postcode.json</field>
+            <field name="name">postcode</field>
+        </record>
+    </data>
+</odoo>

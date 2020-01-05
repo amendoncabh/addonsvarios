@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="ir_config_parameter_pos_promotion" model="ir.config_parameter">
+            <field name="key">pos_promotion</field>
+            <field name="value">True</field>
+        </record>
+        <record id="ir_config_parameter_pos_promotion_threshold" model="ir.config_parameter">
+            <field name="key">pos_promotion_threshold</field>
+            <field name="value">50</field>
+        </record>
+    </data>
+</odoo>

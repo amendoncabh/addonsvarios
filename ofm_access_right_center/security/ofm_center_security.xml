@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="group_ofm_hq" model="res.groups">
+        <field name="name">HQ</field>
+        <field name="category_id" ref="base.module_category_human_resources"/>
+    </record>
+
+    <record id="group_ofm_admin" model="res.groups">
+        <field name="name">Admin</field>
+        <field name="category_id" ref="base.module_category_human_resources"/>
+        <field name="implied_ids" eval="[(4, ref('ofm_access_right_center.group_ofm_hq'))]"/>
+    </record>
+</odoo>

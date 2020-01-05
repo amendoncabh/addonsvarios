@@ -1,0 +1,295 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="purchase_request_wizard" model="ir.ui.view">
+            <field name="name">Confirm Send Purchase Request</field>
+            <field name="model">purchase.order.wizard</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form>
+                    <field name="message_alert" nolabel="1"/>
+                    <footer>
+                        <button name="button_confirm" string="Confirm" type="object" class="oe_highlight"/>
+                        <button string="Cancel" special="cancel" class="btn-default"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record id="purchase_order_check_product_incorrect_wizard" model="ir.ui.view">
+            <field name="name">Product Incorrect Management</field>
+            <field name="model">purchase.order.product.incorrect.wizard</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <field name="is_hide_confirm" invisible="1"/>
+                        <field name="is_change_product_qty" invisible="1"/>
+                        <field name="order_id" invisible="1"/>
+                        <field name="product_incorrect_edit_qty_ids" invisible="1">
+                            <tree>
+                                <field name="id"/>
+                                <field name="ofm_order_line_id"/>
+                                <field name="product_qty"/>
+                            </tree>
+                        </field>
+                        <notebook>
+                            <page string="No Stock COL">
+                                <field name="is_delete_no_stock"/>Delete
+                                <field
+                                        name="ofm_order_line_no_stock_col"
+                                        attrs="{
+                                            'invisible': [
+                                                ('is_delete_no_stock', '=', True),
+                                            ]
+                                        }"
+                                >
+                                    <tree string="Product Incorrect" create="0" decoration-danger="is_danger == True">
+                                        <field name="product_id"
+                                           attrs="{
+                                                'readonly': [
+                                                    ('state', 'in', ('completed', 'purchase', 'to approve', 'done', 'cancel'))
+                                                ]
+                                            }"
+                                           options="{
+                                                'no_quick_create': True,
+                                                'no_create_edit': True,
+                                                'no_open': True
+                                           }"
+                                           context="{
+                                                'partner_id':parent.partner_id,
+                                                'quantity':product_qty,
+                                                'uom':product_uom,
+                                                'company_id': parent.company_id,
+                                                'branch_id': parent.branch_id,
+                                                'exclude_order_line': parent.ofm_purchase_order_line_ids,
+                                                'exclude_model': 'ofm.purchase.order.line'
+                                            }"
+                                           domain="[('template_ids', '=', parent.branch_code)]"
+                                    />
+                                        <field name="date_planned_show"/>
+                                        <field name="account_analytic_id" context="{'default_partner_id':parent.partner_id}" groups="purchase.group_analytic_accounting"/>
+                                        <field name="analytic_tag_ids" groups="purchase.group_analytic_accounting" widget="many2many_tags"/>
+                                        <field name="product_qty" widget="allow_number"/>
+                                        <field name="product_qty_available" widget="integer"/>
+                                        <field name="qty_received" invisible="not context.get('show_purchase', False)" widget="integer"/>
+                                        <field name="qty_invoiced" invisible="not context.get('show_purchase', False)" widget="integer"/>
+                                        <field name="product_uom_show"/>
+                                        <field name="price_unit_show"/>
+                                        <field name="taxes_id_show" widget="many2many_tags"/>
+                                        <field name="taxes_id" widget="many2many_tags" domain="[('type_tax_use','=','purchase')]" context="{'default_type_tax_use': 'purchase'}" invisible="1"/>
+                                        <field name="price_subtotal_show" widget="monetary"/>
+                                        <field name="product_status_show"/>
+                                        <field name="state" invisible="1"/>
+                                        <field name="is_danger" invisible="1"/>
+                                    </tree>
+                                </field>
+                                <field
+                                        name="ofm_order_line_no_stock_col_delete"
+                                        attrs="{
+                                            'invisible': [
+                                                ('is_delete_no_stock', '=', False),
+                                            ]
+                                        }"
+                                >
+                                    <tree string="Product Incorrect" create="0" decoration-danger="is_danger == True">
+                                        <field name="product_id"
+                                           attrs="{
+                                                'readonly': [
+                                                    ('state', 'in', ('completed', 'purchase', 'to approve', 'done', 'cancel'))
+                                                ]
+                                            }"
+                                           options="{
+                                                'no_quick_create': True,
+                                                'no_create_edit': True,
+                                                'no_open': True
+                                           }"
+                                           context="{
+                                                'partner_id':parent.partner_id,
+                                                'quantity':product_qty,
+                                                'uom':product_uom,
+                                                'company_id': parent.company_id,
+                                                'branch_id': parent.branch_id,
+                                                'exclude_order_line': parent.ofm_purchase_order_line_ids,
+                                                'exclude_model': 'ofm.purchase.order.line'
+                                            }"
+                                           domain="[('template_ids', '=', parent.branch_code)]"
+                                    />
+                                        <field name="date_planned_show"/>
+                                        <field name="account_analytic_id" context="{'default_partner_id':parent.partner_id}" groups="purchase.group_analytic_accounting"/>
+                                        <field name="analytic_tag_ids" groups="purchase.group_analytic_accounting" widget="many2many_tags"/>
+                                        <field name="product_qty" widget="allow_number"/>
+                                        <field name="product_qty_available" widget="integer"/>
+                                        <field name="qty_received" invisible="not context.get('show_purchase', False)" widget="integer"/>
+                                        <field name="qty_invoiced" invisible="not context.get('show_purchase', False)" widget="integer"/>
+                                        <field name="product_uom_show"/>
+                                        <field name="price_unit_show"/>
+                                        <field name="taxes_id_show" widget="many2many_tags"/>
+                                        <field name="taxes_id" widget="many2many_tags" domain="[('type_tax_use','=','purchase')]" context="{'default_type_tax_use': 'purchase'}" invisible="1"/>
+                                        <field name="price_subtotal_show" widget="monetary"/>
+                                        <field name="product_status_show"/>
+                                        <field name="state" invisible="1"/>
+                                        <field name="is_danger" invisible="1"/>
+                                    </tree>
+                                </field>
+                            </page>
+                            <page string="Product Status Not Match">
+                                <field name="is_delete_not_match"/>Delete
+                                <field
+                                        name="ofm_order_line_product_status_not_match"
+                                        attrs="{
+                                            'invisible': [
+                                                ('is_delete_not_match', '=', True),
+                                            ]
+                                        }"
+                                >
+                                    <tree string="Product Incorrect" create="0" decoration-danger="is_danger == True">
+                                        <field name="product_id"
+                                           attrs="{
+                                                'readonly': [
+                                                    ('state', 'in', ('completed', 'purchase', 'to approve', 'done', 'cancel'))
+                                                ]
+                                            }"
+                                           options="{
+                                                'no_quick_create': True,
+                                                'no_create_edit': True,
+                                                'no_open': True
+                                           }"
+                                           context="{
+                                                'partner_id':parent.partner_id,
+                                                'quantity':product_qty,
+                                                'uom':product_uom,
+                                                'company_id': parent.company_id,
+                                                'branch_id': parent.branch_id,
+                                                'exclude_order_line': parent.ofm_purchase_order_line_ids,
+                                                'exclude_model': 'ofm.purchase.order.line'
+                                            }"
+                                           domain="[('template_ids', '=', parent.branch_code)]"
+                                    />
+                                        <field name="date_planned_show"/>
+                                        <field name="account_analytic_id" context="{'default_partner_id':parent.partner_id}" groups="purchase.group_analytic_accounting"/>
+                                        <field name="analytic_tag_ids" groups="purchase.group_analytic_accounting" widget="many2many_tags"/>
+                                        <field name="product_qty" widget="allow_number"/>
+                                        <field name="product_qty_available" widget="integer"/>
+                                        <field name="qty_received" invisible="not context.get('show_purchase', False)" widget="integer"/>
+                                        <field name="qty_invoiced" invisible="not context.get('show_purchase', False)" widget="integer"/>
+                                        <field name="product_uom_show"/>
+                                        <field name="price_unit_show"/>
+                                        <field name="taxes_id_show" widget="many2many_tags"/>
+                                        <field name="taxes_id" widget="many2many_tags" domain="[('type_tax_use','=','purchase')]" context="{'default_type_tax_use': 'purchase'}" invisible="1"/>
+                                        <field name="price_subtotal_show" widget="monetary"/>
+                                        <field name="product_status_show"/>
+                                        <field name="state" invisible="1"/>
+                                        <field name="is_danger" invisible="1"/>
+                                    </tree>
+                                </field>
+                                <field
+                                        name="ofm_order_line_product_status_not_match_delete"
+                                        attrs="{
+                                            'invisible': [
+                                                ('is_delete_not_match', '=', False),
+                                            ]
+                                        }"
+                                >
+                                    <tree string="Product Incorrect" create="0" decoration-danger="is_danger == True">
+                                        <field name="product_id"
+                                           attrs="{
+                                                'readonly': [
+                                                    ('state', 'in', ('completed', 'purchase', 'to approve', 'done', 'cancel'))
+                                                ]
+                                            }"
+                                           options="{
+                                                'no_quick_create': True,
+                                                'no_create_edit': True,
+                                                'no_open': True
+                                           }"
+                                           context="{
+                                                'partner_id':parent.partner_id,
+                                                'quantity':product_qty,
+                                                'uom':product_uom,
+                                                'company_id': parent.company_id,
+                                                'branch_id': parent.branch_id,
+                                                'exclude_order_line': parent.ofm_purchase_order_line_ids,
+                                                'exclude_model': 'ofm.purchase.order.line'
+                                            }"
+                                           domain="[('template_ids', '=', parent.branch_code)]"
+                                    />
+                                        <field name="date_planned_show"/>
+                                        <field name="account_analytic_id" context="{'default_partner_id':parent.partner_id}" groups="purchase.group_analytic_accounting"/>
+                                        <field name="analytic_tag_ids" groups="purchase.group_analytic_accounting" widget="many2many_tags"/>
+                                        <field name="product_qty" widget="allow_number"/>
+                                        <field name="product_qty_available" widget="integer"/>
+                                        <field name="qty_received" invisible="not context.get('show_purchase', False)" widget="integer"/>
+                                        <field name="qty_invoiced" invisible="not context.get('show_purchase', False)" widget="integer"/>
+                                        <field name="product_uom_show"/>
+                                        <field name="price_unit_show"/>
+                                        <field name="taxes_id_show" widget="many2many_tags"/>
+                                        <field name="taxes_id" widget="many2many_tags" domain="[('type_tax_use','=','purchase')]" context="{'default_type_tax_use': 'purchase'}" invisible="1"/>
+                                        <field name="price_subtotal_show" widget="monetary"/>
+                                        <field name="product_status_show"/>
+                                        <field name="state" invisible="1"/>
+                                        <field name="is_danger" invisible="1"/>
+                                    </tree>
+                                </field>
+                            </page>
+                            <page string="Product Qty > Stock COL">
+                                <field name="ofm_order_line_product_more_than_stock" context="{'product_incorrect_id': id,}">
+                                    <tree string="Product Incorrect" editable="bottom" create="0" delete="0" decoration-danger="is_danger == True">
+                                        <field name="id" invisible="1"/>
+                                        <field name="product_id" readonly="True"
+                                           options="{
+                                                'no_quick_create': True,
+                                                'no_create_edit': True,
+                                                'no_open': True
+                                           }"
+                                           context="{
+                                                'partner_id':parent.partner_id,
+                                                'quantity':product_qty,
+                                                'uom':product_uom,
+                                                'company_id': parent.company_id,
+                                                'branch_id': parent.branch_id,
+                                                'exclude_order_line': parent.ofm_purchase_order_line_ids,
+                                                'exclude_model': 'ofm.purchase.order.line'
+                                            }"
+                                           domain="[('template_ids', '=', parent.branch_code)]"
+                                    />
+                                        <field name="date_planned_show" readonly="True"/>
+                                        <field name="account_analytic_id" readonly="True" context="{'default_partner_id':parent.partner_id}" groups="purchase.group_analytic_accounting"/>
+                                        <field name="analytic_tag_ids" readonly="True" groups="purchase.group_analytic_accounting" widget="many2many_tags"/>
+                                        <field name="product_qty" widget="allow_number" context="{'ofm_order_line_id': id,}"/>
+                                        <field name="product_qty_available" widget="integer"/>
+                                        <field name="qty_received" readonly="True" invisible="not context.get('show_purchase', False)" widget="integer"/>
+                                        <field name="qty_invoiced" readonly="True" invisible="not context.get('show_purchase', False)" widget="integer"/>
+                                        <field name="product_uom_show"/>
+                                        <field name="price_unit_show"/>
+                                        <field name="taxes_id_show" widget="many2many_tags"/>
+                                        <field name="taxes_id" widget="many2many_tags" domain="[('type_tax_use','=','purchase')]" context="{'default_type_tax_use': 'purchase'}" invisible="1"/>
+                                        <field name="price_subtotal_show" widget="monetary"/>
+                                        <field name="product_status_show"/>
+                                        <field name="state" invisible="1"/>
+                                        <field name="product_status_correct" invisible="1"/>
+                                        <field name="is_danger" invisible="1"/>
+                                    </tree>
+                                </field>
+                            </page>
+                        </notebook>
+                    </sheet>
+                    <footer>
+                        <button
+                                name="button_confirm"
+                                string="Confirm"
+                                type="object"
+                                class="oe_highlight"
+                                attrs="{
+                                    'invisible': [
+                                        ('is_hide_confirm', '=', True)
+                                    ]
+                                }"
+                        />
+                        <button string="Cancel" special="cancel" class="btn-default"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+    </data>
+</odoo>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="view_tr_account_tax_form" model="ir.ui.view">
+            <field name="name">tr.account_tax.form</field>
+            <field name="model">account.tax</field>
+            <field name="inherit_id" ref="account.view_tax_form"/>
+            <field name="arch" type="xml">
+                <field name="price_include" position="after">
+                    <field name="suspend_tax" />
+                    <field name="account_suspend_id" />
+                </field>
+            </field>
+        </record>
+    </data>
+</odoo>

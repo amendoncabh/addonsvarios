@@ -1,0 +1,287 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+
+        <report string="Barcode"
+            model="production.order.waraporn"
+            auto="True"
+            name="repeat.barcode.jasper"
+            rml="pos_customize/report/repeat_barcode.jrxml"
+            id="repeat_barcode_jasper"
+            menu="False"
+            header="False" />
+
+        <report string="One Barcode"
+            model="production.order.waraporn"
+            auto="True"
+            name="one.barcode.jasper"
+            rml="pos_customize/report/one_barcode.jrxml"
+            id="one_barcode_jasper"
+            menu="False"
+            header="False" />
+
+        <!-- Production Form Waraporn -->
+        <record id="production_order_waraporn_form" model="ir.ui.view">
+            <field name="name">production.order.waraporn.form</field>
+            <field name="model">production.order.waraporn</field>
+            <field name="arch" type="xml">
+                <form string="Production Order Waraporn" >
+                    <header>
+                        <button name="action_confirm" class="btn-primary" states="draft" string="Confirm Production Order" type="object"/>
+                        <field name="state" widget="statusbar" statusbar_visible="draft,confirmed,passed,waiting,done" />
+                    </header>
+                    <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" readonly="1"/>
+                        </h1>
+                    </div>
+                        <group col="4">
+                            <group>
+                                <field name="user_id" />
+                                <field name="shift_work" />
+                                <field name="shift_no" attrs="{'readonly': [('state', '!=', 'draft')]}" />
+                            </group>
+                            <group>
+                                <field name="date" />
+                                <field name="date_schedule" />
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="Production Order">
+                                <div>
+                                    <field name="line_ids" attrs="{'tree_view_ref':'view_production_order_line_waraporn_tree', 'form_view_ref':'view_production_order_line_waraporn_form'}" />
+                                </div>
+                                <div class="oe_clear">
+                                    <label for="note"/>
+                                </div>
+                                <field name="note" class="oe_inline" placeholder="Terms and conditions..."/>
+                            </page>
+                            <page string="Packing Location">
+                                <div>
+                                    <field name="packing_line_ids" attrs="{'tree_view_ref':'view_qc_order_line_waraporn_tree', 'form_view_ref': 'view_packing_order_line_waraporn_form'}" />
+                                </div>
+                            </page>
+                        </notebook>
+                    </sheet>
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids" widget="mail_followers"/>
+                        <field name="message_ids" widget="mail_thread"/>
+                    </div>
+                </form>
+            </field>
+        </record>
+
+        <record id="production_order_waraporn_tree" model="ir.ui.view">
+            <field name="name">production.order.waraporn.tree</field>
+            <field name="model">production.order.waraporn</field>
+            <field name="priority">2</field>
+            <field name="arch" type="xml">
+                <tree string="Production Order Waraporn" fonts="bold:name==True"
+                      decoration-bf="state == 'draft'"
+                      decoration-primary="state == 'confirmed'"
+                      decoration-success="state == 'passed'"
+                      decoration-danger="state == 'canceled'"
+                      decoration-info="state == 'waiting'" >
+                    <field name="name"/>
+                    <field name="date"/>
+                    <field name="state"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="action_production_order_waraporn" model="ir.actions.act_window">
+            <field name="name">Production Order Waraporn</field>
+            <field name="res_model">production.order.waraporn</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="domain"></field>
+            <field name="help" type="html">
+              <p class="oe_view_nocontent_create">
+                Click here to create a new transfer.
+              </p><p>
+                You can either do it immediatly or mark it as Todo for future processing. Use your scanner to validate the transferred quantity quicker.
+              </p>
+            </field>
+        </record>
+
+        <!-- <menuitem id="production_order_waraporn_menu"
+                  name="Production Order Waraporn"
+                  parent="stock.menu_stock_inventory_control"
+                  sequence="35"
+                  action="action_production_order_waraporn"/> -->
+
+        <!-- Production Order Line Waraporn Tree View-->
+        <record id="view_production_order_line_waraporn_tree" model="ir.ui.view">
+            <field name="name">production.order.line.waraporn.tree</field>
+            <field name="model">production.order.line.waraporn</field>
+            <field eval="12" name="priority"/>
+            <field name="arch" type="xml">
+                <tree string="Production Line">
+                    <field name="product_id" />
+                    <field name="qty" />
+                    <field name="product_uom" />
+                    <field name="qty_transfer" />
+                    <field name="location_dest_id" />
+                    <field name="state" invisible="1"/>
+                    <field name="check_packing_line_ids" invisible="1"/>
+                </tree>
+            </field>
+        </record>
+
+        <!-- Production Order Line Waraporn Form View-->
+        <record id="view_production_order_line_waraporn_form" model="ir.ui.view">
+            <field name="name">production.order.line.waraporn.form</field>
+            <field name="model">production.order.line.waraporn</field>
+            <field eval="12" name="priority"/>
+            <field name="arch" type="xml">
+                <form string="Production Line">
+                    <group>
+                        <group>
+                            <field name="product_id" attrs="{'readonly': ['|',('state', '!=', 'draft'),('state', '=', None)]}" options="{'no_open': True}"/>
+                            <field name="qty" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
+                            <field name="product_uom" options="{'no_open': True}"/>
+                        </group>
+                        <group>
+                            <field name="tray_number" attrs="{'readonly': [('state', '!=', 'confirmed'),('state', '!=', 'waiting')]}"/>
+                            <field name="qty_transfer" attrs="{'readonly': [('state', '!=', 'confirmed'),('state', '!=', 'waiting')]}"/>
+                            <field name="location_dest_id" attrs="{'readonly': [('state', '!=', 'confirmed'),('state', '!=', 'waiting')]}" colspan="2"/>
+                            <field name="picking_id" />
+                            <field name="state" invisible="1"/>
+                            <field name="check_packing_line_ids" invisible="1"/>
+                        </group>
+                    </group>
+                    <group>
+                        <button name="action_create_packing_line"
+                                string="Confirm"
+                                attrs="{'readonly': [('state', '!=', 'confirmed'),('state', '!=', 'waiting')]}"
+                                type="object"/>
+                        <button name="action_print_barcode"
+                                string="Print Barcode"
+                                type="object"/>
+                    </group>
+                    <field name="barcode_line_ids" readonly="1" nolabel="1" >
+                        <tree string="Barcode Line">
+                            <field name="qty_per_barcode"/>
+                            <field name="barcode"/>
+                        </tree>
+                    </field>
+
+                </form>
+            </field>
+        </record>
+
+        <!-- Packing Order Line Waraporn Tree View-->
+        <record id="view_packing_order_line_waraporn_tree" model="ir.ui.view">
+            <field name="name">packing.order.line.waraporn.tree</field>
+            <field name="model">packing.order.line.waraporn</field>
+            <field eval="12" name="priority"/>
+            <field name="arch" type="xml">
+                <tree string="Packing Line">
+                    <field name="product_id" attrs="{'readonly': ['|',('state', '!=', 'draft'),('state', '=', None)]}"/>
+                    <field name="product_uom"/>
+                    <field name="qty_transfer" />
+                    <field name="qty" />
+                    <field name="state" invisible="1"/>
+                    <field name="check_picking_id" invisible="1"/>
+                    <button name="action_confirm_picking"
+                                string="Create Picking"
+                                type="object"/>
+                </tree>
+            </field>
+        </record>
+
+        <!-- Packing Order Line Waraporn Form View-->
+        <record id="view_packing_order_line_waraporn_form" model="ir.ui.view">
+            <field name="name">packing.order.line.waraporn.form</field>
+            <field name="model">packing.order.line.waraporn</field>
+            <field eval="12" name="priority"/>
+            <field name="arch" type="xml">
+                <form string="Packing Line">
+                    <group>
+                        <group>
+                            <field name="product_id" attrs="{'readonly': ['|',('state', '!=', 'draft'),('state', '=', None)]}" options="{'no_open': True}"/>
+                            <field name="qty" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
+                            <field name="product_uom" options="{'no_open': True}"/>
+                        </group>
+                        <group>
+                            <field name="qty_transfer" readonly="1"/>
+                            <field name="qty_remain" />
+                            <field name="state" invisible="1"/>
+                            <field name="check_picking_id" invisible="1"/>
+                        </group>
+                    </group>
+                    <group>
+                        <button name="action_print_barcode"
+                                string="Print Barcode"
+                                type="object"/>
+                    </group>
+                    <field name="remark_line_ids" nolabel="1" >
+                        <tree string="Remark Line" editable="bottom">
+                            <field name="reason_line_ids"/>
+                            <field name="qty"/>
+                            <field name="note"/>
+                        </tree>
+                    </field>
+
+                </form>
+            </field>
+        </record>
+
+
+        <!-- Shift Work Waraporn -->
+        <record id="view_shift_work_waraporn_tree" model="ir.ui.view">
+            <field name="name">shift.work.waraporn.tree</field>
+            <field name="model">shift.work.waraporn</field>
+            <field name="priority">2</field>
+            <field name="arch" type="xml">
+                <tree string="Shift Work Waraporn" editable="bottom">
+                    <field name="name" />
+                </tree>
+            </field>
+        </record>
+
+        <record id="action_shift_work_waraporn" model="ir.actions.act_window">
+            <field name="name">Shift Work Waraporn</field>
+            <field name="res_model">shift.work.waraporn</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="view_type">form</field>
+            <field name="view_id" ref="view_shift_work_waraporn_tree"/>
+        </record>
+
+        <!-- <menuitem id="menu_shift_work_waraporn"
+                  name="Shift Work Waraporn"
+                  parent="stock.menu_stock_config_settings"
+                  sequence="10"
+                  action="action_shift_work_waraporn"/> -->
+
+
+        <!-- Reason For Remark Waraporn -->
+        <record id="view_reason_for_remark_waraporn_tree" model="ir.ui.view">
+            <field name="name">reason.for.remark.waraporn.tree</field>
+            <field name="model">reason.for.remark.waraporn</field>
+            <field eval="12" name="priority"/>
+            <field name="arch" type="xml">
+                <tree string="Reason For Remark Waraporn" editable="top">
+                    <field name="name" />
+                </tree>
+            </field>
+        </record>
+
+        <record id="action_reason_for_remark_waraporn" model="ir.actions.act_window">
+            <field name="name">Reason For Remark Waraporn</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">reason.for.remark.waraporn</field>
+            <field name="view_type">form</field>
+            <field name="view_id" ref="view_reason_for_remark_waraporn_tree"/>
+        </record>
+
+        <!-- <menuitem id="menu_reason_for_remark_waraporn"
+                  name="Reason For Remark Waraporn"
+                  parent="stock.menu_stock_config_settings"
+                  sequence="11"
+                  action="action_reason_for_remark_waraporn"/> -->
+
+    </data>
+</openerp>

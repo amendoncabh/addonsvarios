@@ -1,0 +1,622 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="stock_inventory_cycle_count_line_tree" model="ir.ui.view">
+        <field name="name">stock.inventory.line.tree</field>
+        <field name="model">stock.inventory.cycle.count.line</field>
+        <field name="arch" type="xml">
+            <tree string="Stock Inventory Lines">
+                <field name="product_id"/>
+                <field name="product_qty"/>
+                <field name="barcode" 
+                    invisible="1"/>
+                <field name="product_uom_id"
+                    groups="product.group_uom"/>
+                <field name="location_id"
+                    groups="stock.group_stock_multi_locations"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="stock_inventory_cycle_count_line_tree2" model="ir.ui.view">
+        <field name="name">stock.inventory.line.tree2</field>
+        <field name="model">stock.inventory.cycle.count.line</field>
+        <field name="arch" type="xml">
+            <tree editable="top" string="Inventory Details" decoration-info="product_qty != theoretical_qty" decoration-danger="theoretical_qty &lt; 0">
+                <field name="product_id"  
+                    domain="[('type','=','product')]"/>
+                <field name="product_uom_id" 
+                    string="UoM" 
+                    groups="product.group_uom"/>
+                <field name="location_id" 
+                    domain="[('id', 'child_of', inventory_location_id)]" 
+                    groups="stock.group_stock_multi_locations"/>
+                <field name="prod_lot_id"  
+                    domain="[('product_id', '=', product_id)]" 
+                    context="{'default_product_id': product_id}"  
+                    groups="stock.group_production_lot"/>
+                <field name="package_id" 
+                    domain="['|', ('location_id','=', False), ('location_id', '=', location_id)]" 
+                    groups="stock.group_tracking_lot"/>
+                <field name="partner_id" 
+                    groups="stock.group_tracking_owner"/>
+                <field name="theoretical_qty"
+                    groups="stock.group_stock_manager" 
+                    readonly="1"/>
+                <field name="product_qty" 
+                    string="Real Quantity"/>
+                <field name="value" 
+                    string="Product Value"/>
+                <field name="fee" 
+                    string="Fee"
+                    invisible="1"/>
+                <field name="state" 
+                    invisible="1"/>
+                <field name="inventory_id" 
+                    invisible="1"/>
+                <field name="inventory_location_id" 
+                    invisible="1"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="stock_inventory_cycle_count_line_search" model="ir.ui.view">
+        <field name="name">stock.inventory.line.search</field>
+        <field name="model">stock.inventory.cycle.count.line</field>
+        <field name="arch" type="xml">
+            <search string="Search Inventory Lines">
+                <field name="product_id"/>
+                <field name="location_id" 
+                    groups="stock.group_stock_multi_locations"/>
+                <field name="prod_lot_id" 
+                    groups="stock.group_production_lot"/>
+                <field name="package_id" 
+                    groups="stock.group_tracking_lot"/>
+                <field name="partner_id" 
+                    groups="stock.group_tracking_owner"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="view_inventory_cycle_count_filter" model="ir.ui.view">
+        <field name="name">stock.inventory.filter</field>
+        <field name="model">stock.inventory.cycle.count</field>
+        <field name="arch" type="xml">
+            <search string="Search Inventory">
+                <field name="name" 
+                    string="Inventory Reference"/>
+                <field name="date"/>
+                <field name="company_id" 
+                    groups="base.group_multi_company"/>
+                <group expand="0" string="Group By">
+                    <filter string="Status" 
+                        domain="[]" 
+                        context="{'group_by':'state'}"/>
+                    <filter string="Inventories Month" 
+                        domain="[]" 
+                        context="{'group_by':'date'}" 
+                        help="Physical Inventories by Month"/>
+                </group>
+            </search>
+
+        </field>
+    </record>
+
+    <record id="view_inventory_cycle_count_tree" model="ir.ui.view">
+        <field name="name">stock.inventory.tree</field>
+        <field name="model">stock.inventory.cycle.count</field>
+        <field name="arch" type="xml">
+            <tree string="Lot/Serial Number Inventory" decoration-muted="state == 'cancel'">
+                <field name="name"/>
+                <field name="date"/>
+                <field name="state"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_inventory_cycle_count_form" model="ir.ui.view">
+        <field name="name">stock.inventory.form</field>
+        <field name="model">stock.inventory.cycle.count</field>
+        <field name="arch" type="xml">
+            <form string="Inventory Adjustment">
+            <field name="approved" invisible="True"/>
+            <header>
+                <button name="prepare_inventory" 
+                    states="draft" 
+                    string="Start" 
+                    type="object" 
+                    class="oe_highlight" 
+                    groups="ofm_inventory_cycle_count.group_stock_staff,stock.group_stock_manager"/>
+                <button name="action_done" 
+                    string="Validate Inventory" 
+                    type="object" 
+                    class="oe_highlight" 
+                    groups="stock.group_stock_manager" 
+                    attrs="{
+                        'invisible': ['|',('is_hide_validate', '=', True),('state', '!=', 'confirm')]
+                    }"/>
+                <button name="action_to_approve" 
+                    string="To Approve" 
+                    type="object" 
+                    class="oe_highlight" 
+                    attrs="{
+                        'invisible': ['|',('state', '!=', 'progress'),('is_hide_to_approve', '=', False)]
+                    }"
+                    groups="stock.group_stock_manager"/>
+                <button name="action_to_denied" 
+                    string="Denied" 
+                    type="object" 
+                    class="oe_highlight" 
+                    groups="stock.group_stock_manager"
+                    attrs="{
+                        'invisible': ['|',('is_hide_validate', '=', True),('state', '!=', 'confirm')]
+                    }"/>
+                <button name="action_cancel_draft" 
+                    states="cancel" 
+                    string="Set to Draft" 
+                    type="object"/>
+                <button name="action_cancel_draft" 
+                    states="confirm" 
+                    string="Cancel Inventory" 
+                    type="object"/>
+                <button name="%(action_open_cycle_count_form_wizard)d" 
+                    states="progress" 
+                    string="Print Form" 
+                    type="action" 
+                    icon="fa-print"/>
+                <field name="state" 
+                    widget="statusbar" 
+                    statusbar_visible="draft,progress,confirm,done"/>
+            </header>
+            <sheet>
+                <div class="oe_button_box" name="button_box">
+                    <button name="action_inventory_cycle_count_line_tree"
+                        class="oe_stat_button"
+                        icon="fa-building-o"
+                        type="object"
+                        help="List view of lines"
+                        groups="base.group_no_one"
+                        states="confirm">
+                        <div class="o_form_field o_stat_info">
+                            <span class="o_stat_text">Details</span>
+                        </div>
+                    </button>
+                    <button name="%(action_open_import_counted)d"
+                        string="Import (.xlsx)"
+                        icon="fa-stack-overflow"
+                        type="action"
+                        class="oe_stat_button"
+                        states="progress"
+                        groups="ofm_inventory_cycle_count.group_stock_staff,stock.group_stock_manager"/>
+
+                    <button name="%(action_open_cycle_count_template_wizard)d"
+                        string="Export (.xlsx)"
+                        icon="fa-stack-overflow"
+                        type="action"
+                        class="oe_stat_button"
+                        states="progress"
+                        groups="stock.group_stock_manager,ofm_inventory_cycle_count.group_stock_staff"/>
+                </div>
+                <div class="oe_title">
+                    <label for="number" calse="oe_edit_only"/>
+                    <h1><field name="number" string="No."/></h1>
+                    <p/>
+                    <label for="name" class="oe_edit_only"/>
+                    <h1><field name="name" placeholder="e.g. Annual inventory"/></h1>
+                </div>
+                <group>
+                    <group>
+                        <field name="type" 
+                            string="Type"/>
+                        <field name="is_template" 
+                            invisible="True"/>
+                        <field name="is_manager_edit"
+                            invisible="True"/>
+                        <field name="is_owner"
+                            invisible="True"/>
+                        <field name="is_hide_to_approve"
+                            invisible="True"/>
+                        <field name="is_staff"
+                            invisible="True"/>
+                        <field name="is_manager"
+                            invisible="True"/>
+                        <field name="approved_user"
+                            invisible="True"/>
+                        <field name="is_hide_validate"
+                            invisible="True"/>
+                        <field name="template"
+                            string="Template"
+                            options="{
+                                    'no_quick_create': True,
+                                    'no_create_edit': True,
+                                    'no_open': True
+                                }"
+                            attrs="{
+                            'invisible': [('type', '=', 'full')], 
+                        }"/>
+                        <field name="filter" 
+                            string="Inventory of" 
+                            widget='radio' 
+                            attrs="{
+                                'readonly': [('state', '!=', 'draft')], 
+                                'invisible':[('is_template', '=', False)]
+                            }"/>
+                        <field name="exhausted"/>
+                    </group>
+                    <group>
+                        <field name="date"/>
+                        <field name="finish_date"/>
+                        <field name="inventory_date"/>
+                        <field name="company_id" 
+                            groups="base.group_multi_company" 
+                            attrs="{
+                                'readonly': ['|', ('state', '!=', 'draft'), ('is_owner', '=', False)],
+                            }"
+                            options="{
+                                    'no_quick_create': True,
+                                    'no_create_edit': True,
+                                    'no_open': True
+                                }"/>
+                        <field name="branch_id"
+                            context="{'company_id': company_id}"
+                            options="{
+                                    'no_quick_create': True,
+                                    'no_create_edit': True,
+                                    'no_open': True
+                                }"/>
+                        <field name="location_id"
+                            context="{
+                                'branch_id': branch_id
+                            }"
+                            options="{
+                                'no_create': True, 
+                                'no_create_edit': True, 
+                                'no_open': True
+                            }"
+                            attrs="{
+                                'invisible': [('branch_id','=', False)]
+                            }"/>
+                        <field name="product_id" 
+                            domain="[('type','=','product')]"
+                            options="{
+                                    'no_quick_create': True,
+                                    'no_create_edit': True,
+                                    'no_open': True
+                                }" 
+                            attrs="{
+                                'invisible': [('filter', 'not in', ('product', 'product_owner'))], 
+                                'required': [('filter', 'in', ('product', 'product_owner'))]
+                            }"/>
+                        <field name="category_id" 
+                            attrs="{
+                                'invisible': [('filter', 'not in','category')], 
+                                'required': [('filter', 'in', 'category')]
+                            }" 
+                            options="{
+                                    'no_quick_create': True,
+                                    'no_create_edit': True,
+                                    'no_open': True
+                                }"
+                            widget='many2many_tags'/>
+                        <field name="lot_id" 
+                            attrs="{
+                                'invisible': [('filter', '!=', 'lot')], 
+                                'required': [('filter', '=', 'lot')]
+                            }" 
+                            options="{
+                                    'no_quick_create': True,
+                                    'no_create_edit': True,
+                                    'no_open': True
+                                }"
+                            groups="stock.group_production_lot"/>
+                        <field name="partner_id" 
+                            attrs="{
+                                'invisible': [('filter', 'not in', ('owner', 'product_owner'))], 
+                                'required': [('filter', 'in', ('owner', 'product_owner'))]
+                            }" 
+                            options="{
+                                    'no_quick_create': True,
+                                    'no_create_edit': True,
+                                    'no_open': True
+                                }"
+                            groups="stock.group_tracking_owner"/>
+                        <field name="package_id" 
+                            attrs="{
+                                'invisible': [('filter', '!=', 'pack')], 
+                                'required': [('filter', '=', 'pack')]
+                            }" 
+                            options="{
+                                    'no_quick_create': True,
+                                    'no_create_edit': True,
+                                    'no_open': True
+                                }"
+                            groups="stock.group_tracking_lot"/>
+                        <field name="product_dept" 
+                            attrs="{
+                                'invisible': [('filter', '!=', 'dept')], 
+                                'required': [('filter', '=', 'dept')]
+                            }"
+                            options="{
+                                    'no_quick_create': True,
+                                    'no_create_edit': True,
+                                    'no_open': True
+                                }"
+                            widget='many2many_tags'/>
+                        <field name="product_sub_dept" 
+                            attrs="{
+                                'invisible': [('filter', '!=', 'sub_dept')], 
+                                'required': [('filter', '=', 'sub_dept')]
+                            }"
+                            widget='many2many_tags'
+                            options="{
+                                    'no_quick_create': True,
+                                    'no_create_edit': True,
+                                    'no_open': True
+                                }"
+                                context="{
+                                    'tree_view_ref': 'ofm_product_ext.view_ofm_product_sub_dept_tree_search_mode',
+                                }"/>
+                        <field name="adjust_name" 
+                            string="Adjustment Number" 
+                            attrs="{
+                                'invisible': [('state', '!=', 'done')]
+                            }"/>
+                    </group>
+                </group>
+                <notebook attrs="{'invisible':[('state','=','draft')]}">
+                    <page string="Inventory Details" >
+                        <field name="line_ids" 
+                            string="Inventory Details" 
+                            context="{
+                                'default_location_id': location_id,  
+                                'default_product_id': product_id, 
+                                'default_prod_lot_id': lot_id, 
+                                'default_package_id': package_id, 
+                                'default_partner_id': partner_id
+                            }" 
+                            mode="tree,kanban">
+                            <tree string="Inventory Details" editable="bottom" decoration-info="product_qty != theoretical_qty" decoration-danger="theoretical_qty &lt; 0">
+                                <field name="product_id"  
+                                    domain="[('type','=','product')]"
+                                    options="{
+                                    'no_quick_create': True,
+                                    'no_create_edit': True,
+                                    'no_open': True
+                                }"/>
+                                <field name="product_uom_id" 
+                                    string="UoM" 
+                                    groups="product.group_uom"
+                                    options="{
+                                    'no_quick_create': True,
+                                    'no_create_edit': True,
+                                    'no_open': True
+                                }"/>
+                                <field name="location_id" 
+                                    domain="[('id', 'child_of', parent.location_id)]" 
+                                    groups="stock.group_stock_multi_locations"
+                                    options="{
+                                    'no_quick_create': True,
+                                    'no_create_edit': True,
+                                    'no_open': True
+                                }"/>
+                                <field name="prod_lot_id" 
+                                    domain="[('product_id', '=', product_id)]" 
+                                    context="{'default_product_id': product_id}"  
+                                    groups="stock.group_production_lot"
+                                    options="{
+                                    'no_quick_create': True,
+                                    'no_create_edit': True,
+                                    'no_open': True
+                                }"/>
+                                <field name="package_id" 
+                                    domain="['|', ('location_id','=', False), ('location_id', '=', location_id)]" 
+                                    groups="stock.group_tracking_lot"
+                                    options="{
+                                    'no_quick_create': True,
+                                    'no_create_edit': True,
+                                    'no_open': True
+                                }"/>
+                                <field name="partner_id" 
+                                    groups="stock.group_tracking_owner"
+                                    options="{
+                                    'no_quick_create': True,
+                                    'no_create_edit': True,
+                                    'no_open': True
+                                }"/>
+                                <field name="theoretical_qty"
+                                    readonly="1"
+                                    groups="stock.group_stock_manager"/>
+                                <field name="product_qty" 
+                                    string="Real Quantity"
+                                    widget="allow_number"/>
+                                <field name="diff" 
+                                    string="Different qty"
+                                    sum="Different qty"
+                                    invisible="True"/>
+                                <field name="value" 
+                                    string="Value of different qty"
+                                    sum="Value of different qty"
+                                    invisible="True"/>
+                                <field name="state" 
+                                    invisible="True"/>
+                                <field name="counted_number" 
+                                    invisible="True"/>
+                                <field name="is_real_quantity_edit"
+                                    invisible="True"/>
+                                <field name="reason_code" groups="stock.group_stock_manager"
+                                options="{
+                                    'no_quick_create': True,
+                                    'no_create_edit': True,
+                                    'no_open': True
+                                }"
+                                attrs="{
+                                    'required': [('is_real_quantity_edit', '=', True)]
+                                }"/>
+                            </tree>
+                            <kanban class="o_kanban_mobile">
+                                <field name="product_id"  
+                                    domain="[('type','=','product')]"/>
+                                <field name="product_uom_id" 
+                                    groups="product.group_uom" 
+                                    string="UoM"/>
+                                <field name="location_id" 
+                                    domain="[('id', 'child_of', parent.location_id)]" 
+                                    groups="stock.group_stock_multi_locations"/>
+                                <field name="prod_lot_id" 
+                                    domain="[('product_id', '=', product_id)]" 
+                                    context="{'default_product_id': product_id}"  
+                                    groups="stock.group_production_lot"/>
+                                <field name="package_id" 
+                                    domain="['|', ('location_id','=', False), ('location_id', '=', location_id)]"/>
+                                <field name="partner_id"/>
+                                <field name="theoretical_qty"
+                                    groups="stock.group_stock_manager" 
+                                    readonly="1"/>
+                                <field name="product_qty" 
+                                    string="Real Quantity"/>
+                                <field name="state" 
+                                    invisible="True"/>
+
+                                <templates>
+                                    <t t-name="kanban-box">
+                                        <div t-attf-class="oe_kanban_global_click_edit
+                                                           #{record.product_qty.raw_value!=record.theoretical_qty.raw_value ? 'oe_kanban_color_6' : ''}
+                                                           #{record.theoretical_qty.raw_value&lt;0 ? 'oe_kanban_color_2' : ''}">
+                                            <div class="row">
+                                                <div class="col-xs-12">
+                                                    <strong>
+                                                        <field name='product_id'/>
+                                                    </strong>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-xs-12 text-muted">
+                                                    <span><t t-esc='record.location_id.string'/>: <t t-esc='record.location_id.value'/></span>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-xs-12 text-muted">
+                                                    <span><t t-esc='record.theoretical_qty.string'/>: <t t-esc='record.theoretical_qty.value'/></span>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-xs-12 text-muted">
+                                                    <span><t t-esc='record.product_qty.string'/>: <t t-esc='record.product_qty.value'/></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </t>
+                                </templates>
+                            </kanban>
+                        </field>
+                        <group class="oe_subtotal_footer oe_right">
+                            <label class="oe_header_bold" for="total_system_qty" string="Total System Quantity"/>
+                            <div>
+                                <field name="total_system_qty" class="oe_header_nonbold"/>
+                            </div>
+                            <label class="oe_header_bold" for="total_system_qty" string="Total Real Quantity"/>
+                            <div>    
+                                <field name="total_real_qty" class="oe_header_nonbold"/>
+                            </div>
+                        </group>
+                    </page>
+                </notebook>
+            </sheet>
+            <div class="oe_chatter">
+                <field name="message_ids" widget="mail_thread"/>
+            </div>
+            </form>
+        </field>
+    </record>
+
+    <record id="cycle_count_jasper" model="ir.actions.report.xml">
+        <field name="string">Cycle count report</field>
+        <field name="name">Cycle count report</field>
+        <field name="model">stock.inventory.cycle.count</field>
+        <field name="auto">True</field>
+        <field name="report_name">cycle.count.jasper</field>
+        <field name="rml">ofm_inventory_cycle_count/reports/cycle_count.jrxml</field>
+        <field name="report_rml">ofm_inventory_cycle_count/reports/cycle_count.jrxml</field>
+        <field name="jasper_model_id" ref="base.model_res_users"/>
+        <field name="menu">False</field>
+        <field name="header">False</field>
+        <field name="jasper_report">True</field>
+        <field name="jasper_output">pdf</field>
+    </record>
+
+    <record id="cycle_count_form_jasper" model="ir.actions.report.xml">
+        <field name="string">Cycle count form report</field>
+        <field name="name">Cycle count form report</field>
+        <field name="model">stock.inventory.cycle.count</field>
+        <field name="auto">True</field>
+        <field name="report_name">cycle.count.form.jasper</field>
+        <field name="rml">ofm_inventory_cycle_count/reports/cycle_count_form.jrxml</field>
+        <field name="report_rml">ofm_inventory_cycle_count/reports/cycle_count_form.jrxml</field>
+        <field name="jasper_model_id" ref="base.model_res_users"/>
+        <field name="menu">False</field>
+        <field name="header">False</field>
+        <field name="jasper_report">True</field>
+        <field name="jasper_output">pdf</field>
+    </record>
+
+    <record id="cycle_count_template_jasper" model="ir.actions.report.xml">
+        <field name="string">Cycle count template report</field>
+        <field name="name">Cycle count template report</field>
+        <field name="model">stock.inventory.cycle.count</field>
+        <field name="auto">True</field>
+        <field name="report_name">cycle.count.template.jasper</field>
+        <field name="rml">ofm_inventory_cycle_count/reports/cycle_count_template.jrxml</field>
+        <field name="report_rml">ofm_inventory_cycle_count/reports/cycle_count_template.jrxml</field>
+        <field name="jasper_model_id" ref="base.model_res_users"/>
+        <field name="menu">False</field>
+        <field name="header">False</field>
+        <field name="jasper_report">True</field>
+        <field name="jasper_output">xls</field>
+    </record>
+
+    <record id="cycle_count_template_staff_jasper" model="ir.actions.report.xml">
+        <field name="string">Cycle count template report</field>
+        <field name="name">Cycle count template report</field>
+        <field name="model">stock.inventory.cycle.count</field>
+        <field name="auto">True</field>
+        <field name="report_name">cycle.count.template.staff.jasper</field>
+        <field name="rml">ofm_inventory_cycle_count/reports/cycle_count_template_staff.jrxml</field>
+        <field name="report_rml">ofm_inventory_cycle_count/reports/cycle_count_template_staff.jrxml</field>
+        <field name="jasper_model_id" ref="base.model_res_users"/>
+        <field name="menu">False</field>
+        <field name="header">False</field>
+        <field name="jasper_report">True</field>
+        <field name="jasper_output">xls</field>
+    </record>
+
+    <record id="action_inventory_cycle_count_form" model="ir.actions.act_window">
+        <field name="name">Inventory Cycle Count</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">stock.inventory.cycle.count</field>
+        <field name="view_type">form</field>
+        <field name="view_id" ref="view_inventory_cycle_count_tree"/>
+        <field name="search_view_id" ref="view_inventory_cycle_count_filter"/>
+        <field name="help" type="html">
+          <p class="oe_view_nocontent_create">
+            Click to start an inventory.
+          </p><p>
+            Periodical Inventories are used to count the number of products
+            available per location. You can use it once a year when you do
+            the general inventory or whenever you need it, to adapt the
+            current inventory level of a product.
+          </p>
+        </field>
+    </record>
+
+    <record id="action_inventory_cycle_count_line_tree" model="ir.actions.act_window">
+        <field name="name">Inventory Lines</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">stock.inventory.cycle.count.line</field>
+        <field name="view_type">form</field>
+        <field name="view_mode">tree</field>
+        <field name="view_id" ref="stock_inventory_cycle_count_line_tree2"/>
+        <field name="domain">[('inventory_id', '=', active_id)]</field>
+    </record>
+
+    <menuitem action="action_inventory_cycle_count_form" id="menu_action_inventory_cycle_form" parent="stock.menu_stock_inventory_control" sequence="20" groups="stock.group_stock_user"/>
+</odoo>

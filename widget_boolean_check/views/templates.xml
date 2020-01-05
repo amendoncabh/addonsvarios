@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <template id="assets_backend" name="widget_allow_number" inherit_id="web.assets_backend">
+            <xpath expr="." position="inside">
+                <script type="text/javascript" src="/widget_boolean_check/static/src/js/boolean_check_widgets.js"></script>
+            </xpath>
+        </template>
+
+    </data>
+</odoo>
+

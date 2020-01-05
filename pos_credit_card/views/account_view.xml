@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="view_bank_statement_form_ext" model="ir.ui.view">
+            <field name="name">account.bank.statement.form</field>
+            <field name="model">account.bank.statement</field>
+            <field name="inherit_id" ref="account.view_bank_statement_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//notebook/page//field[@name='name']" position="after">
+                    <field name="approve_code"/>
+                    <field name="credit_card_no_encrypt"/>
+                    <field name="credit_card_type"/>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="view_bank_statement_line_form_ext" model="ir.ui.view">
+            <field name="name">bank.statement.line.form</field>
+            <field name="model">account.bank.statement.line</field>
+            <field name="inherit_id" ref="account.view_bank_statement_line_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='name']" position="after">
+                    <field name="approve_code"/>
+                    <field name="credit_card_no_encrypt"/>
+                    <field name="credit_card_type"/>
+                </xpath>
+            </field>
+        </record>
+
+        <!--<record id="view_bank_statement_line_tree_ext" model="ir.ui.view">-->
+            <!--<field name="name">account.bank.statement.line.tree</field>-->
+            <!--<field name="model">account.bank.statement.line</field>-->
+            <!--<field name="inherit_id" ref="account.view_bank_statement_line_tree"/>-->
+            <!--<field name="arch" type="xml">-->
+                <!--<xpath expr="//field[@name='name']" position="after">-->
+                    <!--<field name="approve_code"/>-->
+                    <!--<field name="credit_card_no_encrypt"/>-->
+                    <!--<field name="credit_card_type"/>-->
+                <!--</xpath>-->
+            <!--</field>-->
+        <!--</record>-->
+    </data>
+</odoo>

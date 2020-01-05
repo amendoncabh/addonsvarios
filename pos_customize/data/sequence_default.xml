@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data noupdate="1">
+        <record id="seq_session_template" model="ir.sequence">
+            <field name="name">POS Session</field>
+            <field name="code">session</field>
+            <field name="padding">3</field>
+            <field name="prefix">%(y)s%(month)s</field>
+        </record>
+    </data>
+    <data noupdate="0">
+        <record id="ofm_seq_template" model="ir.sequence">
+            <field name="name">Draft</field>
+            <field name="code">Draft</field>
+            <field name="padding">4</field>
+            <field name="prefix">%(y)s%(month)s</field>
+        </record>
+    </data>
+</openerp>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="ofm_access_right_center.group_ofm_hq" model="res.groups">
+            <field name="implied_ids" eval="[(4, ref('point_of_sale.group_pos_central_manager'))]"/>
+        </record>
+
+        <record id="ofm_access_right_center.group_ofm_admin" model="res.groups">
+            <field name="implied_ids" eval="[(4, ref('point_of_sale.group_pos_admin'))]"/>
+        </record>
+
+        <record id="rule_pos_hq_admin" model="ir.rule">
+            <field name="name">POS HQ/Admin</field>
+            <field name="model_id" ref="point_of_sale.model_pos_order" />
+            <field name="groups" eval="[(4, ref('ofm_access_right_center.group_ofm_hq')),
+            (4, ref('ofm_access_right_center.group_ofm_admin'))]"/>
+            <field name="domain_force">[]</field>
+        </record>
+    </data>
+</odoo>

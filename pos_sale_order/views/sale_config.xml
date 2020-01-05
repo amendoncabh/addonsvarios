@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- dashboard -->
+        <record id="view_pos_config_kanban_so" model="ir.ui.view">
+            <field name="name">pos.config.kanban</field>
+            <field name="model">pos.config</field>
+            <field name="mode">primary</field>
+            <field name="priority">99</field>
+            <field name="inherit_id" ref="point_of_sale.view_pos_config_kanban"/>
+            <field name="arch" type="xml">
+                <xpath expr="//div[@class='col-xs-6 o_kanban_primary_left']" position="replace">
+                    <field name="branch_id" invisible="1"/>
+                    <div class="col-xs-6 o_kanban_primary_left">
+                        <button
+                                class="btn btn-primary"
+                                name="open_pos_sale_order"
+                                type="object"
+                                context="{'is_dropship': False}"
+                                groups="sales_team.group_sale_salesman,
+                                    sales_team.group_sale_manager"
+                        >
+                            In Store
+                        </button>
+                        <button
+                                class="btn btn-primary"
+                                name="open_pos_sale_order"
+                                type="object"
+                                context="{'is_dropship': True}"
+                                groups="ofm_so_ext.sale_dropship_group_sale_salesman,
+                                    sales_team.group_sale_manager"
+                        >
+                            Dropship
+                        </button>
+                    </div>
+                </xpath>
+                <xpath expr="//div[@class='col-xs-6 o_kanban_primary_right']" position="replace">
+                    <div class="col-xs-6 o_kanban_primary_right"/>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="action_pos_config_kanban_so" model="ir.actions.act_window">
+            <field name="name">POS Sale Order</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">pos.config</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">kanban,tree,form</field>
+            <field name="view_ids" eval="[(5, 0, 0),
+                (0, 0, {'view_mode': 'kanban', 'view_id': ref('view_pos_config_kanban_so')}),
+                (0, 0, {'view_mode': 'tree', 'view_id': ref('point_of_sale.view_pos_config_tree')}),
+                (0, 0, {'view_mode': 'form', 'view_id': ref('point_of_sale.view_pos_config_form')}),
+            ]"/>
+
+        </record>
+
+        <menuitem id="sales_team.menu_sales_team_act" action="action_pos_config_kanban_so" sequence="0" parent="sales_team.menu_base_partner" name="Dashboard"/>
+    </data>
+</odoo>

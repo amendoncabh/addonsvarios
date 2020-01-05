@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="view_change_product_quantity" model="ir.ui.view">
+            <field name="name">Change Product Quantity</field>
+            <field name="model">stock.change.product.qty</field>
+            <field name="inherit_id" ref="stock.view_change_product_quantity"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='location_id']" position="before">
+                    <field name="company_id"
+                           groups="base.group_multi_company"
+                           options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"/>
+                    <field name="branch_id"
+                           domain="[('pos_company_id', '=', company_id)]"
+                           options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"/>
+                </xpath>
+                <xpath expr="//field[@name='location_id']" position="attributes">
+                    <attribute name="context">{'branch_id': branch_id}</attribute>
+                    <attribute name="options">{'no_create': True, 'no_create_edit': True, 'no_open': True}</attribute>
+                </xpath>
+                <xpath expr="//field[@name='new_quantity']" position="after">
+                    <field name="current_quantity"/>
+                </xpath>
+            </field>
+        </record>
+
+    </data>
+</odoo>
+

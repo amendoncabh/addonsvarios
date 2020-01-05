@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+
+        <template id="assets" inherit_id="point_of_sale.assets">
+            <xpath expr="." position="inside">
+                <!--load JsBarcode lib-->
+                <script type="text/javascript" src="/pos_customize/static/src/lib/JsBarcode/JsBarcode.all.min.js"></script>
+
+                <script type="text/javascript" src="/pos_customize/static/src/js/custom.js"></script>
+                <script type="text/javascript" src="/pos_customize/static/src/js/branch.js"></script>
+                <script type="text/javascript" src="/pos_customize/static/src/js/company.js"></script>
+            </xpath>
+            <xpath expr="//link[@id='pos-stylesheet']" position="after">
+                <link rel="stylesheet" href="/pos_customize/static/src/css/custom.css" />
+                <link rel="stylesheet" href="/pos_customize/static/src/css/company.css" />
+            </xpath>
+        </template>
+
+
+    </data>
+</openerp>

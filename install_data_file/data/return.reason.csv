@@ -1,0 +1,11 @@
+id,name,model
+stock.return_reason_1,สินค้ามีตำหนิ / ชำรุด,pos.order
+stock.return_reason_2,สินค้าไม่ตรงความต้องการของลูกค้า,pos.order
+stock.return_reason_3,ลูกค้าต้องการเปลี่ยนรุ่น / แบบ / ขนาด/ สี,pos.order
+stock.return_reason_4,เพิ่มหรือลดจำนวนของการซื้อ,pos.order
+stock.return_reason_5,อื่นๆ,pos.order
+stock.return_reason_6,สินค้าชำรุด/ สินค้าหมดอายุ,purchase.order
+stock.return_reason_7,Non move,purchase.order
+stock.return_reason_8,ตามคำสั่งจัดซื้อ เช่น สินค้าไม่มี สคบ./ สินค้าตกรุ่น/ สินค้าไม่ได้คุณภาพ,purchase.order
+stock.return_reason_9,สินค้าไม่ตรงกับเอกสาร Invoice,purchase.order
+stock.return_reason_10,อื่นๆ,purchase.order

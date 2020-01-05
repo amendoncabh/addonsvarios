@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <template id="assets_backend" name="many2many_tags_placeholder" inherit_id="web.assets_backend">
+            <xpath expr="." position="inside">
+                <script type="text/javascript"
+                        src="/widget_many2many_tags_placeholder/static/src/js/many2many_tags_placeholder_widgets.js"></script>
+            </xpath>
+        </template>
+    </data>
+</odoo>
+

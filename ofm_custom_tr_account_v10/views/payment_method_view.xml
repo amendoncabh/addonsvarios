@@ -1,0 +1,21 @@
+<?xml version="1.0" ?>
+<openerp>
+    <data>
+        <record id="tr_account_payment_method_view_tree" model="ir.ui.view">
+            <field name="name">Payment Method</field>
+            <field name="model">account.payment.method.multi</field>
+            <field name="inherit_id" ref="account_payment_method.tr_account_payment_method_view_tree"/>
+            <field name="arch" type="xml">
+                 <xpath expr="//field[@name='property_account_payment_method_id']" position="before">
+                    <field name="payment_credit_term" />
+                </xpath>
+                <xpath expr="//field[@name='property_account_payment_method_id']" position="before">
+                    <field name="company_id" />
+                </xpath>
+                <xpath expr="//field[@name='property_account_payment_method_id']" position="attributes">
+                    <attribute name="context">{'company_id': company_id}</attribute>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</openerp>

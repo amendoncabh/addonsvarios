@@ -1,0 +1,978 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+
+    <t t-extend="Chrome">
+        <t t-jquery="span.placeholder-OrderSelectorWidget" t-operation='replace'>
+            <t t-if="widget.pos.session_info and widget.pos.session_info.sale_type">
+                <div class="order-selector">
+                    <div class="title-sale-type">
+                        <label>
+                            <t t-if="widget.pos.session_info.sale_type and widget.pos.session_info.sale_type == 'dropship'">
+                                Dropship
+                            </t>
+                                <t t-else="">
+                                In Store
+                            </t>
+                        </label>
+                    </div>
+                    <div style="display:none;">
+                        <span class="placeholder-OrderSelectorWidget"></span>
+                    </div>
+                </div>
+            </t>
+            <t t-else="">
+                <span class="placeholder-OrderSelectorWidget"></span>
+            </t>
+        </t>
+    </t>
+    
+    <t t-name="SaleOrderline">
+        <li t-attf-class="orderline #{line.is_danger?'text-danger':''}">
+            <t t-if="widget.pos.session_info and widget.pos.session_info.sale_type and widget.pos.session_info.sale_type == 'dropship'">
+                <span class="product-detail">
+                    <t t-esc="line.get_product().display_name"/>
+                    <t t-esc="line.get_product().is_best_deal_promotion?' (B)':''"/>
+                </span>
+                <span class="ordered">
+                    <input type="text"
+                           t-attf-class="#{line.is_danger?'text-danger':''}"
+                           t-attf-disabled="#{line.promotion?'disabled' : undefined}"
+                           t-att-value="line.get_quantity()" min="0"/>
+                </span>
+                <span class="available">
+                    <t t-esc="line.product_qty_available"/>
+                </span>
+                <span class="unitprice">
+                    <t t-esc="widget.format_currency_no_symbol(line.get_unit_display_price())" />
+                </span>
+                <span class="subtotal">
+                    <t t-esc="widget.format_currency_no_symbol(line.get_display_price())"/>
+                </span>
+                <span class="product_status">
+                    <t t-esc="line.product_status_odoo || line.product.prod_status || ''"/>
+                </span>
+                <span class="product_status_oasis">
+                    <t t-esc="line.product_status_ofm"/>
+                </span>
+            </t>
+            <t t-else="">
+                <span class="product-detail" style="width:390px;">
+                    <t t-esc="line.get_product().display_name"/>
+                    <t t-esc="line.get_product().is_best_deal_promotion?' (B)':''"/>
+                </span>
+                <span class="ordered" style="width: 90px;">
+                    <input type="text"
+                           t-attf-class="#{line.is_danger?'text-danger':''}"
+                           t-attf-disabled="#{line.promotion?'disabled' : undefined}"
+                           t-att-value="line.get_quantity()" min="0"/>
+                </span>
+                <span class="unitprice" style="width: 100px;">
+                    <t t-esc="widget.format_currency_no_symbol(line.get_unit_display_price())" />
+                </span>
+                <span class="subtotal" style="width: 160px;">
+                    <t t-esc="widget.format_currency_no_symbol(line.get_display_price())"/>
+                </span>
+            </t>
+            <span class="orderline-trash">
+                <span class="fa fa-trash-o" name="delete"></span>
+            </span>
+        </li>
+    </t>
+
+    <t t-name="SaleOrderWidget">
+        <div class="order-container">
+            <div class="order-scroller touch-scrollable">
+                <div class="order">
+                    <t t-if="orderlines.length === 0" >
+                        <div class='order-empty'>
+                            <i class='fa fa-shopping-cart' />
+                            <h1>Your shopping cart is empty</h1>
+                        </div>
+                    </t>
+                    <t t-if="orderlines.length > 0">
+                        <ul class="orderlines"></ul>
+                        <div class="summary clearfix">
+                            <div class="line" style="border-top: unset;">
+                                <div class='entry total'>
+                                    <div class='subentry'>รวม: <span class="total_before_discount_value">0.00 ฿</span></div>
+                                    <div class='subentry'>ส่วนลด: <span class="total_discount_value">0.00 ฿</span></div>
+                                    <span t-att-class="(widget.pos.pos_session.sale_type and widget.pos.pos_session.sale_type == 'dropship'?widget.pos.pos_sale_order_discount_see_dropship:widget.pos.pos_sale_order_discount_see)?'':'oe_hidden'">
+                                        <div class='subentry'>ส่วนลดพิเศษ: <span class="total_discount_see_value">0.00 ฿</span></div>
+                                    </span>
+                                    <div class='subentry'>ค่าจัดส่ง: <span class="shipping_fee">0.00 ฿</span></div>
+                                    <div class='subentry'>มูลค่าสินค้าที่ยกเว้นภาษีมูลค่าเพิ่ม: <span class="total_non_vat_value">0.00 ฿</span></div>
+                                    <div class='subentry'>มูลค่าสินค้าที่เสียภาษีมูลค่าเพิ่ม: <span class="total_vat_excluded_value">0.00 ฿</span></div>
+                                    <div class='subentry'>ภาษีมูลค่าเพิ่ม: <span class="total_vat_amount_value">0.00 ฿</span></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="summary clearfix">
+                            <div class="line">
+                                <div class='entry total'>
+                                    <span class="label total">รวมเงิน: </span> <span class="total_value">0.00 ฿</span>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </div>
+            </div>
+        </div>
+    </t>
+
+    <t t-name="RecordInfoOnTable">
+        <t t-if="data and data.length > 0">
+            <td class="content-cell" style="border-right: 1px solid #BBB;width: 50%;height:unset; vertical-align: top;">
+                <div class="order-info-items o_td_label">
+                    <t t-foreach="data" t-as="record">
+                        <div><t t-esc="record.field"/></div>
+                    </t>
+                </div>
+            </td>
+            <td class="content-cell" style="width: 50%;height:unset; vertical-align: top;">
+                <div class="order-info-items">
+                    <t t-foreach="data" t-as="record">
+                        <div>
+                            <t t-if="record.edit">
+                                <input type="text" t-att-value="record.detail"
+                                       t-att-disabled="record.detail.disabled || undefined"
+                                       t-attf-class=" #{record.detail.disabled ? 'input_disabled' : ''} #{record.detail.is_number ? 'allow_number' : ''}"/>
+                            </t>
+                            <t t-else="">
+                                <t t-esc="record.detail"/>
+                            </t>
+                        </div>
+                    </t>
+                </div>
+            </td>
+        </t>
+    </t>
+
+    <t t-name="CustomerSaleDetail">
+        <td class="content-cell" style="height:unset; vertical-align: initial;">
+            <div class="order-info-items o_td_label" style="margin-bottom: 6px;">Invoice Address</div>
+            <div class="order-info-items" style="height: 4pc; padding: 0px 12px; text-indent: 0;margin-bottom: 6px;">
+                <span>
+                    <t t-esc="customer.full_invoice_address || full_address"/>
+                </span>
+            </div>
+            <div class="order-info-items o_td_label" style="margin-bottom: 6px;">Shipping Address</div>
+            <div class="order-info-items" style="height: 4pc; padding: 0px 12px; text-indent: 0;">
+                <span>
+                    <t t-esc="customer.full_delivery_address || full_address"/>
+                </span>
+            </div>
+        </td>
+    </t>
+
+    <t t-name="SaleTheOneCardDetail">
+        <td class="content-cell" style="height:unset; vertical-align: initial;">
+            <div class="the-one-detail-container">
+                <div class="the-one-detail-row">
+                    <div>
+                        <b>T1C Name : </b> <t t-esc="order.membercard and order.membercard.member_name?order.membercard.member_name:'-'"/>
+                    </div>
+                </div>
+                <div class="the-one-detail-row">
+                    <div class="right">
+                        <b>T1C No : </b> <t t-esc="order.membercard and order.membercard.the_one_card_no?order.membercard.the_one_card_no:'-'"/>
+                    </div>
+                    <div class="left">
+                        <b>T1C Tel : </b> <t t-esc="order.membercard and order.membercard.phone?order.membercard.phone:'-'"/>
+                    </div>
+                </div>
+                <div class="the-one-detail-row">
+                    <div class="right">
+                        <b>Balance Points : </b> <t t-esc="order.membercard and order.membercard.balance_points?order.membercard.balance_points:'-'"/>
+                    </div>
+                    <div class="left">
+                        <b>Exp This Yr : </b> <t t-esc="order.membercard and order.membercard.expire_this_year?order.membercard.expire_this_year:'-'"/>
+                    </div>
+                </div>
+                <div class="the-one-detail-row">
+                    <div class="right">
+                        <b>Redeem Right : </b> <t t-esc="order.membercard and order.membercard.redeem_rights?order.membercard.redeem_rights:'-'"/>
+                    </div>
+                    <div class="left">
+                        <b>Status : </b> <t t-esc="order.membercard and order.membercard.status?order.membercard.status:'-'"/>
+                    </div>
+                </div>
+                <div class="the-one-detail-row">
+                    <div class="right">
+                        <b>Card Type : </b> <t t-esc="order.membercard and order.membercard.card_type?order.membercard.card_type:'-'"/>
+                    </div>
+                    <div class="left">
+                        <b>Tier : </b> <t t-esc="order.membercard and order.membercard.tier?order.membercard.tier:'-'"/>
+                    </div>
+                </div>
+            </div>
+        </td>
+    </t>
+
+    <t t-name="SaleOrderFromNoteShippingFee">
+        <td class="content-cell" colspan="2" style="text-align: left;padding:5px 0; height:unset; vertical-align: bottom;">
+                <div>
+                    <span t-att-class="(widget.pos.pos_session.sale_type and widget.pos.pos_session.sale_type == 'dropship'?widget.pos.pos_sale_order_discount_see_dropship:widget.pos.pos_sale_order_discount_see)?'':'oe_hidden'">
+                        <label for="discount_see" class="discount_see_el">ส่วนลดพิเศษ :</label>
+                        <input name="discount_see" class="discount_see_el discount_see" style="width:50px;"
+                               type="text" t-att-value="widget.pos.get_order().amount_discount_by_order_text || ''"/>
+                    </span>
+                    <t t-if="widget.pos.session_info and widget.pos.session_info.sale_type and widget.pos.session_info.sale_type == 'instore'">
+                        <label for="shipping_fee">ค่าจัดส่ง :</label>
+                        <input name="shipping_fee" class="shipping_fee" style="width:50px;"
+                               type="text" t-att-value="widget.pos.get_order().amount_delivery_fee_by_order || ''"/>
+                    </t>
+                </div>
+            <div>
+                <label for="internal_note">หมายเหตุภายใน :</label>
+                <input name="internal_note" class="internal_note"
+                       type="text" t-att-value="widget.pos.get_order().note || ''"/>
+            </div>
+        </td>
+    </t>
+
+    <t t-name="CustomerAction">
+        <button t-attf-class='#{ ( widget.pos.get_client() and widget.pos.get_client().name.length > 10) ? "decentered" : "" }'
+                style="width: 135px;height: 36px;font-size: 14px;text-overflow: ellipsis;white-space: nowrap;overflow: hidden;">
+            <i class='fa fa-user'/>
+            <t t-if="widget.pos.get_client()">
+                <t t-esc="widget.pos.get_client().name" />
+            </t>
+            <t t-if="!widget.pos.get_client()">
+                Set Customer
+            </t>
+        </button>
+    </t>
+
+    <t t-name="SaleOrderReturnPopup">
+        <div class="modal-dialog">
+            <div class="popup popup-textinput return_popup_style">
+                <div class="title" style="margin-bottom: 0px;">
+                    <span>
+                        <span class="void_return_type">Void</span> Products
+                    </span>
+                    <span class="button" id="complete_return" style="position: absolute;right: 1%;top: -1%;background-color: #5c92a7;color: white;width: 28%;">
+                        Complete <span class="void_return_type">Void</span>
+                    </span>
+                </div>
+                <div class="body">
+                    <div class='container_div'>
+                        <table border="1" frame="void" rules="rows" class="return_popup_table">
+                            <tr class="return_popup_tr">
+                                <th class="table_data_cells"><p>Product (<span style="color:#2f6e75">Qty</span>.)</p></th>
+                                <th class="table_data_cells"><span class="void_return_type">Void</span> Qty.</th>
+                            </tr>
+
+                            <t t-foreach="widget.orderlines || []" t-as="line">
+                                <tr class="return_popup_tr" t-att-style="(widget.page_type == 'return' and line.free_product_id)?'background-color:#E5E5F8;':''">
+                                    <td class="table_data_cells">
+                                        <t t-if="line.promotion and line.free_product_id and line.promotion_name != '' and line.promotion_name.length > 0 ">
+                                            <t t-esc="'['+ line.promotion_id[1] +'] '+ line.promotion_name"/>
+                                        </t>
+                                        <t t-elif="line.promotion and line.promotion_name != '' and line.promotion_name.length > 0 ">
+                                            <t t-esc="line.promotion_name"/>
+                                        </t>
+                                        <t t-else="">
+                                            <t t-esc="line.product_id[1]"/>
+                                        </t>
+                                        (<b style="color:#2f6e75"><t t-esc="line.product_uom_qty - line.line_qty_returned"/></b>)
+                                    </td>
+                                    <td class="table_data_cells return_qty">
+                                        <input type="number" value="0" min="0" t-att-max='line.product_uom_qty - line.line_qty_returned'
+                                               t-att-line-qty-remaining='line.product_uom_qty - line.line_qty_returned' t-att-line-id="line.id"
+                                               t-att-promotion="line.promotion"
+                                               t-att-is-free-product="(line.free_product_id)?true:false"
+                                               t-att-line-free-id="line.line_free_id"
+                                        />
+                                    </td>
+                                </tr>
+                            </t>
+
+                        </table>
+                    </div>
+                </div>
+                <div class="footer" style="background: #f0eeee;">
+                    <div class="return_reason_box">
+                        <span><span class="void_return_type">Void</span> Reason</span>
+                        <select class="required-form return_so_reason_selection_box">
+                            <option value="">None</option>
+                            <t t-foreach="widget.return_reason || []" t-as="reason">
+                                <option t-att-value="reason.id">
+                                    <t t-esc="reason.name"/>
+                                </option>
+                            </t>
+                        </select>
+                    </div>
+                    <div class="button" id="return_order" style="background-color: rgb(94, 191, 143);color: white;">
+                        <span class="void_return_type">Void</span>
+                    </div>
+                    <div class="button cancel">
+                        Cancel
+                    </div>
+                </div>
+            </div>
+        </div>
+    </t>
+
+    <t t-name="SaleOrderReturnScreenWidget">        
+        <div class="clientlist-screen screen">
+            <div class="orders-screen-content">
+                <section class="top-content" style="height:90px;">
+                    <span class='button back' style="font-size:16px;">
+                        Back
+                    </span>
+                </section>
+                <span class="searchbox">
+                    <div class="text-center" style="font-size: 24px;">
+                        <span class="void_return_type">Return</span> Orders
+                    </div>
+                    <input placeholder="Search Orders" class="order_search" style="width: 150px;"/>
+                    <span class="search-clear"></span>
+                </span>
+                <section class="full-content" style="top: 90px;">
+                    <div class='window'>
+                        <section class='subwindow collapsed'>
+                            <div class='subwindow-container collapsed'>
+                                <div class='subwindow-container-fix order-details-contents'>
+                                </div>
+                            </div>
+                        </section>
+                        <section class='subwindow'>
+                            <div class='wk_table_back subwindow-container'>
+                                <div class='subwindow-container-fix touch-scrollable scrollable-y' style="overflow-y: scroll;">
+                                    <table class='client-list wk_order_list o_list_view table table-condensed table-striped'>
+                                        <thead>
+                                            <tr style="background-color: rgb(135, 160, 166);color: white;">
+                                                <th>Order No.</th>
+                                                <!-- <th>Receipt No.</th> -->
+                                                <th>Customer</th>
+                                                <th>Order Date</th>
+                                                <th>Status</th>                                               
+                                            </tr>
+                                        </thead>
+                                        <tbody class='return-wk-order-list-contents'>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </t>
+
+    <t t-name="SaleOrderReturnLines"> 
+        <tr class='return-wk-order-line' t-att-data-id='order.id' style="cursor:pointer;">
+            <td><t t-esc='order.name' /></td>
+            <!-- <td><t t-esc='order.inv_no' /></td> -->
+            <td><t t-esc="order.partner_id[1] || '-'" /></td>
+            <td><t t-esc='order.date_order' /></td>
+            <td><t t-esc="widget.state_dict[order.state] || order.state || ''" /></td>
+        </tr>
+    </t>
+
+    <t t-name="SaleOrderReturnDetails">
+        <section class='order-details' style="border-bottom: solid 5px rgb(110,200,155);">
+            <div class='client-details-box clearfix' style="background-color: rgb(252, 252, 252);">
+                <div class='client-details-left' style="margin-bottom: 1%;">
+                    <div class='client-detail'>
+                        <h2 style="margin-left: 5.6%;color: rgb(67, 134, 111);">Order Details</h2>
+                    </div>
+                    <div class='client-detail' style="margin-left: 6.3%;">
+                        <span class='label' style="text-align: left;">Order No.: </span>
+                        <span class='detail client-address'><t t-esc='order.name' /></span>
+                    </div>
+                    <div class='client-detail' style="margin-left: 6.3%;">
+                        <!-- <span class='label' style="text-align: left;">Receipt No.: </span> -->
+<!--                         <span>
+                            <t t-if="order.inv_no.length > 0">
+                                <t t-esc="order.inv_no"/>
+                            </t>
+                            <t t-else="">-</t>
+                        </span> -->
+                    </div>
+                    <t t-if="order.partner_id">
+                        <div class='client-detail' style="margin-left: 6.3%;">
+                            <span class='label' style="text-align: left;">Customer: </span>
+                            <span class='detail client-address'><t t-esc='order.partner_id[1]' /></span>
+                        </div>
+                    </t>
+                    <t t-if="!order.partner_id">
+                        <div class='client-detail' style="margin-left: 6.3%;">
+                            <span class='label' style="text-align: left;">Customer: </span>
+                            -
+                        </div>
+                    </t>
+<!--                     <div class='client-detail' style="margin-left: 6.3%;">
+                        <span class='label' style="text-align: left;">T1C: </span>
+                        <span>
+                            <t t-if="order.the_one_card_no.length > 0">
+                                <t t-esc="order.the_one_card_no"/>
+                            </t>
+                            <t t-else="">-</t>
+                        </span>
+                    </div> -->
+                </div>
+                <div class='client-details-right' style="margin-right: -20%;">
+                    <t t-if="!order.refunded">
+                        <div class='client-detail'>
+                            <div id="wk_refund" class='control-button highlight' style="margin-left: 18%;margin-top: 1%;">
+                                <t t-esc="page_type"/>
+                            </div>
+                        </div>
+                    </t>
+                    <img id="close_order_details" src="/pos_order_return/static/src/img/icon-cross.png" style="cursor: pointer;position: absolute;left: 96%;top: 3%;"/>
+                    <div class='client-detail'>
+                        <span class='label' style="text-align: left;">Date:</span>
+                        <span class='detail client-id'><t t-esc='order.date_order'/></span>
+                    </div>
+                </div>
+
+                <div class='order-detail' style=" width: 100%;text-align: left;margin-left: 3%;">
+                    <table class="tableBodyScroll" border="1" frame="void" rules="rows" id="order_line_content" style="width: 94%;text-align:center;border-bottom: 3px solid rgb(70, 150, 110);">
+                        <thead>
+                            <tr style="color: rgb(51, 112, 39);border-bottom: 3px solid rgb(67, 134, 111);">
+                                <th style="text-align:left;width: 35%;">Product</th>
+                                <th style="width: 10%;">Quantity</th>
+                                <th style="width: 10%;"><t t-esc="page_type"/></th>
+                                <th style="width: 10%;">Unit Price</th>
+                                <th style="width: 10%;">Tax</th>
+                                <th style="width: 10%;">Price</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-foreach='orderlines' t-as='line'>
+                                <tr>
+                                    <td style="text-align:left;width: 35%;">
+                                        <t t-if="widget.pos.db.get_product_by_id(line.product_id[0])">
+                                            <t t-if="line.promotion and line.free_product_id and line.promotion_name != '' and line.promotion_name.length > 0 ">
+                                                <t t-esc="'['+ line.promotion_id[1] +'] '+ line.promotion_name"/>
+                                            </t>
+                                            <t t-elif="line.promotion and line.promotion_name != '' and line.promotion_name.length > 0 ">
+                                                <t t-esc="line.promotion_name"/>
+                                            </t>
+                                            <t t-elif="!(line.promotion and line.promotion_name != '' and line.promotion_name.length > 0 ) and widget.pos.db.get_product_by_id(line.product_id[0]).not_returnable">
+                                                <t t-esc="line.product_id[1]"/> <b style="color: rgb(160, 89, 89);">(Non-Returnable)</b>
+                                            </t>
+                                            <t t-elif="!(line.promotion and line.promotion_name != '' and line.promotion_name.length > 0 ) and !widget.pos.db.get_product_by_id(line.product_id[0]).not_returnable">
+                                                <t t-esc="line.product_id[1]"/>
+                                            </t>
+                                        </t>
+                                        <t t-if="!widget.pos.db.get_product_by_id(line.product_id[0])">
+                                            <t t-esc="line.product_id[1]"/> <b style="color: rgb(160, 89, 89);">(Unavailable In POS)</b>
+                                        </t>
+                                    </td>
+                                    <td style="width: 10%;">
+                                        <t t-esc="line.product_uom_qty"/>
+                                    </td>
+                                    <td style="width: 10%;">
+                                        <t t-if="line.line_qty_returned == 0">
+                                            -
+                                        </t>
+                                        <t t-if="line.line_qty_returned != 0">
+                                            <t t-esc="line.line_qty_returned"/>
+                                        </t>
+                                    </td>
+                                    <td style="width: 10%;">
+                                        <t t-esc="widget.chrome.screens.payment.format_currency(line.price_unit)"/>
+                                    </td>
+                                    <td style="width: 10%;">
+                                        <!-- <t t-if="line.price_subtotal_incl - line.price_subtotal != 0.0"> -->
+                                            <t t-esc="widget.chrome.screens.payment.format_currency(line.price_tax)"/>
+                                        <!-- </t> -->
+<!--                                         <t t-if="line.price_subtotal_incl - line.price_subtotal == 0.0">
+                                            -
+                                        </t> -->
+                                    </td>
+                                    <td style="width: 10%;">
+                                        <t t-esc="widget.chrome.screens.payment.format_currency(line.price_total)"/>
+                                    </td>
+                                </tr>
+                        </t>
+                        </tbody>
+                    </table>
+                </div>
+                <div class='client-details-box clearfix'>
+                    <div class='client-details-left' style="margin-top: 1%;">
+<!--                         <div class='client-detail'>
+                            <span class='label' style="width: 27.5%;color: rgb(67, 134, 111);text-align: left;margin-left: 5.7%;">Payment modes:</span>
+                            <ul style="margin-left: 5.7%;">
+                            <t t-foreach='statements' t-as='statement'>
+                                <li>
+                                    <t t-esc="statement.journal_id[1]"/>
+                                    <t t-if="statement.credit_card_no != '' and statement.credit_card_no.length > 0 and statement.credit_card_type != '' ">
+                                        <t t-esc="' ('+ statement.credit_card_type +')'"/>
+                                    </t>
+                                    &#160;(<t t-esc="widget.chrome.screens.payment.format_currency(statement.amount)"/>)
+                                </li>
+                            </t>
+                            <t t-if="total_amount_return > 0">
+                                <t t-esc="'Amount Return ('+ widget.chrome.screens.payment.format_currency(total_amount_return )+ ')'"/>
+                            </t>
+                        </ul>
+                        </div> -->
+                    </div>
+                    <div class='client-details-right' style="margin-top: 1%;margin-right: -26%;">
+                        <div class='client-detail'>
+                            <span class='label'>Total</span>
+                            <span class='detail client-id' style="color: rgb(67, 134, 111);font-weight: bold;"><t t-esc='widget.chrome.screens.payment.format_currency(order.amount_total)'/></span>
+                        </div>
+                    </div>
+                </div>
+                <br/>
+            </div>
+        </section>
+    </t>
+
+    <!--clone from ProductScreenWidget-->
+    <t t-name="SaleOrderFormScreenWidget">
+        <div class="sale product-screen screen">
+            <div class='sale-form-left-pane'>
+                <div class="window">
+                    <section class='subwindow collapsed top-pane'>
+                        <div class='subwindow-container collapsed'>
+                            <div class='subwindow-container-fix order-details-contents'>
+                                <table class="layout-table">
+                                    <tr class="header-row leftpane-header">
+                                        <td class="header-cell" colspan="3">
+                                            <button class='button back' style="margin-right:0px; margin-left: 17px;">
+                                                <i class='fa fa-angle-double-left'></i>
+                                                Back
+                                            </button>
+
+                                            <span class='button set-customer placeholder-customer-action' style="padding: 0; border: none;margin-left: 32px;">
+
+                                            </span>
+                                            <button class='btn-success button calculate_promotion'>
+                                                Promotion
+                                            </button>
+                                            <button class='btn-primary button save_sale_order'>Save</button>
+                                            <button type="button" class="btn btn-sm button check-quantity" style="padding:2px 8px 0px 8px;font-size:14px; border-color: #ccc; background: white; outline: none;">
+                                                    <i class="fa fa-fw fa-arrows-h" style="top: 4px !important;position: relative; top: 2px; color: #7C7BAD;font-size: 24px;"></i>
+                                                <span>Check Quantity</span>
+                                            </button>
+                                            <button type="button" class="btn btn-sm button print-qu" style="padding:2px 8px 0px 8px;font-size:14px; border-color: #ccc; background: white; outline: none;">
+                                                    <i class="fa fa-fw fa-print" style="top: 4px !important;position: relative; top: 2px; color: #7C7BAD;font-size: 24px;"></i>
+                                                <span>Print QU</span>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr class="content-row">
+                                        <td class="content-cell">
+                                            <div class="content-container t1c-controler">
+                                                <div class="placeholder-sale-order-form-t1c-controler">
+                                                    <!--t1c-controler-->
+                                                    <button class="button search_t1c"
+                                                            style="margin: 0px;margin-top: 30px;padding: 9px 8px;font-size: 13px;width: 84px;">
+                                                        Search T1C
+                                                    </button>
+                                                    <button class="button" disabled="disabled"
+                                                            style="margin: 0px;margin-top: 15px;padding: 1px 8px;font-size: 13px;width: 84px;">
+                                                        Redeem Product
+                                                    </button>
+                                                    <button class="button" disabled="disabled"
+                                                            style="margin: 0px;margin-top: 15px;padding: 1px 8px;font-size: 13px;width: 84px;">
+                                                        Redeem Voucher
+                                                    </button>
+                                                    <button class="button" disabled="disabled"
+                                                            style="margin: 0px;margin-top: 15px;padding: 1px 8px;font-size: 13px;width: 84px;">
+                                                        Redeem Tender
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="content-cell">
+                                            <div class="content-container customer-info">
+                                                <table class="layout-table">
+                                                    <tr class="content-row placeholder-sale-order-form-customer-info" style="height:185px;"/>
+                                                    <tr class="content-row placeholder-sale-order-form-the-one-card-info" style="height:80px;"/>
+                                                </table>
+                                            </div>
+                                        </td>
+                                        <td class="content-cell">
+                                            <div class="content-container order-info">
+                                                <table class="layout-table">
+                                                    <tr class="content-row placeholder-order-date-detail" style="height:50px;"></tr>
+                                                    <tr class="content-row placeholder-customer-detail" style="height:134px">
+                                                        <td class="content-cell" style="width: 50%;height:unset; vertical-align: initial;">
+                                                            <div class="order-info-items o_td_label">
+                                                                <div>Delivery Method :</div>
+                                                                <div>Payment Terms :</div>
+                                                                <div>Credit Limit :</div>
+                                                                <div>Credit Balance :</div>
+                                                                <div>Degree of Trust :</div>
+                                                            </div>
+                                                        </td>
+                                                        <td class="content-cell" style="width: 50%;height:unset; vertical-align: initial;">
+                                                            <div class="order-info-items">
+                                                                <div></div>
+                                                                <div></div>
+                                                                <div></div>
+                                                                <div></div>
+                                                                <div></div>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                    <tr class="content-row placeholder-order-note-shipping-free" style=""></tr>
+                                                </table>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </section>
+                    <section class='subwindow bottom-pane'>
+                        <div class='subwindow-container pads'>
+                            <div class='subwindow-container-fix touch-scrollable scrollable-y' style="padding-top: 42px;">
+                                <table class="orderlines-header">
+                                    <tr class="content-row">
+                                        <t t-if="widget.pos.session_info and widget.pos.session_info.sale_type and widget.pos.session_info.sale_type == 'dropship'">
+                                            <th class="content-cell product-detail" style="width:284px">
+                                                <div>Product</div>
+                                            </th>
+                                            <th class="content-cell ordered" style="width:65px">
+                                                <div>Ordered</div>
+                                            </th>
+                                            <th class="content-cell available" style="width:65px">
+                                                <div>Quantity Available</div>
+                                            </th>
+                                            <th class="content-cell price" style="width:95px">
+                                                <div>Unit Price</div>
+                                            </th>
+                                            <th class="content-cell subtotal" style="width:95px">
+                                                <div>Subtotal</div>
+                                            </th>
+                                            <th class="content-cell product_status" style="width:80px">
+                                                <div>Product Status</div>
+                                            </th>
+                                            <th class="content-cell product_status_oasis" style="width:80px">
+                                                <div>Product Status OFM</div>
+                                            </th>
+                                        </t>
+                                        <t t-else="">
+                                            <th class="content-cell product-detail" style="width:427px">
+                                                <div>Product</div>
+                                            </th>
+                                            <th class="content-cell ordered" style="width:90px">
+                                                <div>Ordered</div>
+                                            </th>
+                                            <th class="content-cell price" style="width:115px">
+                                                <div>Unit Price</div>
+                                            </th>
+                                            <th class="content-cell subtotal" style="width:161px">
+                                                <div>Subtotal</div>
+                                            </th>
+                                        </t>
+                                        <td class="content-cell trash" style="width:25px; border-right: 0px;"/>
+                                    </tr>
+                                </table>
+                                <div class="placeholder-SaleOrderWidget"></div>
+                            </div>
+                        </div>
+                    </section>
+                    <!--<div class="subwindow pv70">
+                        <div>
+                            <div class="placeholder-ActionpadWidget"></div>
+                            <div class="placeholder-NumpadWidget"></div>
+                        </div>
+                    </div>-->
+                    <!--<div class="subwindow pv30">
+                        <div class="placeholder-OrderWidget"></div>
+                    </div>-->
+                </div>
+            </div>
+            <div class='sale-form-right-pane'>
+                <table class="layout-table">
+                    <tr class="header-row">
+                        <td class="header-cell">
+                            <span class="placeholder-SaleProductCategoriesWidget" />
+                        </td>
+                    </tr>
+                    <tr class="content-row">
+                        <td class="content-cell">
+                            <div class="content-container">
+                                <span class="placeholder-SaleProductListWidget" />
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </t>
+
+    <t t-name="SaleOrderListScreenWidget">
+    	<div class="clientlist-screen screen">
+            <div class="orders-screen-content">
+                <section class="top-content" style="height:90px;">
+                    <span class='button back' style="font-size:16px;">
+                        Returns
+                    </span>
+                    <span class='button next' style="font-size:16px;">
+                        Create QU
+                        <i class='fa fa-angle-double-right'></i>
+                    </span>
+                </section>
+                <span class="searchbox">
+                    <div class="text-center" style="font-size: 24px;">
+                        <t t-if="widget.pos.pos_session.sale_type == 'dropship'">
+                            Dropship
+                        </t>
+                        <t t-else="">
+                            In Store
+                        </t>
+                    </div>
+                    <input placeholder="Search Orders" class="order_search" style="width: 150px;"/>
+                    <span class="search-clear"></span>
+                </span>
+                <section class="full-content" style="top: 90px;">
+                    <div class='window'>
+                        <section class='subwindow collapsed'>
+                            <div class='subwindow-container collapsed'>
+                                <div class='subwindow-container-fix order-details-contents'>
+                                </div>
+                            </div>
+                        </section>
+                        <section class='subwindow'>
+                            <div class='wk_table_back subwindow-container'>
+                                <div class='subwindow-container-fix touch-scrollable scrollable-y' style="overflow-y: scroll;">
+                                    <table class='client-list sale_order_list o_list_view table table-condensed table-striped'>
+                                        <thead>
+                                            <tr style="background-color: rgb(135, 160, 166);color: white;">
+                                                <th>Quotation Number</th>
+                                                <th>Order Date</th>
+                                                <th>Customer</th>
+                                                <th>Total</th>
+                                                <th>Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class='sale-order-list-contents' >
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </t>
+
+    <t t-name="SaleOrderListLine">
+        <tr class='sale-order-line' t-att-data-id='order.id' style="cursor:pointer;">
+            <td><t t-esc="order.quotation_no?order.quotation_no:order.name"/></td>
+            <td><t t-esc='order.date_order' /></td>
+            <td><t t-esc="(order.partner_id instanceof Array)?order.partner_id[1]:'-'" /></td>
+            <td><t t-esc='widget.format_currency(order.amount_total)' /></td>
+            <td><t t-esc="widget.state_dict[order.state] || order.state || ''"/></td>
+            <!--<td><t t-esc='order.date_order' /></td>-->
+        </tr>
+    </t>
+
+    <t t-name="ClientLineAPI">
+        <tr class='client-line' t-att-data-id='partner.id'>
+            <td><t t-esc='partner.name' /></td>
+            <td><t t-esc='partner.address' /></td>
+            <td><t t-esc='partner.phone or partner.mobile or ""' /></td>
+            <td>
+                <t t-esc='partner.customer_payment_type=="credit"?"Credit Term":"Cash /Credit Card"' />
+            </td>
+            <td>
+                <span>
+                    <t t-if="partner.customer_payment_type == 'credit'">
+                        <t t-esc='partner.property_payment_term_id?partner.property_payment_term_id[1]:""' />
+                    </t>
+                    <t t-else="">Immediate Payment</t>
+                </span>
+            </td>
+        </tr>
+    </t>
+
+    <t t-name="ClientDetailsEditAPI">
+        <section class='client-details edit'>
+            <div class='client-picture'>
+                <t t-if='!partner.id'>
+                    <i class='fa fa-camera'></i>
+                </t>
+                <t t-if='partner.id'>
+                    <img t-att-src='widget.partner_icon_url(partner.id)' />
+                </t>
+                <input type='file' class='image-uploader'></input>
+            </div>
+            <input class='detail client-name' name='name' t-att-value='partner.name' placeholder='Name'></input>
+            <div class='edit-buttons'>
+                <div class='button undo'><i class='fa fa-undo' /></div>
+                <div class='button save'><i class='fa fa-floppy-o' /></div>
+            </div>
+            <div class='client-details-box clearfix'>
+                <div class='client-details-left'>
+                    <div class='client-detail'>
+                        <span class='label'>Street</span>
+                        <input class='detail client-address-street' name='street'       t-att-value='partner.street || ""' placeholder='Street'></input>
+                    </div>
+                    <div class='client-detail'>
+                        <span class='label'>City</span>
+                        <input class='detail client-address-city'   name='city'         t-att-value='partner.city || ""' placeholder='City'></input>
+                    </div>
+                    <div class='client-detail'>
+                        <span class='label'>Postcode</span>
+                        <input class='detail client-address-zip'    name='zip'          t-att-value='partner.zip || ""' placeholder='ZIP'></input>
+                    </div>
+                    <div class='client-detail'>
+                        <span class='label'>Country</span>
+                        <select class='detail client-address-country needsclick' name='country_id'>
+                            <option value=''>None</option>
+                            <t t-foreach='widget.pos.countries' t-as='country'>
+                                <option t-att-value='country.id' t-att-selected="partner.country_id ? ((country.id === partner.country_id[0]) ? true : undefined) : undefined">
+                                    <t t-esc='country.name'/>
+                                </option>
+                            </t>
+                        </select>
+                    </div>
+                </div>
+                <div class='client-details-right'>
+                    <div class='client-detail'>
+                        <span class='label'>Email</span>
+                        <input class='detail client-email'  name='email'    type='email'    t-att-value='partner.email || ""'></input>
+                    </div>
+                    <div class='client-detail'>
+                        <span class='label'>Phone</span>
+                        <input class='detail client-phone'  name='phone'    type='tel'      t-att-value='partner.phone || ""'></input>
+                    </div>
+                    <div class='client-detail'>
+                        <span class='label'>Barcode</span>
+                        <input class='detail barcode'       name='barcode'    t-att-value='partner.barcode || ""'></input>
+                    </div>
+                    <div class='client-detail'>
+                        <span class='label'>Tax ID</span>
+                        <input class='detail vat'           name='vat'     t-att-value='partner.vat || ""'></input>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </t>
+    <t t-name="ClientDetailsAPI">
+        <section class='client-details'>
+            <div class='client-picture'>
+                <img t-att-src='widget.partner_icon_url(partner.id)' />
+            </div>
+            <div class='client-name'><t t-esc='partner.name' /></div>
+            <!--<div class='edit-buttons'>-->
+                <!--<div class='button edit'><i class='fa fa-pencil-square' /></div>-->
+            <!--</div>-->
+            <div class='client-details-box clearfix'>
+                <div class='client-details-left'>
+                    <div class='client-detail'>
+                        <span class='label'>Address</span>
+                        <t t-if='partner.address'>
+                            <span class='detail client-address'><t t-esc='partner.address' /></span>
+                        </t>
+                        <t t-if='!partner.address'>
+                            <span class='detail client-address empty'>N/A</span>
+                        </t>
+                    </div>
+                    <div class='client-detail'>
+                        <span class='label'>Email</span>
+                        <t t-if='partner.email'>
+                            <span class='detail client-email'><t t-esc='partner.email' /></span>
+                        </t>
+                        <t t-if='!partner.email'>
+                            <span class='detail client-email empty'>N/A</span>
+                        </t>
+                    </div>
+                    <div class='client-detail'>
+                        <span class='label'>Phone</span>
+                        <t t-if='partner.phone'>
+                            <span class='detail client-phone'><t t-esc='partner.phone' /></span>
+                        </t>
+                        <t t-if='!partner.phone'>
+                            <span class='detail client-phone empty'>N/A</span>
+                        </t>
+                    </div>
+                </div>
+                <div class='client-details-right'>
+                    <div class='client-detail'>
+                        <span class='label'>Barcode</span>
+                        <t t-if='partner.barcode'>
+                            <span class='detail client-id'><t t-esc='partner.barcode'/></span>
+                        </t>
+                        <t t-if='!partner.barcode'>
+                            <span class='detail client-id empty'>N/A</span>
+                        </t>
+                    </div>
+                    <div class='client-detail'>
+                        <span class='label'>Tax ID</span>
+                        <t t-if='partner.vat'>
+                            <span class='detail vat'><t t-esc='partner.vat'/></span>
+                        </t>
+                        <t t-if='!partner.vat'>
+                            <span class='detail vat empty'>N/A</span>
+                        </t>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </t>
+
+    <t t-name="ClientListAPIScreenWidget">
+        <div class="clientlist-screen screen">
+            <div class="screen-content">
+                <section class="top-content">
+                    <span class='button back'>
+                        <i class='fa fa-angle-double-left'></i>
+                        Cancel
+                    </span>
+                    <span class='searchbox'>
+                        <input placeholder='Search Customers' />
+                        <span class='search-clear'></span>
+                    </span>
+                    <span class='searchbox'></span>
+                    <!--<span class='button new-customer'>
+                        <i class='fa fa-user'></i>
+                        <i class='fa fa-plus'></i>
+                    </span>-->
+                    <span class='button next oe_hidden highlight'>
+                        Select Customer
+                        <i class='fa fa-angle-double-right'></i>
+                    </span>
+                </section>
+                <section class="full-content">
+                    <div class='window'>
+                        <section class='subwindow collapsed'>
+                            <div class='subwindow-container collapsed'>
+                                <div class='subwindow-container-fix client-details-contents'>
+                                </div>
+                            </div>
+                        </section>
+                        <section class='subwindow'>
+                            <div class='subwindow-container'>
+                                <div class='subwindow-container-fix touch-scrollable scrollable-y'>
+                                    <table class='client-list'>
+                                        <colgroup>
+                                            <col width='20%'/>
+                                            <col width='34%'/>
+                                            <col width='15%'/>
+                                            <col width='15%'/>
+                                            <col width='16%'/>
+                                        </colgroup>
+                                        <thead>
+                                            <tr>
+                                                <th>Name</th>
+                                                <th>Address</th>
+                                                <th>Phone</th>
+                                                <th>Type</th>
+                                                <th>Payment Terms</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class='client-list-contents'>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </t>
+</templates>

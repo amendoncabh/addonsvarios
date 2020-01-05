@@ -1,0 +1,736 @@
+<?xml version="1.0"?>
+<openerp>
+    <data>
+    
+        <menuitem
+                name="Orders"
+                action="point_of_sale.action_report_pos_order_all"
+                id="point_of_sale.menu_report_pos_order_all"
+                parent="menu_report_sales_admin"
+                sequence="0"
+        />
+
+        <!-- POS Manager Can Edit product Hold Sale Only-->
+
+        <!-- Top menu item -->
+        <record model="ir.ui.view" id="view_pos_config_form_inherit_pos">
+            <field name="name">pos.config.form.view</field>
+            <field name="model">pos.config</field>
+            <field name="mode">primary</field>
+            <field name="priority">3</field>
+            <field name="arch" type="xml">
+                <form string="Point of Sale Configuration">
+
+                    <sheet>
+                        <label for="name" class="oe_edit_only"/>
+                        <h1>
+                            <field name="name" readonly="1"/>
+                        </h1>
+                        <separator string="Hold Sale Products" colspan="4"/>
+                        <field name="product_ids" colspan="4" nolabel="1">
+                            <tree string="Product" default_order="sequence asc">
+                                <field name="default_code"/>
+                                <field name="name"/>
+                            </tree>
+                        </field>
+                    </sheet>
+
+                </form>
+            </field>
+        </record>
+
+        <record model="ir.actions.act_window" id="action_pos_config_pos_inherit_pos">
+            <field name="name">Hold Sale</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">pos.config</field>
+            <field name="view_type">form</field>
+            <field name="view_ids" eval="[(5, 0, 0),
+                (0, 0, {'view_mode': 'tree', 'view_id': ref('point_of_sale.view_pos_config_tree')}),
+                (0, 0, {'view_mode': 'form', 'view_id': ref('view_pos_config_form_inherit_pos')}),
+            ]"/>
+            <field name="search_view_id" ref="point_of_sale.view_pos_config_search"/>
+        </record>
+
+        <record model="ir.actions.act_window" id="point_of_sale.action_pos_config_pos">
+            <field name="name">Point of Sale</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">pos.config</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="view_ids" eval="[(5, 0, 0),
+                (0, 0, {'view_mode': 'tree', 'view_id': ref('point_of_sale.view_pos_config_tree')}),
+                (0, 0, {'view_mode': 'form', 'view_id': ref('point_of_sale.view_pos_config_form')}),
+            ]"/>
+            <field name="search_view_id" ref="point_of_sale.view_pos_config_search"/>
+        </record>
+
+        <menuitem
+                parent="point_of_sale.menu_point_config_product"
+                action="action_pos_config_pos_inherit_pos"
+                id="menu_pos_config_pos_inherit_pos"
+                groups="point_of_sale.group_pos_manager"/>
+
+        <menuitem
+                parent="point_of_sale.menu_point_config_product"
+                action="point_of_sale.action_pos_config_pos"
+                id="point_of_sale.menu_pos_config_pos"
+                groups="base.group_system,point_of_sale.group_pos_admin"/>
+
+        <!--<record id="end_day_jasper" model="ir.actions.report.xml">-->
+            <!--<field name="string">End Day</field>-->
+            <!--<field name="name">End Day</field>-->
+            <!--<field name="model">pos.session</field>-->
+            <!--<field name="auto">True</field>-->
+            <!--<field name="report_name">end.day.jasper</field>-->
+            <!--<field name="rml">pos_customize/report/re_print_end_day.jrxml</field>-->
+            <!--<field name="report_rml">pos_customize/report/re_print_end_day.jrxml</field>-->
+            <!--<field name="jasper_model_id" ref="base.model_res_users"/>-->
+            <!--<field name="menu">False</field>-->
+            <!--<field name="header">False</field>-->
+            <!--<field name="jasper_report">True</field>-->
+            <!--<field name="jasper_output">pdf</field>-->
+        <!--</record>-->
+
+        <!--<record id="end_day_jasper_values" model="ir.values">-->
+            <!--<field name="name">End Day</field>-->
+            <!--<field name="model">pos.session</field>-->
+            <!--<field name="key2" eval="'client_print_multi'"/>-->
+            <!--<field name="value_unpickle" eval="'ir.actions.report.xml, ' +str(end_day_jasper)"/>-->
+        <!--</record>-->
+
+        <!-- <report string="End Day"
+                model="pos.session"
+                auto="True"
+                name="end.day.jasper"
+                rml="pos_customize/report/re_print_end_day.jrxml"
+                id="end_day_jasper"
+                menu="False"
+                header="False"/> -->
+
+        <record id="action_wizard_change_customer_info" model="ir.actions.act_window">
+            <field name="name">Change Customer Info</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">wizard.chage.customer.info</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+        </record>
+
+        <record model="ir.ui.view" id="view_pos_config_form">
+            <field name="name">pos.config.form.view</field>
+            <field name="model">pos.config</field>
+            <field name="priority">2</field>
+            <field name="inherit_id" ref="point_of_sale.view_pos_config_form"/>
+            <field name="arch" type="xml">
+
+                <xpath expr="//field[@name='fiscal_position_ids']" position="after">
+                    <field name="pos_no"/>
+                    <field name="terminal_no"/>
+                    <field name="is_not_print_invoice"/>
+                </xpath>
+
+                <xpath expr="//field[@name='company_id']" position="after">
+                    <field
+                            name="pos_company_id"
+                            options="{'no_quick_create': True, 'no_create_edit': True}"
+                            invisible="1"
+                    />
+                    <field
+                            name="branch_id"
+                            options="{'no_quick_create': True, 'no_create_edit': True}"
+                    />
+                </xpath>
+
+                <xpath expr="//field[@name='picking_type_id']" position="replace">
+                    <field
+                            name="picking_type_id"
+                            options="{'no_quick_create': True, 'no_create_edit': True}"
+                            groups="stock.group_stock_multi_locations"
+                            context="{'branch_id': branch_id}"
+                    />
+                    <field name="sequence"/>
+                </xpath>
+
+                <xpath expr="//field[@name='journal_id']" position="replace">
+                    <field
+                            name="journal_id"
+                            context="{'company_id': company_id}"
+                            options="{'no_quick_create': True, 'no_create_edit': True}"
+                    />
+                </xpath>
+
+                <xpath expr="//field[@name='invoice_journal_id']" position="replace">
+                    <field
+                            name="invoice_journal_id"
+                            context="{'company_id': company_id}"
+                            options="{'no_quick_create': True, 'no_create_edit': True}"
+                    />
+                </xpath>
+
+                <xpath expr="//group/field[@name='cash_control']" position="before">
+                    <field name="cash_limit"/>
+                </xpath>
+
+                <xpath expr="//group/field[@name='active']" position="after">
+                    <field name="multi_line"/>
+                    <field name="rcpt_no_abb_latest" invisible="1"/>
+                </xpath>
+
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="view_pos_config_form_promotion">
+            <field name="name">pos.config.form.view</field>
+            <field name="model">pos.config</field>
+            <field name="inherit_id" ref="point_of_sale.view_pos_config_form"/>
+            <field name="arch" type="xml">
+
+                <xpath expr="//field[@name='tip_product_id']" position="after">
+                    <field name="promotion_discount_product_id"/>
+                </xpath>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="view_pos_pos_tree">
+            <field name="name">pos.order</field>
+            <field name="model">pos.order</field>
+            <field name="inherit_id" ref="point_of_sale.view_pos_order_tree"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='pos_reference']" position="after">
+                    <field name='inv_no'/>
+                    <field name="invoice_id"/>
+                </xpath>
+                <xpath expr="//field[@name='session_id']" position="before">
+                    <field name='comment_order'/>
+                </xpath>
+                <xpath expr="//field[@name='session_id']" position="after">
+                    <field name='is_return_order' readonly='True'/>
+                </xpath>
+                <xpath expr="//field[@name='amount_total']" position="attributes">
+                    <attribute name="groups">point_of_sale.group_pos_manager</attribute>
+                </xpath>
+                <xpath expr="//tree" position="attributes">
+                    <attribute name="create">0</attribute>
+                </xpath>
+                <xpath expr="//field[@name='pos_reference']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="view_pos_pos_tree_admin">
+            <field name="name">pos.order</field>
+            <field name="model">pos.order</field>
+            <field name="inherit_id" ref="pos_customize.view_pos_pos_tree"/>
+            <field name="groups_id" eval="[(4, ref('base.group_system'))]"/>
+            <field name="arch" type="xml">
+
+                <xpath expr="//tree" position="attributes">
+                    <attribute name="create">1</attribute>
+                </xpath>
+
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="view_pos_pos_form">
+            <field name="name">pos.order</field>
+            <field name="model">pos.order</field>
+            <field name="inherit_id" ref="point_of_sale.view_pos_pos_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='company_id']/.." position="replace">
+                    <group>
+                        <group string="General Information">
+                            <field name="company_id" groups="base.group_multi_company"/>
+                            <field name="location_id" widget="selection" groups="stock.group_stock_multi_locations"/>
+                            <field name="user_id"/>
+                            <field name="pricelist_id" groups="product.group_sale_pricelist"/>
+                            <field name="picking_id" readonly="1"/>
+                            <field name="pos_reference"/>
+                        </group>
+                    </group>
+                </xpath>
+                <xpath expr="//button[@name='action_pos_order_invoice']" position="replace">
+                    <button name="action_warning_create_invoice"
+                            string="Invoice"
+                            type="object"
+                            attrs="{
+                            'readonly': [('partner_id','=',False)],
+                            'invisible': ['|','|',('state', 'not in', ['paid','done']),('is_void_order', '=', True), ('is_return_order', '=', True)]
+                            }"
+                            context="{'default_partner_id': partner_id, 'default_order_id': id}"
+                    />
+                    <button name="action_warning_create_invoice"
+                            string="Credit note"
+                            type="object"
+                            attrs="{
+                            'readonly': [('partner_id','=',False)],
+                            'invisible': ['|','|',('state', 'not in', ['paid','done']),('is_void_order', '=', True),('is_return_order', '=', False)]
+                            }"
+                            context="{'default_partner_id': partner_id, 'default_order_id': id}"
+                    />
+                </xpath>
+                <xpath expr="//field[@name='amount_tax']" position="before">
+                    <label string="Update" class="oe_edit_only"/>
+                    <button
+                            name="recalculate"
+                            string="(update)"
+                            type="object"
+                            class="oe_edit_only oe_link"/>
+                </xpath>
+
+                <xpath expr="//form" position="attributes">
+                    <attribute name="create">false</attribute>
+                </xpath>
+
+                <xpath expr="//header/button[@name='refund']" position="replace"/>
+
+                <xpath expr="//page[4]" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+
+                <xpath expr="//field[@name='picking_id']" position="after">
+                    <field name="invoice_state" invisible="1"/>
+                </xpath>
+
+                <xpath expr="//field[@name='picking_id']" position="replace"/>
+
+                <xpath expr="//group[@name='order_fields']" position="replace">
+
+                    <div class="oe_button_box" name="button_box">
+
+                        <button name="print_receipt_ofm"
+                                class="oe_stat_button oe_read_only"
+                                icon="fa-print"
+                                string="Print Receipt"
+                                type="object"
+                                groups="point_of_sale.group_pos_manager,point_of_sale.group_pos_user"/>
+
+                        <button type="object"
+                                name="print_full_tax_invoice_and_cn"
+                                class="oe_stat_button"
+                                icon="fa-print"
+                                string="Full Tax Invoice"
+                                attrs="{'invisible': ['|', '|',('invoice_state','not in',('open', 'paid')),
+                                ('is_void_order', '=', True),
+                                ('is_return_order', '=', True)]}"/>
+
+                        <button type="object"
+                                name="print_full_tax_invoice_and_cn"
+                                class="oe_stat_button"
+                                icon="fa-print"
+                                string="Credit Note"
+                                attrs="{'invisible': ['|',('invoice_state','not in',('open', 'paid')),
+                                ('is_return_order','=', False)]}"/>
+                    </div>
+
+                    <group name="more_detail_fields">
+                        <group>
+                            <field name="name"/>
+                            <field name="inv_no" readonly="1"/>
+                            <field name="date_order"
+                                   attrs="{'readonly': ['|', ('check_amount', '=', True), ('state', '!=', 'draft')]}"
+                            />
+                            <field name="session_id"
+                                   attrs="{'readonly': ['|', ('check_amount', '=', True), ('state', '!=', 'draft')]}"
+                            />
+                            <field name="fiscal_position_id"
+                                   options="{'no_create': True}"
+                                   attrs="{'readonly': ['|', ('check_amount', '=', True), ('state', '!=', 'draft')]}"
+                            />
+                        </group>
+                        <group>
+                            <field name="partner_id"
+                                   domain="[('customer', '=', True)]"
+                                   options="{'no_quick_create': True, 'no_create_edit': True, 'always_reload': 1}"
+                                   context="{'search_default_customer':1, 'show_address': 1}"
+                                   attrs="{'readonly': ['|', ('state','=','invoiced'), ('check_amount', '=', True)]}"
+                            />
+                            <field name="picking_id" readonly="1"/>
+                            <field name='shop_no'
+                                   attrs="{'invisible': ['|', ('partner_id', '=', True), ('company_type', '!=', 'company')]}"
+                            />
+                            <field name="invoice_id"/>
+                            <field name='refund_user_id'/>
+                            <field name='is_return_order' readonly='True'/>
+                            <field name="is_not_print_invoice" invisible="1"/>
+                            <field name='company_type' invisible="1"/>
+                            <field name='check_amount' invisible="1"/>
+                        </group>
+                    </group>
+                </xpath>
+
+                <xpath expr="//field[@name='picking_id']" position="attributes">
+                    <attribute name="options">{'no_open': True}</attribute>
+                </xpath>
+
+                <xpath expr="//field[@name='lines']" position="replace">
+                    <field name="lines"
+                           attrs="{'readonly': ['|', ('check_amount', '=', True), ('state', '!=', 'draft')]}"
+                           colspan="4"
+                           nolabel="1">
+                        <tree string="Order lines" editable="bottom" name="pos_order_line">
+                            <field name="product_id" options="{'no_quick_create': True, 'no_create_edit': True}"/>
+                            <field name="qty"/>
+                            <field name="price_unit" widget="monetary"/>
+                            <field name="discount" widget="monetary"/>
+                            <field name="discount_amount" widget="monetary"/>
+                            <field name="tax_ids_after_fiscal_position" widget="many2many_tags"/>
+                            <field name="tax_ids" widget="many2many_tags" invisible="1"/>
+                            <field name="price_subtotal_wo_discount" widget="monetary"/>
+                            <field name="price_subtotal_wo_discount_incl" widget="monetary"/>
+                            <field name="price_subtotal" widget="monetary" invisible="1"/>
+                            <field name="price_subtotal_incl" widget="monetary" invisible="1"/>
+                        </tree>
+                        <form string="Order lines">
+                            <group col="4">
+                                <field name="product_id"
+                                       options="{'no_quick_create': True, 'no_create_edit': True, 'no_open': True}"/>
+                                <field name="qty"/>
+                                <field name="discount" widget="monetary"/>
+                                <field name="discount_amount" widget="monetary"/>
+                                <field name="price_unit" widget="monetary"/>
+                                <field name="price_subtotal" invisible="1" widget="monetary"/>
+                                <field name="price_subtotal_incl" invisible="1" widget="monetary"/>
+                                <field name="tax_ids" widget="many2many_tags"/>
+                                <field name="notice"/>
+                            </group>
+                        </form>
+                    </field>
+
+                </xpath>
+                <xpath expr="//field[@name='note']" position="before">
+                    <field name="pos_order_log" colspan="4" nolabel="1" readonly="True">
+                        <tree string="Change Log" editable="bottom">
+                            <field name="date"/>
+                            <field name="user_id"/>
+                            <field name="old_invoice_ref"/>
+                            <field name="new_invoice_ref"/>
+                            <field name="old_log"/>
+                            <field name="new_log"/>
+                        </tree>
+                    </field>
+                </xpath>
+
+
+                <!--<xpath expr="//field[@name='pos_reference']" position="after">
+                    <field name='inv_no'/>
+                </xpath>-->
+
+                <xpath expr="//field[@name='location_id']" position="attributes">
+                    <attribute name="attrs">{'readonly': ['|', ('check_amount', '=', True), ('state', '!=', 'draft')]}
+                    </attribute>
+                </xpath>
+                <xpath expr="//field[@name='user_id']" position="attributes">
+                    <attribute name="attrs">{'readonly': ['|', ('check_amount', '=', True), ('state', '!=', 'draft')]}
+                    </attribute>
+                </xpath>
+
+                <xpath expr="//page[@name='extra']" position="after">
+                    <page name="comment" string="Comment">
+                        <group string="Comment">
+                            <field name="comment_order"/>
+                        </group>
+                    </page>
+                </xpath>
+
+                <xpath expr="//sheet" position="after">
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids" widget="mail_followers"/>
+                        <field name="message_ids" widget="mail_thread"/>
+                    </div>
+                </xpath>
+
+                <xpath expr="//field[@name='amount_tax']" position="after">
+                    <field
+                            name="before_rounding"
+                            widget="monetary"
+                    />
+                    <field
+                            name="change_rounding"
+                            widget="monetary"
+                    />
+                </xpath>
+
+                <xpath expr="//field[@name='pos_reference']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="view_pos_pos_form_user">
+            <field name="name">pos.order</field>
+            <field name="model">pos.order</field>
+            <field name="inherit_id" ref="pos_customize.view_pos_pos_form"/>
+            <field name="groups_id" eval="[(4, ref('base.group_user'))]"/>
+            <field name="priority" eval="0"/>
+            <field name="arch" type="xml">
+
+                <xpath expr="//field[@name='is_return_order']" position="after">
+                    <field name='printed_first' readonly="1" invisible="1"/>
+                    <field name='printed' invisible="1"/>
+                    <field name='printed_receipt_first' readonly="1" invisible="1"/>
+                    <field name='printed_receipt' invisible="1"/>
+                </xpath>
+
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="view_pos_pos_form_admin">
+            <field name="name">pos.order</field>
+            <field name="model">pos.order</field>
+            <field name="inherit_id" ref="pos_customize.view_pos_pos_form_user"/>
+            <field name="groups_id" eval="[(6, 0, [ref('point_of_sale.group_pos_admin')])]"/>
+            <field name="priority" eval="0"/>
+            <field name="arch" type="xml">
+
+                <!--<field name='printed_first' position="attributes">-->
+                    <!--<attribute name="readonly">0</attribute>-->
+                <!--</field>-->
+                <!--<field name='printed_receipt_first' position="attributes">-->
+                    <!--<attribute name="readonly">0</attribute>-->
+                <!--</field>-->
+                <xpath expr="//form" position="attributes">
+                    <attribute name="create">true</attribute>
+                </xpath>
+
+            </field>
+        </record>
+
+        <record id="product_template_form_view_inherit" model="ir.ui.view">
+            <field name="name">product.template.form.inherit</field>
+            <field name="model">product.template</field>
+            <!--<field name="inherit_id" ref="product.product_template_form_view"/>-->
+            <field name="inherit_id" ref="point_of_sale.product_template_form_view"/>
+            <field name="arch" type="xml">
+                <!--<xpath expr="//field[@name='lines']" position="replace">-->
+
+                <group name="pos" position="inside">
+                    <field name="hide_in_pos_product_list" attrs="{'invisible': [('available_in_pos', '=', False)]}"/>
+                </group>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="view_pos_session_form_2">
+            <field name="name">pos.session.form.view2</field>
+            <field name="model">pos.session</field>
+            <field name="groups_id" eval="[(6, 0, [ref('point_of_sale.group_pos_user')])]"/>
+            <field name="inherit_id" ref="point_of_sale.view_pos_session_form"/>
+            <field name="priority" eval="2"/>
+            <field name="arch" type="xml">
+                <!--<xpath expr="//header" position="replace">-->
+                <!--<header>-->
+                <!--<button name="open" type="workflow" string="Open Session"-->
+                <!--attrs="{'invisible' : ['|', ('cash_control', '=', False), ('state', '!=', 'opening_control')]}"-->
+                <!--class="oe_highlight"/>-->
+                <!--<button name="open_frontend_cb" type="object" string="Continue Selling" states="opened"-->
+                <!--class="oe_highlight"/>-->
+                <!--<button name="cashbox_control" type="workflow" string="End of Session"-->
+                <!--attrs="{'invisible' : ['|', ('cash_control', '=', False),('state', '!=', 'opened')]}"-->
+                <!--class="oe_highlight" confirm="Do you want to close this session?"/>-->
+
+                <!--<field name="state" widget="statusbar" statusbar_visible="opening_control,opened,closing_control,closed" nolabel="1" />-->
+                <!--</header>-->
+                <!--</xpath>-->
+                <xpath expr="//button[@name='action_pos_session_open']" position="attributes">
+                    <attribute name="attrs">{
+                            'invisible': [
+                                '|',
+                                ('cash_register_balance_start', '=', 0),
+                                '|',
+                                ('cash_control', '=', False),
+                                ('state', '!=', 'opening_control')
+                            ]
+                        }
+                    </attribute>
+                </xpath>
+
+                <xpath expr="//field[@name='cash_register_difference']" position="after">
+                    <field name="flag_take_money_out"
+                        invisible="1"
+                    />
+                </xpath>
+
+                <xpath expr="//field[@name='user_id']" position="attributes">
+                    <attribute name="readonly">1</attribute>
+                    <attribute name="options">{'no_quick_create': True, 'no_create_edit': True, 'no_open': True}
+                    </attribute>
+                </xpath>
+
+                <xpath expr="//div[@name='button_box']" position="replace">
+                    <div class="oe_button_box" name="button_box_inherit">
+                        <button class="oe_stat_button" name="%(point_of_sale.action_pos_box_in)d"
+                                type="action" icon="fa-level-down"
+                                invisible="1"
+                                attrs="{'invisible': ['|', ('cash_control', '=', False), ('state', 'not in', ['closing_control'])]}">
+                            <div class="o_form_field o_stat_info">
+                                <span class="o_stat_text">Put</span>
+                                <span class="o_stat_text">Money In</span>
+                            </div>
+                        </button>
+                        <button class="oe_stat_button" name="%(point_of_sale.action_pos_box_out)d"
+                                type="action" icon="fa-level-up"
+                                invisible="1"
+                                attrs="{'invisible': ['|', ('cash_control', '=', False), ('state', 'not in', ['closing_control'])]}">
+                            <div class="o_form_field o_stat_info">
+                                <span class="o_stat_text">Take</span>
+                                <span class="o_stat_text">Money Out</span>
+                            </div>
+                        </button>
+                        <button name="open_cashbox"
+                                class="oe_stat_button"
+                                attrs="{'invisible':['|', ('cash_control', '=', False), ('state', '!=', 'opening_control')]}"
+                                icon="fa-money"
+                                type="object" context="{'balance': 'start'}">
+                            <span class="o_stat_text">Set Opening Balance</span>
+                        </button>
+                        <button name="open_cashbox"
+                                class="oe_stat_button"
+                                attrs="{'invisible':['|', '|', ('cash_control', '=', False), ('state', '=', 'opening_control'), ('state', '=', 'closed')]}"
+                                icon="fa-money"
+                                type="object" context="{'balance': 'end'}">
+                            <span class="o_stat_text">Set Closing Balance</span>
+                        </button>
+                    </div>
+
+                </xpath>
+
+                <xpath expr="//field[@name='start_at']" position="replace">
+                    <field name="past_session" invisible="1" attrs="{'readonly':[ ('name','!=','/')]}"/>
+                    <field name="start_at"
+                           attrs="{
+                           'required':[('past_session', '=', True)],
+                           'readonly':[('past_session', '=', False)],
+                           'invisible':[('state', '=', 'opening_control'),('past_session', '=', False)]}"/>
+                </xpath>
+                <xpath expr="//field[@name='stop_at']" position="replace">
+                    <field name="stop_at"
+                           attrs="{
+                           'required':[('past_session', '=', True)],
+                           'readonly':[('past_session', '=', False)],
+                           'invisible':[('state', '!=', 'closed'),('past_session', '=', False)]}"/>
+                </xpath>
+                <xpath expr="//sheet" position="after">
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids" widget="mail_followers"/>
+                        <field name="message_ids" widget="mail_thread"/>
+                    </div>
+                </xpath>
+
+                <xpath expr="//button[@name='action_pos_session_closing_control'][2]" position="attributes">
+                    <attribute name="groups">point_of_sale.group_pos_manager</attribute>
+                </xpath>
+                <xpath expr="//button[@name='action_pos_session_closing_control'][3]" position="attributes">
+                    <attribute name="groups">point_of_sale.group_pos_manager</attribute>
+                </xpath>
+
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="view_pos_session_form_admin">
+            <field name="name">pos.session.form.admin</field>
+            <field name="model">pos.session</field>
+            <field name="inherit_id" ref="pos_customize.view_pos_session_form_2"/>
+            <field name="groups_id" eval="[(6, 0, [ref('base.group_system')])]"/>
+            <field name="priority" eval="0"/>
+            <field name="arch" type="xml">
+
+                <xpath expr="//field[@name='past_session']" position="attributes">
+                    <attribute name="invisible">0</attribute>
+                </xpath>
+
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="pos_customize_inherit_view_pos_session_tree">
+            <field name="name">ofm.customize.inherit.pos.session.tree.view</field>
+            <field name="model">pos.session</field>
+            <field name="inherit_id" ref="point_of_sale.view_pos_session_tree"/>
+            <field name="groups_id" eval="[(6, 0, [ref('point_of_sale.group_pos_central_manager')])]"/>
+            <field name="arch" type="xml">
+                <xpath expr="//tree" position="replace">
+                    <tree string="Point of Sale Session" decoration-primary="state == 'opened'"
+                          decoration-danger="state == 'closing_control'" create="1">
+                        <field name="config_id"/>
+                        <field name="name"/>
+                        <field name="user_id"/>
+                        <field name="start_at"/>
+                        <field name="stop_at"/>
+                        <field name="state"/>
+                    </tree>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="view_pos_order_filter" model="ir.ui.view">
+            <field name="name">pos.order.list.select</field>
+            <field name="model">pos.order</field>
+            <field name="inherit_id" ref="point_of_sale.view_pos_order_filter"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='name']" position="replace">
+                    <field name="name"
+                           filter_domain="['|','|','|',('name','ilike',self),('inv_no','ilike',self),('tax_invoice','ilike',self),('partner_id','ilike',self)]"
+                           string="Invoice No."/>
+                    <filter name="check_amount_total" string="Not Return" domain="[('check_amount', '=', False)]"/>
+                </xpath>
+            </field>
+        </record>
+
+        <record model="ir.actions.act_window" id="point_of_sale.action_pos_pos_form">
+
+            <field name="context">{
+                "search_default_check_amount_total":1
+                }
+            </field>
+
+        </record>
+
+        <!--<record model="ir.ui.menu" id="point_of_sale.menu_pos_products">-->
+            <!--<field name="groups_id" eval="[-->
+            <!--(6, 0, [ref('point_of_sale.group_pos_manager'),])-->
+            <!--]"/>-->
+        <!--</record>-->
+
+        <menuitem
+                id="menu_partner_form_in_pos"
+                parent="point_of_sale.menu_point_of_sale"
+                action="base.action_partner_form"
+                sequence="3"
+                groups="point_of_sale.group_pos_manager,point_of_sale.group_pos_user"/>
+
+        <record model="ir.ui.menu" id="point_of_sale.menu_pos_session_all">
+            <field name="groups_id" eval="[(6, 0, [ref('point_of_sale.group_pos_user'),])]"/>
+        </record>
+
+        <menuitem
+                id="point_of_sale.menu_pos_global_settings"
+                name="Settings"
+                groups="base.group_no_one"
+                parent="point_of_sale.menu_point_config_product"
+                sequence="7"
+                action="point_of_sale.action_pos_configuration"/>
+
+        <menuitem
+                action="point_of_sale.product_pos_category_action"
+                id="point_of_sale.menu_product_pos_category"
+                parent="point_of_sale.menu_point_config_product"
+                groups="base.group_no_one,base.group_system"
+                sequence="20"/>
+
+        <menuitem
+                action="point_of_sale.action_account_journal_form"
+                id="point_of_sale.menu_action_account_journal_form_open"
+                parent="point_of_sale.menu_point_config_product"
+                groups="base.group_no_one,base.group_system"
+                sequence="20"/>
+
+        <menuitem
+                parent="point_of_sale.menu_point_config_product"
+                action="barcodes.action_barcode_nomenclature_form"
+                id="point_of_sale.menu_pos_barcode_nomenclature_all"
+                groups="base.group_no_one"
+                sequence="30"/>
+
+    </data>
+</openerp>

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="view_partner_form" model="ir.ui.view">
+            <field name="name">res.partner.form</field>
+            <field name="model">res.partner</field>
+            <field name="priority" eval="99"/>
+            <field name="inherit_id" ref="base.view_partner_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//div[@name='button_box']" position="inside">
+                    <button name="get_partner_code" type="object"
+                            string="Get Partner Code"
+                            class="oe_stat_button" icon="fa-edit">
+                    </button>
+                </xpath>
+                <xpath expr="//group/field[@name='ref']" position="after">
+                    <field name="partner_code"/>
+                    <field name="oracle_branch_code"/>
+                </xpath>
+            </field>
+        </record>
+
+    </data>
+</odoo>

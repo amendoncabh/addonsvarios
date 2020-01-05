@@ -1,0 +1,67 @@
+.pos .pos-sale-ticket table td {
+    line-height: 130%;
+    vertical-align: top;
+}
+.pos .payment-receipt-section {
+    border-top: 1px dashed gainsboro;
+    min-height: 154px;
+    /*padding: 0 16px 16px;*/
+}
+
+.left-content .pos-sale-ticket{
+    margin: 0;
+}
+.left-content .pos-receipt-container{
+    padding: 0;
+}
+
+.pos .payment-receipt-section .button {
+    background: rgb(230, 230, 230) none repeat scroll 0 0;
+    border: 1px solid rgb(209, 209, 209);
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 20px;
+    line-height: 40px;
+    margin: 11px;
+    padding: 3px 13px;
+    text-align: center;
+}
+.pos-promotion-font,
+.pos .pos-orderset-font {
+    color: #808080;
+    font-size: 12px;
+    line-height: 1;
+}
+.billtype{
+    border: 1px solid #000;
+    margin: 0 45px;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    padding: 2px;
+    font-weight: bold;
+}
+/*.hr-double{
+    margin-top: -9px;
+}*/
+.border-bottom{
+    border-bottom: 1px solid #000 !important;
+}
+.double-border-bottom{
+    border-bottom: 4px double #000 !important;
+}
+
+.print-only{
+    display: none;
+}
+@media print {
+    .pos .payment-screen .top-content,
+    .pos .payment-screen .right-content,
+    .pos .payment-screen .left-content{
+        display: none;
+    }
+
+    .print-only{
+        display: block;
+    }
+}

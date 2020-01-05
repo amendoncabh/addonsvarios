@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright (c) 2016-Present Webkul Software Pvt. Ltd. (<https://webkul.com/>) -->
+<!-- See LICENSE file for full copyright and licensing details. -->
+<!-- License URL : <https://store.webkul.com/license.html/> -->
+<odoo>
+	<record id='pos_return_order_inherit_product_template_view' model='ir.ui.view'>
+		<field name='name'>product.product.return</field>
+		<field name='model'>product.template</field>
+		<field name='inherit_id' ref='point_of_sale.product_template_form_view'/>
+		<field name='arch' type='xml'>
+			<field name='available_in_pos' position='after'>
+				<field name='not_returnable' id='not_returnable'/>
+			</field>
+		</field>
+	</record>
+	<record id='pos_return_order_inherit_pos_order_view' model='ir.ui.view'>
+		<field name="name">pos.order.return</field>
+		<field name='model'>pos.order</field>
+		<field name='inherit_id' ref='point_of_sale.view_pos_pos_form'/>
+		<field name="arch" type="xml">
+			<field name='partner_id' position='after'>
+				<field name='is_void_order' readonly='True' invisible='0'/>
+				<field name='return_order_id' readonly='True' attrs="{'invisible':[('is_void_order','!=',True), ('is_return_order','!=',True)]}"/>
+				<field name='return_status' readonly='True' attrs="{'invisible':[('is_void_order','!=',True), ('is_return_order','!=',True)]}"/>
+			</field>
+		</field>
+	</record>
+
+	<record model="ir.ui.view" id="view_pos_pos_form_user">
+		<field name="name">pos.customize.inherit</field>
+		<field name="model">pos.order</field>
+		<field name="inherit_id" ref="pos_customize.view_pos_pos_form"/>
+		<field name="arch" type="xml">
+			<xpath expr="//field[@name='printed_first']" position="before">
+				<field name='return_reason_id' readonly="1"
+					options="{'no_create': True, 'no_create_edit': True}"
+					attrs="{'invisible':[
+								'|',
+								('is_void_order','=',False),
+								('is_return_order','=',False)
+						]}" />
+
+			</xpath>
+			<xpath expr="//button[@name='action_warning_create_invoice'][1]" position="attributes">
+					<attribute name="attrs">{'invisible': [
+						'|','|','|',
+						('state', 'not in', ['paid','done']),
+						('is_void_order', '=', True),
+						('is_return_order', '=', True),
+						('void_ids', '!=', [])]}</attribute>
+			</xpath>
+		</field>
+	</record>
+
+	<record model="ir.ui.view" id="view_pos_pos_tree">
+		<field name="name">pos.order.inherit</field>
+		<field name="model">pos.order</field>
+		<field name="inherit_id" ref="point_of_sale.view_pos_order_tree"/>
+		<field name="arch" type="xml">
+			<xpath expr="//field[@name='is_return_order']" position="before">
+				<field name='is_void_order' readonly='True' />
+			</xpath>
+		</field>
+	</record>
+
+	<record id="view_pos_pos_form_inherit" model="ir.ui.view">
+        <field name="name">pos.order.form.inherit</field>
+        <field name="model">pos.order</field>
+		<field name="inherit_id" ref="point_of_sale.view_pos_pos_form"/>
+        <field name="arch" type="xml">
+			<xpath expr="//page[@name='extra']" position="after">
+				<page string="Return/Void Orders">
+					<div>
+						<field name='void_ids' attrs="{
+							'tree_view_ref':'point_of_sale.view_pos_order_tree',
+							'form_view_ref':'point_of_sale.view_pos_pos_form'
+							}" />
+					</div>
+				</page>
+			</xpath>
+			<xpath expr="//field[@name='company_id']/.." position="after">
+				<group string="Return Information" attrs="{'invisible':[('is_void_order','!=',True), ('is_return_order','!=',True)]}">
+					<field name="approver_id" readonly='True'/>
+					<field name="approve_datetime" readonly='True'/>
+				</group>
+			</xpath>
+		</field>
+	</record>
+</odoo>

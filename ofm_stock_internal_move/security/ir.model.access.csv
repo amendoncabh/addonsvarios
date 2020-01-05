@@ -1,0 +1,8 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+ofm_stock_internal_move_user,ofm.stock.internal.move,ofm_stock_internal_move.model_ofm_stock_internal_move,stock.group_stock_user,1,1,1,0
+ofm_stock_internal_move_line_user,ofm.stock.internal.move.line,ofm_stock_internal_move.model_ofm_stock_internal_move_line,stock.group_stock_user,1,1,1,0
+ofm_stock_internal_move_manager,ofm.stock.internal.move,ofm_stock_internal_move.model_ofm_stock_internal_move,stock.group_stock_manager,1,1,1,1
+ofm_stock_internal_move_line_manager,ofm.stock.internal.move.line,ofm_stock_internal_move.model_ofm_stock_internal_move_line,stock.group_stock_manager,1,1,1,1
+
+ofm_internal_move_hq,stock_inventory group_hq,ofm_stock_internal_move.model_ofm_stock_internal_move,ofm_access_right_center.group_ofm_hq,1,0,0,0
+ofm_internal_move_admin,stock_inventory group_admin,ofm_stock_internal_move.model_ofm_stock_internal_move,ofm_access_right_center.group_ofm_admin,1,1,1,1

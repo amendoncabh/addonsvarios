@@ -1,0 +1,105 @@
+<?xml version="1.0"?>
+<openerp>
+    <data>
+        <record model="ir.ui.view" id="view_product_label_reprint_form">
+            <field name="name">product.label.reprint.form.view</field>
+            <field name="model">product.label.reprint</field>
+            <field name="arch" type="xml">
+                <form string="Branch">
+                    <header>
+                        <button name="action_print_label"
+                                class="btn-primary"
+                                string="Reprint Product Label"
+                                type="object"/>
+                    </header>
+                    <sheet>
+                        <group>
+                            <group>                               
+                                    <field name="price_type" widget="radio"/>
+                            </group>
+                            <group>
+                                    <field name="company_id"
+                                    options="{'no_quick_create': True, 'no_create_edit': True}"
+                                    invisible="True"
+                                    />
+                                    <field name="branch_id"
+                                    options="{
+                                                    'no_quick_create': True,
+                                                    'no_create_edit': True,
+                                                    'no_open': True,
+                                               }"
+                                    domain="[('pos_company_id', '=', company_id)]"
+                                    />
+                            </group>
+                        </group>
+                        <group>
+                            <notebook>
+                                <page string="Products for reprint" name="product_label_reprint_lists">
+                                    <div>
+                                        <field name="product_all_ids"
+                                           widget="many2many_tags"
+                                           options="{
+                                                    'no_quick_create': True,
+                                                    'no_create_edit': True,
+                                                    'no_open': True,
+                                               }"
+                                           domain="[
+                                                ('is_coupon', '=', False),
+                                                ('active', '=', True),
+                                                ('price_by_branch_ids.template_id.company_id.branch_ids', 'in', [branch_id]),
+                                           ]"
+                                        />
+
+                                        <field name="condition_mapping_product_text"
+                                           style="min-height: 100; max-height: 100;
+                                           min-width:100%; max-width:100%; overflow-y: scroll;"
+                                        />
+
+                                    </div>
+                                </page>
+
+                            </notebook>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="view_productl_label_reprint_tree">
+            <field name="name">product.label.reprint.tree.view</field>
+            <field name="model">product.label.reprint</field>
+            <field name="priority">1</field>
+            <field name="arch" type="xml">
+                <tree string="Reprint List">
+                    <field name="company_id" string="Company"/>
+                    <field name="branch_id" string="Branch"/>
+                    <field name="price_type" string="Price Type"/>
+                    <field name="create_date" string="Create Date"/>
+                    <field name="write_date" string="Last Update" /> 
+                </tree>
+            </field>
+        </record>
+
+        <record id="action_product_reprint_form" model="ir.actions.act_window">
+            <field name="name">Product Label Reprint</field>
+            <field name="res_model">product.label.reprint</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="view_id" ref="ofm_custom_product_label.view_productl_label_reprint_tree"/>
+            <field name="help" type="html">
+                <p class="oe_view_nocontent_create">
+                    Click to reprint a new label.
+                </p>
+            </field>
+        </record>
+
+        <menuitem
+                id="menu_product_label_reprint"
+                parent="point_of_sale.menu_point_of_sale"
+                action="action_product_reprint_form"
+                sequence="99"
+        />
+
+
+    </data>
+</openerp>

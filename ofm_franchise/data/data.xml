@@ -1,0 +1,123 @@
+<?xml version="1.0"?>
+<odoo>
+   <data>
+       <record id="bank_transfer_status_1" model="bank.transfer.status">
+           <field name="code">00</field>
+           <field name="bank">kbank</field>
+           <field name="name_th">หัก-เข้าบัญชีได้สำเร็จ</field>
+           <field name="name_eng">SUCCESS (GOOD)</field>
+       </record>
+
+       <record id="bank_transfer_status_2" model="bank.transfer.status">
+           <field name="code">01</field>
+           <field name="bank">kbank</field>
+           <field name="name_th">เงินในบัญชีไม่พอจ่าย</field>
+           <field name="name_eng">OVER DRAFT</field>
+       </record>
+
+       <record id="bank_transfer_status_3" model="bank.transfer.status">
+           <field name="code">03</field>
+           <field name="bank">kbank</field>
+           <field name="name_th">ยังไม่มีการตกลงกับธนาคาร</field>
+           <field name="name_eng">DEBIT NOT ALLOW</field>
+       </record>
+
+       <record id="bank_transfer_status_4" model="bank.transfer.status">
+           <field name="code">04</field>
+           <field name="bank">kbank</field>
+           <field name="name_th">บัญชีปิดแล้ว</field>
+           <field name="name_eng">ACCOUNT CLOSED</field>
+       </record>
+
+       <record id="bank_transfer_status_5" model="bank.transfer.status">
+           <field name="code">22</field>
+           <field name="bank">kbank</field>
+           <field name="name_th">ไม่มีบัญชีในแฟ้มข้อมูลธนาคาร</field>
+           <field name="name_eng">ACCOUNT DOES NOT EXIST</field>
+       </record>
+
+       <record id="bank_transfer_status_6" model="bank.transfer.status">
+           <field name="code">26</field>
+           <field name="bank">kbank</field>
+           <field name="name_th">ผู้สั่งจ่ายถึงแก่กรรม</field>
+           <field name="name_eng">DECEASED CUSTOMER</field>
+       </record>
+
+       <record id="bank_transfer_status_7" model="bank.transfer.status">
+           <field name="code">51</field>
+           <field name="bank">kbank</field>
+           <field name="name_th">เลชที่บัญชีไม่ถูกต้อง</field>
+           <field name="name_eng">INCORRECT ACCOUNT NUMBER</field>
+       </record>
+
+       <record id="bank_transfer_status_8" model="bank.transfer.status">
+           <field name="code">52</field>
+           <field name="bank">kbank</field>
+           <field name="name_th">มีคำสั่งยกเลิกข้อตกลงให้หักบัญชี</field>
+           <field name="name_eng">CANCELLED AGREEMENT</field>
+       </record>
+
+       <record id="bank_transfer_status_9" model="bank.transfer.status">
+           <field name="code">53</field>
+           <field name="bank">kbank</field>
+           <field name="name_th">ไม่สามารถทำรายการได้</field>
+           <field name="name_eng">UNABLE TO PROCESS</field>
+       </record>
+
+       <record id="bank_transfer_status_10" model="bank.transfer.status">
+           <field name="code">54</field>
+           <field name="bank">kbank</field>
+           <field name="name_th">ยอดเงินเป็นศูนย์</field>
+           <field name="name_eng">AMOUNT REJECT</field>
+       </record>
+
+       <record id="bank_transfer_status_11" model="bank.transfer.status">
+           <field name="code">55</field>
+           <field name="bank">kbank</field>
+           <field name="name_th">ห้ามถอนฝากได้</field>
+           <field name="name_eng">DEBIT NOT ACCEPTED</field>
+       </record>
+
+       <record id="bank_transfer_status_12" model="bank.transfer.status">
+           <field name="code">56</field>
+           <field name="bank">kbank</field>
+           <field name="name_th">ศาลสั่งพิทักษ์ทรัพย์</field>
+           <field name="name_eng">FROZEN BY COURT ORDER</field>
+       </record>
+
+       <record id="bank_transfer_status_13" model="bank.transfer.status">
+           <field name="code">57</field>
+           <field name="bank">kbank</field>
+           <field name="name_th">ห้ามถอน/ฝาก ให้ติดต่อผู้รับมอบอำนาจสาขาก่อน</field>
+           <field name="name_eng">CALL THE SUPERVISOR</field>
+       </record>
+
+       <record id="bank_transfer_status_14" model="bank.transfer.status">
+           <field name="code">58</field>
+           <field name="bank">kbank</field>
+           <field name="name_th">ห้ามถอนอื่น ๆ</field>
+           <field name="name_eng">DORMANT ACCOUNT DEBIT</field>
+       </record>
+
+       <record id="bank_transfer_status_15" model="bank.transfer.status">
+           <field name="code">59</field>
+           <field name="bank">kbank</field>
+           <field name="name_th">ห้ามฝากอื่น ๆ</field>
+           <field name="name_eng">DORMANT ACCOUNT CREDIT</field>
+       </record>
+
+       <record id="bank_transfer_status_16" model="bank.transfer.status">
+           <field name="code">60</field>
+           <field name="bank">kbank</field>
+           <field name="name_th">ไม่พบข้อมูลลูกค้า</field>
+           <field name="name_eng">CUSTOMER INFORMATION NOT FOUND</field>
+       </record>
+
+       <record id="bank_transfer_status_17" model="bank.transfer.status">
+           <field name="code">99</field>
+           <field name="bank">kbank</field>
+           <field name="name_th">อื่น ๆ</field>
+           <field name="name_eng">OTHER</field>
+       </record>
+   </data>
+</odoo>

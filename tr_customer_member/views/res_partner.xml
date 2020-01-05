@@ -1,0 +1,330 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="view_partner_form_inherit" model="ir.ui.view">
+            <field name="name">view.partner.form.inherit</field>
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="base.view_partner_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='name']" position="before">
+                    <p>
+                        <field name="customer_code"/>
+                    </p>
+                </xpath>
+                <xpath expr="//div/div/field[@name='parent_id']" position="attributes">
+                    <attribute name="invisible">True</attribute>
+                </xpath>
+                <xpath expr="//page[@name='internal_notes']/field[@name='comment']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//page[@name='internal_notes']" position="inside">
+                    <group>
+                        <field name="comment" placeholder="Internal note..."/>
+                        <field name="follow_up_note" placeholder="Follow Up Note..."/>
+                    </group>
+                </xpath>
+                <xpath expr="//page[@name='sales_purchases']/group/group/field[@name='company_id']"
+                       position="attributes">'
+                    <attribute name="options">{
+                        'no_quick_create': True,
+                        'no_create_edit': True,
+                        'no_open': True
+                        }
+                    </attribute>
+                </xpath>
+                <xpath expr="//page[@name='sales_purchases']/group/group/field[@name='company_id']" position="after">
+                    <field
+                            name="branch_id"
+                            options="{
+                                'no_quick_create': True,
+                                'no_create_edit': True,
+                                'no_open': True
+                            }"
+                    />
+                    <field
+                            name="parent_id"
+                            string="Parent Company"
+                            domain="[('is_company', '=', True)]"
+                            context="{'default_is_company': True, 'default_supplier': supplier, 'default_customer': customer}"
+                            options="{
+                            'no_quick_create': True,
+                            'no_create_edit': True,
+                            'no_open': True
+                        }"
+                            attrs="{
+                            'invisible': [
+                                '|',
+                                '&amp;',
+                                ('is_company','=', True),
+                                ('parent_id', '=', False),
+                                ('company_name', '!=', False),
+                                ('company_name', '!=', '')
+                            ]
+                        }"
+                    />
+                </xpath>
+                <xpath expr="//field[@name='phone']" position="before">
+                    <field name="main_contact_person"
+                           attrs="{
+                                'invisible': [('parent_id', '!=', False)],
+                                'required': [
+                                        ('parent_id', '!=', True),
+                                    ]
+                                }"
+                    />
+                </xpath>
+                <xpath expr="//field[@name='phone']" position="attributes">
+                    <attribute name="attrs">{
+                        "required": [
+                        ('mobile', '=', False),
+                        ]
+                        }
+                    </attribute>
+                </xpath>
+                <xpath expr="//field[@name='mobile']" position="attributes">
+                    <attribute name="attrs">{
+                        "required": [
+                        ('phone', '=', False),
+                        ]
+                        }
+                    </attribute>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="view_partner_property_form_user_inherit" model="ir.ui.view">
+            <field name="name">view.partner.form.inherit</field>
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="pos_customize.view_partner_property_form_user"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='vip']" position="after">
+                    <field name="billing_condition_type"/>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="partner_information_view_partner_form_inherit" model="ir.ui.view">
+            <field name="name">partner.information.view.partner.form.inherit</field>
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="partner_information.view_partner_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='title']" position="attributes">
+                    <attribute name="options">{
+                        'no_quick_create': True,
+                        'no_create_edit': True,
+                        'no_open': True
+                        }
+                    </attribute>
+                </xpath>
+                <xpath expr="//group/group/field[@name='province_id']" position="attributes">
+                    <attribute name="required">1</attribute>
+                </xpath>
+                <xpath expr="//group/group/field[@name='amphur_id']" position="attributes">
+                    <attribute name="required">1</attribute>
+                </xpath>
+                <xpath expr="//group/group/field[@name='tambon_id']" position="attributes">
+                    <attribute name="required">1</attribute>
+                </xpath>
+                <xpath expr="//group/group/field[@name='zip_id']" position="attributes">
+                    <attribute name="required">1</attribute>
+                </xpath>
+                <xpath expr="//field[@name='wht_kind']" position="replace">
+                </xpath>
+                <xpath expr="//field[@name='vip']" position="after">
+                    <field name="wht_kind"/>
+                </xpath>
+                <xpath expr="//field[@name='child_ids']/form//field[@name='moo']" position="after">
+                    <field name="alley" placeholder="Soi.Pattanakarn"/>
+                </xpath>
+                <xpath expr="//field[@name='child_ids']/form//field[@name='tambon_id']" position="after">
+                    <field name="zip_id"
+                           placeholder="Zip"
+                           options="{'no_create': True}"
+                           domain="[('tambon_id','=', tambon_id)]"
+                           widget="selection"/>
+                </xpath>
+                <xpath expr="//field[@name='child_ids']/form//field[@name='street2']" position="attributes">
+                    <attribute name="placeholder">Road...</attribute>
+                </xpath>
+                <xpath expr="//field[@name='child_ids']/form//field[@name='zip']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//field[@name='child_ids']/form//field[@name='province_id']" position="attributes">
+                    <attribute name="attrs">{"required": [('type', '!=', 'contact')]}</attribute>
+                </xpath>
+                <xpath expr="//field[@name='child_ids']/form//field[@name='amphur_id']" position="attributes">
+                    <attribute name="attrs">{"required": [('type', '!=', 'contact')]}</attribute>
+                </xpath>
+                <xpath expr="//field[@name='child_ids']/form//field[@name='tambon_id']" position="attributes">
+                    <attribute name="attrs">{"required": [('type', '!=', 'contact')]}</attribute>
+                </xpath>
+                <xpath expr="//field[@name='child_ids']/form//field[@name='zip_id']" position="attributes">
+                    <attribute name="attrs">{"required": [('type', '!=', 'contact')]}</attribute>
+                </xpath>
+                <xpath expr="//field[@name='child_ids']/form//field[@name='first_name']" position="attributes">
+                    <attribute name="attrs">{"required": False, 'invisible': [('type', '=', 'invoice')]}</attribute>
+                </xpath>
+                <xpath expr="//field[@name='child_ids']/form//field[@name='last_name']" position="attributes">
+                    <attribute name="attrs">{'invisible': [('type', '=', 'invoice')]}</attribute>
+                </xpath>
+                <xpath expr="//field[@name='child_ids']/form//field[@name='name']" position="attributes">
+                    <attribute name="attrs">{'required': True}</attribute>
+                </xpath>
+                <xpath expr="//field[@name='child_ids']/form//field[@name='phone']" position="attributes">
+                    <attribute name="required">1</attribute>
+                    <attribute name="widget">allow_number</attribute>
+                </xpath>
+                <xpath expr="//field[@name='child_ids']/form//field[@name='mobile']" position="attributes">
+                    <attribute name="widget">allow_number</attribute>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="view_partner_property_form_user_inherit" model="ir.ui.view">
+            <field name="name">res.partner.property.form.inherit</field>
+            <field name="model">res.partner</field>
+            <field name="priority">2</field>
+            <field name="groups_id" eval="[(6, 0, [ref('point_of_sale.group_pos_user')])]"/>
+            <field name="inherit_id" ref="pos_customize.view_partner_property_form_user"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='child_ids']/form//field[@name='vat']" position="replace">
+                    <field name="vat" string="Tax ID" widget="allow_number"/>
+                </xpath>
+                <xpath expr="//field[@name='child_ids']/form//field[@name='shop_id']" position="replace">
+                    <field name="shop_id"
+                           attrs="{
+                                'invisible': [
+                                    ('company_type','!=','company')
+                                ]
+                            }"
+                           widget="allow_number"
+                    />
+                </xpath>
+            </field>
+        </record>
+
+        <record id="balance_view_partner_form" model="ir.ui.view">
+            <field name="name">balance.view.partner.form</field>
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="customer_aging_balance.view_partner_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//page[@name='accounting']/group/group/field[@name='property_payment_term_id']"
+                       position="replace"/>
+                <xpath expr="//field[@name='category_id']" position="after">
+                    <field name="customer_payment_type"/>
+                    <field name="property_payment_term_id" widget="selection" attrs="{
+                        'invisible': [
+                            '|',
+                            ('customer_payment_type', '=', False),
+                            ('customer_payment_type', '=', 'cash'),
+                        ],
+                        'required': [
+                            ('customer_payment_type', '=', 'credit'),
+                        ]
+                    }"/>
+                    <field name="credit_term_tender_id" widget="selection"
+                           domain="[
+                            ('payment_credit_term', '=', True),
+                            ('company_id', '=',company_id)
+                         ]"
+                           attrs="{
+                        'invisible': [
+                            '|',
+                            ('customer_payment_type', '=', False),
+                            ('customer_payment_type', '=', 'cash'),
+                        ],
+                        'required': [
+                            ('customer_payment_type', '=', 'credit'),
+                        ]
+                    }"/>
+                </xpath>
+                <xpath expr="//field[@name='max_aging']" position="attributes">
+                    <attribute name="attrs">{
+                        'invisible': [
+                        ('customer_payment_type', '=', 'cash'),
+                        ],
+                        'required': [
+                        ('customer_payment_type', '=', 'credit'),
+                        ]
+                        }
+                    </attribute>
+                </xpath>
+                <xpath expr="//field[@name='aging_balance']" position="attributes">
+                    <attribute name="attrs">{
+                        'invisible': [
+                        ('customer_payment_type', '=', 'cash'),
+                        ],
+                        'required': [
+                        ('customer_payment_type', '=', 'credit'),
+                        ]
+                        }
+                    </attribute>
+                </xpath>
+                <xpath expr="//field[@name='child_ids']/form//field[@name='shop_id']" position="after">
+                    <field name="max_aging" readonly="1"/>
+                </xpath>
+                <xpath expr="//field[@name='child_ids']" position="attributes">
+                    <attribute name="context">{
+                        'default_parent_id': active_id,
+                        'default_street': street,
+                        'default_street2': street2,
+                        'default_city': city,
+                        'default_state_id': state_id,
+                        'default_zip': zip,
+                        'default_country_id': country_id,
+                        'default_supplier': supplier,
+                        'default_customer': customer,
+                        'default_lang': lang,
+                        'default_vat': vat,
+                        'default_shop_id': shop_id,
+                        'default_is_company': is_company,
+                        'default_max_aging': max_aging,
+                        }
+                    </attribute>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="balance_view_partner_form_inherit" model="ir.ui.view">
+            <field name="name">balance.res.partner.form.inherit</field>
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="tr_customer_member.balance_view_partner_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='customer_payment_type']" position="attributes">
+                    <attribute name="required">1</attribute>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="action_partner_form_inherit" model="ir.actions.act_window">
+            <field name="name">Customers</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">res.partner</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">kanban,tree,form</field>
+            <field name="view_ids" eval="[(5, 0, 0),
+                (0, 0, {'view_mode': 'kanban', 'view_id': ref('base.res_partner_kanban_view')}),
+                (0, 0, {'view_mode': 'form', 'view_id': ref('tr_customer_member.balance_view_partner_form_inherit')}),
+            ]"/>
+            <field name="context">{"search_default_customer":1}</field>
+            <field name="search_view_id" ref="base.view_res_partner_filter"/>
+            <field name="help" type="html">
+                <p class="oe_view_nocontent_create">
+                    Click to add a contact in your address book.
+                </p>
+                <p>
+                    Odoo helps you easily track all activities related to
+                    a customer: discussions, history of business opportunities,
+                    documents, etc.
+                </p>
+            </field>
+        </record>
+
+        <menuitem
+                id="sales_team.menu_partner_form"
+                parent="sales_team.menu_sales"
+                action="base.action_partner_form"
+                sequence="3"
+        />
+    </data>
+</odoo>

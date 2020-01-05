@@ -1,0 +1,66 @@
+<?xml version="1.0"?>
+<odoo>
+    <data>
+
+        <record id="summary_bank_transfer_report_jasper" model="ir.actions.report.xml">
+            <field name="string">Summary Bank Transfer Report</field>
+            <field name="auto">True</field>
+            <field name="model">summary.bank.transfer.report.wizard</field>
+            <field name="jasper_model_id" ref="base.model_res_users"/>
+            <field name="name">Summary Bank transfer Report</field>
+            <field name="report_name">summary.bank.transfer.report.jasper</field>
+            <field name="rml">ofm_franchise/reports/summary_bank_transfer_report.jrxml</field>
+            <field name="report_rml">ofm_franchise/reports/summary_bank_transfer_report.jrxml</field>
+            <field name="menu">False</field>
+            <field name="header">False</field>
+            <field name="jasper_report">True</field>
+            <field name="jasper_output">xls</field>
+        </record>
+
+        <act_window id="action_summary_bank_transfer_report_wizard"
+                    name="Summary Bank Transfer"
+                    res_model="summary.bank.transfer.report.wizard"
+                    view_mode="form"
+                    target="new"/>
+
+        <menuitem id="menu_summary_bank_transfer_report_wizard"
+                  parent="ofm_franchise.menu_daily_summary_franchise_report_main"
+                  action="action_summary_bank_transfer_report_wizard"
+                  sequence="1"
+                  groups="ofm_access_right_center.group_ofm_hq"/>
+
+        <record id="view_summary_bank_transfer_report_wizard" model="ir.ui.view">
+            <field name="name">summary.bank.transfer.report.form</field>
+            <field name="model">summary.bank.transfer.report.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Summary Bank Transfer Report">
+                    <group>
+                        <group>
+                            <field name="start_date"/>
+                            <field name="end_date"/>
+                        </group>
+                        <group>
+                            <field name="company_id"
+                                   options="{'no_quick_create': True, 'no_create_edit': True}"
+                            />
+                            <field name="branch_id"
+                                   options="{'no_quick_create': True, 'no_create_edit': True}"
+                                   domain="[('pos_company_id', '=',company_id)]"
+                            />
+                        </group>
+                    </group>
+
+                    <footer>
+                        <button name="action_print_report"
+                                string="Print Report" type="object"
+                                class="oe_highlight"/>
+                        or
+                        <button string="Cancel" class="oe_link"
+                                special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+    </data>
+</odoo>

@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+
+    <t t-extend="PaymentScreenWidget">
+        <t t-jquery="div.paymentmethods-container" t-operation='after'>
+            <section class="payment-receipt-section">
+                 <!--<div class="button print">
+                    <i class='fa fa-print'></i> Print
+                </div>-->
+                <div class="pos-receipt-container">
+                </div>
+                
+            </section>
+        </t>
+        <t t-jquery="div.top-content" t-operation='after'>
+            <div class="print-only">
+                <div class="pos-receipt-container">
+                </div>
+            </div>
+        </t>
+    </t>
+    
+    
+    <t t-name="PosBillTicket">
+        <div class="pos-sale-ticket">
+            
+            <div class="pos-center-align">
+                <!--<t t-if='receipt.company.pos_logo'>-->
+                    <!--<img t-att-src='receipt.company.pos_logo' /><br />-->
+                <!--</t>-->
+                <!--<t t-if='!receipt.company.pos_logo and receipt.company.logo'>-->
+                    <!--<img t-att-src='receipt.company.logo' /><br />-->
+                <!--</t>-->
+            </div><br />
+            <div class="pos-center-align">
+            <t t-esc="receipt.company.pos_company_name || ''"/><br />
+            <t t-esc="widget.pos.branch.branch_name || ''"/><br />
+                <div class="billtype">Bill Check</div>
+            </div>
+            Cashier :<t t-esc="widget.pos.cashier ? widget.pos.cashier.name : widget.pos.user.name"/><br />
+            DATE :<t t-if="!widget.pos.pos_session.past_session"><t t-esc="moment().format('DD/MM/YYYY HH:mm')"/></t><t t-if="widget.pos.pos_session.past_session"><t t-esc="moment(widget.pos.pos_session.start_at).format('DD/MM/YYYY')"/></t><br />
+            <hr />
+            <table class='receipt-orderlines'>
+                <colgroup>
+                    <col width='50%' />
+                    <col width='20%' />
+                    <col width='30%' />
+                </colgroup>
+                <tr t-foreach="orderlines" t-as="orderline">
+                    <td>
+                        <t t-esc="orderline.get_product().display_name"/>
+                        <t t-if="orderline.get_orderset()">
+                            <div class="pos-orderset-font">(<t t-esc="orderline.get_original_quantity()" /> <t t-esc="orderline.get_unit().name" /> x <t t-esc="orderline.get_box_quantity()" /> ชุด) [#<t t-esc="orderline.get_orderset()" />]</div>
+                        </t>
+                        
+                        <t t-if="orderline.get_discount() > 0">
+                            <div class="pos-disc-font">
+                                With a <t t-esc="orderline.get_discount()"/>% discount
+                            </div>
+                        </t>
+                       
+                        <t t-if="orderline.get_discount_amount() > 0">
+                            <div class="pos-disc-font">
+                                With a <t t-esc="widget.format_currency_no_symbol(orderline.get_discount_acount_str())"/> discount
+                            </div>
+                        </t>
+                        
+                        <t t-if="orderline.promotion">
+                            <div class="pos-promotion-font"><t t-esc="orderline.promotion_name" /></div>
+                        </t>
+                        
+                    </td>
+                    <td class="pos-right-align">
+                        <t t-esc="widget.format_number(orderline.get_quantity())"/>
+                    </td>
+                    <td class="pos-right-align">
+                        <t t-if="orderline.get_display_price() &lt; 0">
+                            <t t-esc="widget.format_currency_no_symbol(orderline.get_display_price() * -1)"/>
+                        </t>
+                        <t t-if="orderline.product.exempt_pos_calculate === true and orderline.get_display_price() &gt;= 0">
+                            <t t-esc="widget.format_currency_no_symbol(orderline.product.list_price * orderline.get_quantity())"/>
+                        </t>
+                        <t t-if="!orderline.promotion and !orderline.vip_discount and !orderline.reward_id and orderline.product.exempt_pos_calculate === false and orderline.get_display_price() &gt;= 0">
+                            <t t-esc="widget.format_currency_no_symbol(orderline.product.list_price * orderline.get_quantity())"/>
+                        </t>
+                        <t t-if="(orderline.promotion || orderline.vip_discount || orderline.reward_id and orderline.product.exempt_pos_calculate == false) and orderline.get_display_price() &gt;= 0">
+                            <t t-esc="widget.format_currency_no_symbol(orderline.get_display_price())"/>
+                        </t>
+                    </td>
+                </tr>
+            </table>
+            <hr />
+    
+            <table class='receipt-total'>
+                <tr>
+                    <td>Subtotal:</td>
+                    <td class="pos-right-align">
+                        <t t-esc="widget.format_currency_no_symbol(order.get_subtotal())"/>
+                        
+                    </td>
+                </tr>
+                <t t-if='order.get_total_discount() > 0'>
+                <tr>
+                    <td>Discount:</td>
+                    <td class="pos-right-align border-bottom">
+                        <t t-esc="widget.format_currency_no_symbol(order.get_total_discount())"/> 
+                    </td>
+                </tr>
+                </t>
+                <tr class="emph">
+                    <td>Total:</td>
+                    <td class="pos-right-align double-border-bottom">
+                        <t t-esc="widget.format_currency_no_symbol(order.get_total_with_tax())"/>
+                    </td>
+                </tr>
+                 <tr>
+                    <td>Before VAT</td>
+                    <td class="pos-right-align">
+                        <t t-esc="widget.format_currency_no_symbol(order.get_total_with_tax() - order.get_tax())"/>
+                    </td>
+                </tr>
+                <t t-foreach="order.get_tax_details()" t-as="taxdetail">
+                    <tr>
+                        <td><t t-esc="taxdetail.name" /></td>
+                        <td class="pos-right-align">
+                            <t t-esc="widget.format_currency_no_symbol(taxdetail.amount)" />
+                        </td>
+                    </tr>
+                </t>
+            </table>
+            <br />
+            <table class='receipt-paymentlines'>
+                <t t-foreach="paymentlines" t-as="line">
+                  <tr>
+                      <td>
+                          <t t-esc="line.name"/>
+                      </td>
+                      <td class="pos-right-align">
+                          <t t-esc="widget.format_currency_no_symbol(line.get_amount())"/>
+                      </td>
+                  </tr>
+                </t>
+            </table>
+            <br />
+            <table class='receipt-change'>
+                <tr><td>Change:</td><td class="pos-right-align">
+                    <t t-esc="widget.format_currency_no_symbol(order.get_change())"/>
+                    </td></tr>
+            </table>
+            
+            <br />
+            <div class="pos-center-align">
+                ** Thank you Please come again **<br />
+                สินค้าซื้อแล้วไม่รับเปลี่ยนคืน
+            </div>
+            
+        </div>
+    </t>
+</templates>

@@ -1,0 +1,8 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+
+inventory_reason_code,Reason Code,model_inventory_reason_code,ofm_access_right_center.group_ofm_hq,1,1,1,1
+inventory_reason_code_manager,Reason Code manager,model_inventory_reason_code,stock.group_stock_manager,1,0,0,0
+
+
+
+

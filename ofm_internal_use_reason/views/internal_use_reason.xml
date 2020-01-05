@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_internal_use_reason_form" model="ir.ui.view">
+        <field name="name">Internal Use Reason</field>
+        <field name="model">internal.use.reason</field>
+        <field name="arch" type="xml">
+            <form string="Internal Use Reason">
+                <div class="oe_title">
+                    <label for="name" class="oe_edit_only"/>
+                    <h1><field name="name" placeholder="e.g. Annual inventory"/></h1>
+                    <label for="company_id" class="oe_edit_only" string="Company"/>
+                    <field name="company_id" string="Company"
+                    options="{
+                                'no_quick_create': True,
+                                'no_create_edit': True,
+                                'no_open': True
+                            }"/>
+                    <p/>
+                    <label for="credit_account_id" class="oe_edit_only" string="Credit Account"/>
+                    <field name="credit_account_id" string="Credit Account"
+                    options="{
+                                'no_quick_create': True,
+                                'no_create_edit': True,
+                                'no_open': True
+                        }"
+                    domain="[('company_id', '=', company_id)]"/>
+                    <label for="debit_account_id" class="oe_edit_only" string="Debit Account"/>
+                    <field name="debit_account_id" string="Debit Account"
+                    options="{
+                                'no_quick_create': True,
+                                'no_create_edit': True,
+                                'no_open': True
+                        }"
+                    domain="[('company_id', '=', company_id)]"/>
+                    <p/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_internal_use_reason_tree" model="ir.ui.view">
+        <field name="name">Internal Use Reason</field>
+        <field name="model">internal.use.reason</field>
+        <field name="arch" type="xml">
+            <tree string="Internal Use Reason">
+                <field name="name"/>
+                <field name="credit_account_id" string="Credit Account"
+                options="{
+                            'no_quick_create': True,
+                            'no_create_edit': True,
+                            'no_open': True
+                        }"/>
+                <field name="debit_account_id" string="Debit Account"
+                options="{
+                            'no_quick_create': True,
+                            'no_create_edit': True,
+                            'no_open': True
+                        }"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="action_internal_use_reason_form" model="ir.actions.act_window">
+        <field name="name">Internal Use Reason</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">internal.use.reason</field>
+        <field name="view_type">form</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_id" ref="view_internal_use_reason_tree"/>
+    </record>
+
+    <menuitem name="Internal Use Reason" action="action_internal_use_reason_form" id="menu_action_internal_use_reason_form" parent="stock.menu_stock_config_settings" sequence="29" groups="stock.group_stock_manager"/>
+</odoo>

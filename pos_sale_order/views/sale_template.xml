@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <template id="assets" inherit_id="point_of_sale.assets">
+            <xpath expr="." position="inside">
+                <script type="text/javascript" src="/pos_sale_order/static/src/js/pos_sale_order_view.js"/>
+                <script type="text/javascript" src="/pos_sale_order/static/src/js/main.js"/>
+                <script type="text/javascript" src="/pos_sale_order/static/src/js/model.js"/>
+            </xpath>
+            <xpath expr="//link[@id='pos-stylesheet']" position="after">
+                <link rel="stylesheet" href="/pos_sale_order/static/src/css/standard.css"/>
+            </xpath>
+        </template>
+
+        <template id="index" inherit_id="point_of_sale.index">
+            <xpath expr="//title" position="replace">
+                <t t-if="sale">
+                    <title>Odoo SO</title>
+                </t>
+                <t t-else="">
+                    <title>Odoo POS</title>
+                </t>
+            </xpath>
+            <xpath expr="//head" position="inside">
+                <script type="text/javascript">
+                    odoo.define('so_web.web_client', function (require) {
+                        var web_client = require('web.web_client');
+                        web_client.show_application = function() {
+                            if('sale_type' in odoo.session_info)
+                                return web_client.action_manager.do_action("so.ui");
+                            else
+                                return web_client.action_manager.do_action("pos.ui");
+                        };
+                        return web_client;
+                    });
+                </script>
+            </xpath>
+        </template>
+    </data>
+</odoo>

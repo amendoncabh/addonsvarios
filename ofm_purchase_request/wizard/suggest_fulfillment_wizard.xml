@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="ofm_view_suggest_fulfillment_wizard" model="ir.ui.view">
+            <field name="name">Suggest Fulfillment OFM</field>
+            <field name="model">suggest.fulfillment.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Parameters">
+                    <group>
+                        <field
+                                name="parent_dept_ofm"
+                                options="{
+                                    'no_quick_create': True,
+                                    'no_create_edit': True,
+                                    'no_open': True
+                                }"
+                                context="{
+                                    'tree_view_ref': 'ofm_product_ext.view_ofm_product_dept_tree_search_mode',
+                                }"
+                        />
+                        <field
+                                name="dept_ofm"
+                                options="{
+                                    'no_quick_create': True,
+                                    'no_create_edit': True,
+                                    'no_open': True
+                                }"
+                                context="{
+                                    'tree_view_ref': 'ofm_product_ext.view_ofm_product_sub_dept_tree_search_mode',
+                                }"
+                        />
+                        <field
+                                name="brand_id"
+                                options="{
+                                    'no_quick_create': True,
+                                    'no_create_edit': True,
+                                    'no_open': True
+                                }"
+                                context="{
+                                    'tree_view_ref': 'ofm_product_ext.view_product_brand_handle_tree_search_mode',
+                                }"
+                        />
+                    </group>
+                    <footer>
+                        <button name="action_suggest_fulfillment" string="Suggest" type="object" class="btn-primary"/>
+                        <button string="Cancel" class="btn-default" special="cancel" />
+                    </footer>
+                </form>
+            </field>
+        </record>
+    </data>
+</odoo>

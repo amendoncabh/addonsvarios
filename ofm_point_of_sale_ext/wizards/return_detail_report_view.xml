@@ -1,0 +1,71 @@
+<?xml version="1.0"?>
+<openerp>
+    <data>
+        <record id="return_detail_report_jasper" model="ir.actions.report.xml">
+            <field name="string">รายงานรายละเอียดการรับคืนสินค้า</field>
+            <field name="auto">True</field>
+            <field name="model">return.detail.report.wizard</field>
+            <field name="name">return detail report</field>
+            <field name="report_name">return.detail.report.jasper</field>
+            <field name="rml">ofm_point_of_sale_ext/reports/return_detail_report.jrxml</field>
+            <field name="report_rml">ofm_point_of_sale_ext/reports/return_detail_report.jrxml</field>
+            <field name="menu">False</field>
+            <field name="header">False</field>
+            <field name="jasper_report">True</field>
+            <field name="jasper_output">xls</field>
+        </record>
+
+        <act_window id="action_return_detail_report_wizard"
+                    name="รายงานรายละเอียดการรับคืนสินค้า"
+                    res_model="return.detail.report.wizard"
+                    view_mode="form"
+                    target="new"/>
+
+        <menuitem id="menu_return_detail_report_wizard"
+                  name="รายงานรายละเอียดการรับคืนสินค้า"
+                  groups="point_of_sale.group_pos_manager"
+                  parent="point_of_sale.menu_point_rep"
+                  action="action_return_detail_report_wizard"
+                  sequence="14" />
+
+        <record id="view_return_detail_report_wizard" model="ir.ui.view">
+            <field name="name">return.detail.report.form</field>
+            <field name="model">return.detail.report.wizard</field>
+            <field name="arch" type="xml">
+                <form string="รายงานรายละเอียดารรับคืนสินค้า">
+                    <group>
+                        <group>
+                            <field name="start_date" required="1"/>
+                            <field name="end_date" required="1"/>
+                        </group>
+                        <group>
+                            <field name="company_id"
+                                   options="{'no_quick_create': True, 'no_create_edit': True,
+                                   'no_open': True}"/>
+                            <field name="branch_id"
+                                   options="{'no_quick_create': True, 'no_create_edit': True,
+                                   'no_open': True}"
+                                   domain="[('pos_company_id', '=',company_id)]"/>
+                        </group>
+                        <group>
+                            <field name="dept_ids" widget="many2many_tags"
+                                   options="{'no_quick_create': True, 'no_create_edit': True}">
+                            </field>
+                            <field name="return_reason_ids"
+                                   options="{'no_quick_create': True, 'no_create_edit': True}"
+                                   widget="many2many_tags"/>
+                        </group>
+                    </group>
+                    <footer>
+                        <button name="action_print_report"
+                                string="Print Report" type="object"
+                                class="oe_highlight"/>
+                        or
+                        <button string="Cancel" class="oe_link"
+                                special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+    </data>
+</openerp>

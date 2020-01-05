@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Inherit Form View to Modify it -->
+        <record id="tr_account_invoice_view_form" model="ir.ui.view">
+            <field name="name">Invoice</field>
+            <field name="model">account.invoice</field>
+            <field name="inherit_id" ref="account.invoice_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='partner_id']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//field[@name='partner_id']" position="after">
+                    <field name="is_show_clear_deposit" invisible="1"/>
+                    <field name="type_sale_ofm" invisible="0"/>
+                </xpath>
+                <xpath expr="//div[@name='button_box']" position="inside">
+                    <button name="print_full_tax_invoice"
+                            class="oe_stat_button oe_read_only"
+                            icon="fa-print"
+                            type="object"
+                            attrs="{
+                                'invisible': ['|', '|', '|',
+                                    ('state','not in',('open', 'paid')),
+                                    ('type', '!=', 'out_invoice'),
+                                    ('is_show_clear_deposit', '!=', True)
+                                ]
+                            }"
+                            context="{'is_print_dpo': True,}">
+                        <span>Invoice Form (Clear Deposit)</span>
+                    </button>
+                </xpath>
+                <xpath expr="//page[2]" position="before">
+                    <page
+                            string="Cash/ Credit"
+                            name="deposit_cash_credit_ids"
+                            attrs="{
+                                'invisible': [
+                                    ('type_sale_ofm', '=', True),
+                                ]
+                            }"
+                    >
+                        <field name="deposit_cash_credit_ids" readonly="1" />
+                        <field name="deposit_cash_credit_payment_line_ids" readonly="1">
+                            <tree string="Payment">
+                                <field name="payment_id"/>
+                                <field name="payment_method_id"/>
+                                <field name="journal_id"/>
+                                <field name="tender"/>
+                                <field name="credit_card_no_encrypt"/>
+                                <field name="paid_total"/>
+                            </tree>
+                        </field>
+                    </page>
+                    <page
+                            string="Deposit"
+                            name="deposit_ids"
+                            attrs="{
+                                'invisible': [
+                                    ('type_sale_ofm', '=', False),
+                                ]
+                            }"
+                    >
+                        <field name="deposit_ids" readonly="1" />
+                        <field name="deposit_payment_line_ids" readonly="1">
+                            <tree string="Payment">
+                                <field name="payment_id"/>
+                                <field name="payment_method_id"/>
+                                <field name="journal_id"/>
+                                <field name="tender"/>
+                                <field name="credit_card_no"/>
+                                <field name="paid_total"/>
+                            </tree>
+                        </field>
+                    </page>
+                </xpath>
+                <xpath expr="//field[@name='amount_tax']" position="after">
+                    <field name="partner_parent_id" invisible="1"/>
+                    <field name="amount_deposit" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                    <field name="amount_tax_deposit" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="tr_account_deposit_invoice_refund_form" model="ir.ui.view">
+            <field name="name">Invoice</field>
+            <field name="model">account.invoice</field>
+            <field name="inherit_id" ref="account_invoice_menu_refund.view_account_invoice_inherit_refund_form"/>
+            <field name="arch" type="xml">
+
+                <xpath expr="//field[@name='date_invoice']" position="after">
+                    <field name="invisible_reconcile_refund_button" invisible="1"/>
+                 </xpath>
+
+                <xpath expr="//button[@name='reconcile_refund']" position="attributes">
+                    <attribute name="attrs">{
+                        'invisible': [('invisible_reconcile_refund_button', '=', True)]
+                        }</attribute>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="tr_account_invoice_supplier_view_form" model="ir.ui.view">
+            <field name="name">Invoice</field>
+            <field name="model">account.invoice</field>
+            <field name="inherit_id" ref="account.invoice_supplier_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//page[2]" position="before">
+                    <page string="Deposit" name="deposit_ids">
+                        <field name="deposit_ids" domain="[('partner_id', '=', partner_id),('state','=','open')]" />
+                        <field name="deposit_payment_line_ids">
+                            <tree string="Payment" readonly="1">
+                                <field name="payment_id"/>
+                                <field name="payment_method_id"/>
+                                <field name="journal_id"/>
+                                <field name="tender"/>
+                                <field name="credit_card_no"/>
+                                <field name="paid_total"/>
+                            </tree>
+                        </field>
+                    </page>
+                </xpath>
+                <xpath expr="//field[@name='amount_tax']" position="after">
+                    <field name="amount_deposit"  widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                    <field name="amount_tax_deposit" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

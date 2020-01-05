@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="view_ofm_stock_internal_move_tree" model="ir.ui.view">
+            <field name="name">ofm.stock.internal.move.tree</field>
+            <field name="model">ofm.stock.internal.move</field>
+            <field name="arch" type="xml">
+                <tree string="Picking list">
+                    <field name="name"/>
+                    <field name="branch_id"/>
+                    <field name="branch_dest_id"/>
+                    <field name="min_date"/>
+                    <field name="location_id"/>
+                    <field name="location_dest_id"/>
+                    <field name="state"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="view_ofm_stock_internal_move_form" model="ir.ui.view">
+            <field name="name">ofm.stock.internal.move.form</field>
+            <field name="model">ofm.stock.internal.move</field>
+            <field name="arch" type="xml">
+                <form string="Transfer">
+                    <header>
+                        <button name="action_confirm" states="draft" string="Confirm" type="object" groups="base.group_user"/>
+                        <button name="action_cancel" states="assigned,draft" string="Cancel" groups="base.group_user" type="object"/>
+                        <button name="force_assign" states="assigned" string="Recheck" type="object" groups="base.group_user"
+                                attrs="{'invisible':['|',('picking_dest_state','=','assigned')]}"/>
+
+                        <field name="state" widget="statusbar" statusbar_visible="draft,assigned,done"/>
+                    </header>
+                    <sheet>
+                        <h1 class="hidden-xs">
+                            <field name="name" readonly="1"/>
+                        </h1>
+                        <group>
+                            <group>
+                                <field name="company_id" widget="selection"
+                                       groups="base.group_multi_company"
+                                       options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"/>
+                                <field name="branch_id"
+                                       context="{'company_id': company_id}"
+                                       options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"/>
+                                <field name="location_id"
+                                       context="{'branch_id': branch_id}"
+                                       options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"
+                                       attrs="{'invisible': [('branch_id','=', False)]}"/>
+                            </group>
+                            <group>
+                                <field name="company_dest_id" widget="selection"
+                                       groups="base.group_multi_company"
+                                       options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"/>
+                                <field name="branch_dest_id"
+                                       context="{'company_id': company_dest_id}"
+                                       options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"/>
+                                <field name="location_dest_id"
+                                       context="{'branch_id': branch_dest_id}"
+                                       options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"
+                                       attrs="{'invisible': [('branch_dest_id','=', False)]}"/>
+                            </group>
+                        </group>
+                        <group states="assigned,done,cancel">
+                            <group>
+                                <field name="picking_id"/>
+                                <field name="picking_dest_id"/>
+                            </group>
+                            <group>
+                                <field name="picking_state"/>
+                                <field name="picking_dest_state"/>
+                            </group>
+                        </group>
+                        <group>
+                            <group>
+                                <field name="min_date"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="Initial Demand">
+                                <field name="ofm_move_lines" attrs="{'readonly': [('state', 'in', ('cancel', 'assigned', 'done'))]}"
+                                       context="{'location_id': location_id}">
+                                    <tree editable="bottom">
+                                        <field name="product_id"
+                                               context="{
+                                                    'location': location_id,
+                                                    'exclude_order_line': parent.ofm_move_lines,
+                                                    'exclude_model': 'ofm.stock.internal.move.line'
+                                               }"
+                                               options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"/>
+                                        <field name="qty_available" readonly="1"/>
+                                        <field name="product_qty" readonly="0"/>
+                                        <field name="product_uom"/>
+                                        <field name="state"/>
+                                        <field name="date_expected" invisible="1"/>
+                                        <field name="location_id" readonly="1" invisible="1"/>
+                                    </tree>
+                                </field>
+                                <p>**Internal Move system, show available products in stock only.</p>
+                                <field name="note" placeholder="Add an internal note that will be printed on the Picking Operations sheet" class="oe_inline"/>
+                            </page>
+                            <page string="Additional Info" name="extra" groups="base.group_no_one">
+                                <group>
+                                    <group groups="base.group_no_one">
+                                        <field name="picking_type_id" groups="base.group_no_one"/>
+                                        <field name="picking_type_code" groups="base.group_no_one"/>
+                                        <field name="warehouse_id" groups="base.group_no_one"/>
+                                        <field name="warehouse_code" groups="base.group_no_one"/>
+                                        <field name="move_type" groups="base.group_no_one"/>
+                                    </group>
+                                    <group>
+                                        <field name="picking_type_dest_id" groups="base.group_no_one"/>
+                                        <field name="picking_type_dest_code" groups="base.group_no_one"/>
+                                        <field name="warehouse_dest_id" groups="base.group_no_one"/>
+                                        <field name="warehouse_dest_code" groups="base.group_no_one"/>
+                                        <field name="group_id" groups="base.group_no_one"/>
+                                    </group>
+                                </group>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_stock_internal_move" model="ir.actions.act_window">
+            <field name="name">Internal Move</field>
+            <field name="res_model">ofm.stock.internal.move</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="domain"></field>
+            <field name="help" type="html">
+            <p class="oe_view_nocontent_create">
+                Click here to create a new transfer.
+            </p>
+            <p>
+                You can either do it immediately or mark it as Todo for future processing. Use your scanner to validate the transferred quantity quicker.
+            </p>
+            </field>
+        </record>
+
+
+        <menuitem id="internal_transfers"
+                  name="Internal Transfers"
+                  parent="stock.menu_stock_warehouse_mgmt"
+                  sequence="3"
+                  action="action_stock_internal_move"
+                  groups="stock.group_stock_manager,stock.group_stock_user"/>
+    </data>
+</odoo>

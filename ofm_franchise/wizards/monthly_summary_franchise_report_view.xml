@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<odoo>
+    <data>
+        <record id="monthly_summary_franchise_report_jasper" model="ir.actions.report.xml">
+            <field name="string">Monthly Summary Franchise Report</field>
+            <field name="auto">True</field>
+            <field name="model">monthly.summary.franchise</field>
+            <field name="jasper_model_id" ref="base.model_res_users"/>
+            <field name="name">Monthly Summary Franchise Report</field>
+            <field name="report_name">monthly.summary.franchise.report.jasper</field>
+            <field name="rml">ofm_franchise/reports/monthly_summary_franchise_report.jrxml</field>
+            <field name="report_rml">ofm_franchise/reports/monthly_summary_franchise_report.jrxml</field>
+            <field name="menu">False</field>
+            <field name="header">False</field>
+            <field name="jasper_report">True</field>
+            <field name="jasper_output">xls</field>
+        </record>
+    </data>
+</odoo>

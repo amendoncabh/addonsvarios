@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="ofm_view_invoice_supplier_purchase_form" model="ir.ui.view">
+            <field name="name">ofm.account.invoice.supplier.purchase</field>
+            <field name="model">account.invoice</field>
+            <field name="inherit_id" ref="account.invoice_supplier_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//header/button[@name='%(account.action_account_invoice_refund)d']" position="after">
+                    <field name="hide_action_get_cn" invisible="1"/>
+                    <field name="hide_field_vendor_cn" invisible="1"/>
+                    <button name="action_get_cn_from_staging"
+                            string="Get Credit Note"
+                            type="object"
+                            attrs="{'invisible':[('hide_action_get_cn', '=', True)]}"
+                    />
+                </xpath>
+                <xpath expr="//field[@name='parent_invoice_id']" position="before">
+                    <field name="vendor_cn_reference"
+                           attrs="{'invisible':[('hide_field_vendor_cn', '=', True)]}"
+                    />
+                    <field name="vendor_cn_date"
+                           attrs="{'invisible':[('hide_field_vendor_cn', '=', True)]}"
+                    />
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

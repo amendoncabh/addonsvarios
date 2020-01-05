@@ -1,0 +1,1693 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.8.0.final using JasperReports Library version 4.0.0  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="po_report" language="groovy" pageWidth="1940" pageHeight="595" orientation="Landscape" whenNoDataType="NoDataSection" columnWidth="1900" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" isIgnorePagination="true">
+	<property name="ireport.zoom" value="1.5"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<style name="table" lineSpacing="Single">
+		<box>
+			<pen lineWidth="1.0" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table_TH" mode="Opaque" backcolor="#F0F8FF" lineSpacing="Single">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table_CH" mode="Opaque" backcolor="#BFE1FF" lineSpacing="Single">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table_TD" mode="Opaque" backcolor="#FFFFFF" lineSpacing="Single">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 1" lineSpacing="Single">
+		<box>
+			<pen lineWidth="1.0" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 1_TH" mode="Opaque" backcolor="#F0F8FF" lineSpacing="Single">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 1_CH" mode="Opaque" backcolor="#BFE1FF" lineSpacing="Single">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 1_TD" mode="Opaque" backcolor="#FFFFFF" lineSpacing="Single">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 2" lineSpacing="Single">
+		<box>
+			<pen lineWidth="1.0" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 2_TH" mode="Opaque" backcolor="#F0F8FF" lineSpacing="Single">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 2_CH" mode="Opaque" backcolor="#BFE1FF" lineSpacing="Single">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 2_TD" mode="Opaque" backcolor="#FFFFFF" lineSpacing="Single">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<subDataset name="ds_po_summary">
+		<property name="com.jaspersoft.studio.data.defaultdataadapter" value="localhost_OFM_SALE_test"/>
+		<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+		<parameter name="company_id" class="java.lang.String"/>
+		<parameter name="branch_id" class="java.lang.String"/>
+		<parameter name="po_no" class="java.lang.String"/>
+		<parameter name="start_date" class="java.lang.String"/>
+		<parameter name="end_date" class="java.lang.String"/>
+		<parameter name="po_status" class="java.lang.String"/>
+		<parameter name="product_status" class="java.lang.String"/>
+		<parameter name="type_to_ofm" class="java.lang.String"/>
+		<parameter name="stock_received" class="java.lang.String"/>
+		<queryString>
+			<![CDATA[select pco.name as po_no,
+       DATE(pco.date_order + interval '7 hours') as po_date,
+       case when pco.state = 'draft'
+            then 'PR'
+            when pco.state = 'sent'
+            then 'PR Sent'
+            when pco.state = 'pending'
+            then 'Pending'
+            when pco.state = 'completed'
+            then 'Completed'
+            when pco.state = 'to approve'
+            then 'To Approve'
+            when pco.state = 'purchase'
+            then 'Purchase Order'
+            when pco.state = 'done'
+            then 'Locked'
+       end as po_status,
+       vendor_rpn.ref as vendor_code,
+       vendor_rpn.name as vendor_name,
+       apt.name as payment_term,
+       sum(pcl.price_subtotal) as amount_untaxed,
+       DATE(pco.date_planned + interval '7 hours') as date_planned,
+       case when spk.state = 'done'
+	    then DATE(spk.date_done + interval '7 hours') 
+	    else null::date
+       end as date_done,
+       case when spk.state = 'done'
+	    then 'Received'
+	    when spk.state = 'draft'
+	    then 'Draft'
+	    when spk.state = 'cancel'
+	    then 'Cancelled'
+	    when spk.state = 'reject'
+	    then 'Rejected'
+	    else 'Waiting Receive'
+       end as picking_status,
+       requester_rpn.name as requester_name,
+       pco.comment_po
+from (
+      select *
+      from purchase_order
+      where state <> 'cancel'
+            /* Parameter */
+            and (company_id = $P{company_id}::integer or COALESCE($P{company_id}, '') = '')
+            and (branch_id = $P{branch_id}::integer or COALESCE($P{branch_id}, '') = '')
+            and (name like '%' || $P{po_no} || '%' or COALESCE($P{po_no}, '') = '')
+            and (DATE(date_order + interval '7 hour') between $P{start_date}::DATE and $P{end_date}::DATE)
+            and ($P{po_status}  like '%,' || state || ',%')
+            and ($P{type_to_ofm} like '%,' || type_to_ofm || ',%')
+     ) pco
+inner join purchase_order_line pcl on pco.id = pcl.order_id
+inner join (
+	   select s_spk.*
+           from stock_picking s_spk
+           inner join (
+		       select id
+		       from stock_picking_type
+		       where code = 'incoming'
+		      ) spt on s_spk.picking_type_id = spt.id
+	       where (s_spk.state = $P{stock_received}::varchar or COALESCE($P{stock_received}, '') = '')
+          ) spk on pco.group_id = spk.group_id
+inner join product_product prp on pcl.product_id = prp.id
+inner join (
+            select *
+            from product_template
+            where ($P{product_status} like '%,' || prod_status || ',%' or COALESCE($P{product_status}, '') = '')
+           ) pdt on prp.product_tmpl_id = pdt.id
+inner join res_partner vendor_rpn on pco.partner_id = vendor_rpn.id
+left join account_payment_term apt on pco.payment_term_id = apt.id
+inner join res_users requester_rus on pco.create_uid = requester_rus.id
+inner join res_partner requester_rpn on requester_rus.partner_id = requester_rpn.id
+group by pco.name,
+         pco.date_order,
+         pco.state,
+         vendor_rpn.id,
+         apt.id,
+         pco.date_planned,
+         spk.date_done,
+         spk.state,
+         requester_rpn.id,
+         pco.comment_po
+order by pco.name]]>
+		</queryString>
+		<field name="po_no" class="java.lang.String">
+			<property name="com.jaspersoft.studio.field.label" value="po_no"/>
+			<property name="com.jaspersoft.studio.field.tree.path" value="purchase_order"/>
+			<fieldDescription><![CDATA[PO No.]]></fieldDescription>
+		</field>
+		<field name="po_date" class="java.sql.Date">
+			<property name="com.jaspersoft.studio.field.label" value="po_date"/>
+		</field>
+		<field name="po_status" class="java.lang.String">
+			<property name="com.jaspersoft.studio.field.label" value="po_status"/>
+			<fieldDescription><![CDATA[PO Status]]></fieldDescription>
+		</field>
+		<field name="vendor_code" class="java.lang.String">
+			<property name="com.jaspersoft.studio.field.label" value="vendor_code"/>
+			<property name="com.jaspersoft.studio.field.tree.path" value="res_partner"/>
+		</field>
+		<field name="vendor_name" class="java.lang.String">
+			<property name="com.jaspersoft.studio.field.label" value="vendor_name"/>
+			<property name="com.jaspersoft.studio.field.tree.path" value="res_partner"/>
+		</field>
+		<field name="payment_term" class="java.lang.String">
+			<property name="com.jaspersoft.studio.field.label" value="payment_term"/>
+			<property name="com.jaspersoft.studio.field.tree.path" value="account_payment_term"/>
+		</field>
+		<field name="amount_untaxed" class="java.math.BigDecimal">
+			<property name="com.jaspersoft.studio.field.label" value="amount_untaxed"/>
+			<fieldDescription><![CDATA[Untaxed Amount]]></fieldDescription>
+		</field>
+		<field name="date_planned" class="java.sql.Date">
+			<property name="com.jaspersoft.studio.field.label" value="date_planned"/>
+			<fieldDescription><![CDATA[Planned Date]]></fieldDescription>
+		</field>
+		<field name="date_done" class="java.sql.Date">
+			<property name="com.jaspersoft.studio.field.label" value="date_done"/>
+			<fieldDescription><![CDATA[Closed On]]></fieldDescription>
+		</field>
+		<field name="picking_status" class="java.lang.String">
+			<property name="com.jaspersoft.studio.field.label" value="picking_status"/>
+		</field>
+		<field name="requester_name" class="java.lang.String">
+			<property name="com.jaspersoft.studio.field.label" value="requester_name"/>
+			<property name="com.jaspersoft.studio.field.tree.path" value="res_partner"/>
+		</field>
+		<field name="comment_po" class="java.lang.String">
+			<property name="com.jaspersoft.studio.field.label" value="comment_po"/>
+			<property name="com.jaspersoft.studio.field.tree.path" value="purchase_order"/>
+			<fieldDescription><![CDATA[Comment]]></fieldDescription>
+		</field>
+	</subDataset>
+	<subDataset name="ds_po_detail">
+		<property name="com.jaspersoft.studio.data.defaultdataadapter" value="localhost_OFM_SALE_test"/>
+		<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+		<parameter name="company_id" class="java.lang.String"/>
+		<parameter name="branch_id" class="java.lang.String"/>
+		<parameter name="po_no" class="java.lang.String"/>
+		<parameter name="start_date" class="java.lang.String"/>
+		<parameter name="end_date" class="java.lang.String"/>
+		<parameter name="po_status" class="java.lang.String"/>
+		<parameter name="product_status" class="java.lang.String"/>
+		<parameter name="type_to_ofm" class="java.lang.String"/>
+		<parameter name="stock_received" class="java.lang.String"/>
+		<queryString>
+			<![CDATA[select aiv.reference as col_invoice_no,
+       pco.name as po_doc_no,
+       case when pco.state = 'draft'
+            then 'PR'
+            when pco.state = 'sent'
+            then 'PR Sent'
+            when pco.state = 'pending'
+            then 'Pending'
+            when pco.state = 'completed'
+            then 'Completed'
+            when pco.state = 'to approve'
+            then 'To Approve'
+            when pco.state = 'purchase'
+            then 'Purchase Order'
+            when pco.state = 'done'
+            then 'Locked'
+       end as po_status,
+       vendor_rpn.ref as vendor_code,
+       vendor_rpn.name as vendor_name,
+       CASE WHEN sdept.dept_parent_id ISNULL
+            THEN sdept.ofm_dept_id
+	    ELSE dept.ofm_dept_id
+       END AS dept_id,
+       CASE WHEN sdept.dept_parent_id ISNULL
+            THEN ''
+	    ELSE sdept.ofm_sub_dept_id
+       END AS sub_dept_id,
+       pcg.cat_id as cat_id,
+       pcg.sub_cat_id as sub_cat_id,
+       pcg.name as product_category,
+       pdb.brand_th as product_brand,
+       prp.default_code as product_code,
+       pdt.sku_ofm as sku,
+       pdt.name as product_name,
+       pdu.name as product_uom,
+       pcl.qty_invoiced as qty_invoiced,
+       pcl.price_unit as price_untaxed,
+       pcl.price_subtotal as price_subtotal,
+       pdt.prod_status as product_status,
+       case when pco.type_to_ofm = 'fulfillment'
+            then 'Fulfilment to Franchise'
+            when pco.type_to_ofm = 'store'
+            then 'Send to Store'
+            when pco.type_to_ofm = 'customer'
+            then 'Send to Customer'
+       end as delivery_destination
+from (
+      select *
+      from purchase_order
+      where state <> 'cancel'
+            /* Parameter */
+            and (company_id = $P{company_id}::integer)
+            and (branch_id = $P{branch_id}::integer)
+            and (name like '%' || $P{po_no} || '%' or COALESCE($P{po_no}, '') = '')
+            and (DATE(date_order + interval '7 hour') between $P{start_date}::DATE and $P{end_date}::DATE)
+            and ($P{po_status} like '%,' || state || ',%' or COALESCE($P{po_status}, '') = '')
+            and ($P{type_to_ofm} like '%,' || type_to_ofm || ',%' or COALESCE($P{type_to_ofm}, '') = '')
+     ) pco
+inner join purchase_order_line pcl on pco.id = pcl.order_id
+inner join (
+	    select s_spk.*
+            from stock_picking s_spk
+            inner join (
+		        select id
+		        from stock_picking_type
+		        where code = 'incoming'
+		       ) spt on s_spk.picking_type_id = spt.id
+	       where (s_spk.state = $P{stock_received} or COALESCE($P{stock_received}, '') = '')
+           ) spk on pco.group_id = spk.group_id
+left join (
+	   select *
+	   from account_invoice
+	   where state not in ('draft', 'cancel')
+	         and type = 'in_invoice'
+	  ) aiv on spk.id = aiv.picking_id
+left join res_partner vendor_rpn on pco.partner_id = vendor_rpn.id
+inner join product_product prp on pcl.product_id = prp.id
+inner join (
+            select *
+            from product_template
+            /* Parameter */
+            where ($P{product_status} like '%,' || prod_status || ',%' or COALESCE($P{product_status}, '') = '')
+           ) pdt on prp.product_tmpl_id = pdt.id
+LEFT JOIN ofm_product_dept sdept ON pdt.dept_ofm = sdept.id
+LEFT JOIN ofm_product_dept dept ON sdept.dept_parent_id = dept.id
+inner join product_uom pdu on pcl.product_uom = pdu.id
+inner join product_category pcg on pdt.categ_id = pcg.id
+inner join product_brand pdb on pdt.brand_id = pdb.id
+order by pco.name, pcl.id]]>
+		</queryString>
+		<field name="col_invoice_no" class="java.lang.String">
+			<property name="com.jaspersoft.studio.field.label" value="col_invoice_no"/>
+			<property name="com.jaspersoft.studio.field.tree.path" value="account_invoice"/>
+		</field>
+		<field name="po_doc_no" class="java.lang.String">
+			<property name="com.jaspersoft.studio.field.label" value="po_doc_no"/>
+			<property name="com.jaspersoft.studio.field.tree.path" value="purchase_order"/>
+		</field>
+		<field name="po_status" class="java.lang.String">
+			<property name="com.jaspersoft.studio.field.label" value="po_status"/>
+			<fieldDescription><![CDATA[PO Status]]></fieldDescription>
+		</field>
+		<field name="vendor_code" class="java.lang.String">
+			<property name="com.jaspersoft.studio.field.label" value="vendor_code"/>
+			<property name="com.jaspersoft.studio.field.tree.path" value="res_partner"/>
+		</field>
+		<field name="vendor_name" class="java.lang.String">
+			<property name="com.jaspersoft.studio.field.label" value="vendor_name"/>
+			<property name="com.jaspersoft.studio.field.tree.path" value="res_partner"/>
+		</field>
+		<field name="dept_id" class="java.lang.String">
+			<property name="com.jaspersoft.studio.field.label" value="dept_id"/>
+		</field>
+		<field name="sub_dept_id" class="java.lang.String">
+			<property name="com.jaspersoft.studio.field.label" value="sub_dept_id"/>
+		</field>
+		<field name="cat_id" class="java.lang.String">
+			<property name="com.jaspersoft.studio.field.label" value="cat_id"/>
+			<property name="com.jaspersoft.studio.field.tree.path" value="product_category"/>
+			<fieldDescription><![CDATA[Cat ID OFM]]></fieldDescription>
+		</field>
+		<field name="sub_cat_id" class="java.lang.String">
+			<property name="com.jaspersoft.studio.field.label" value="sub_cat_id"/>
+			<property name="com.jaspersoft.studio.field.tree.path" value="product_category"/>
+			<fieldDescription><![CDATA[SubCat ID OFM]]></fieldDescription>
+		</field>
+		<field name="product_category" class="java.lang.String">
+			<property name="com.jaspersoft.studio.field.label" value="product_category"/>
+			<property name="com.jaspersoft.studio.field.tree.path" value="product_category"/>
+		</field>
+		<field name="product_brand" class="java.lang.String">
+			<property name="com.jaspersoft.studio.field.label" value="product_brand"/>
+			<property name="com.jaspersoft.studio.field.tree.path" value="product_brand"/>
+		</field>
+		<field name="product_code" class="java.lang.String">
+			<property name="com.jaspersoft.studio.field.label" value="product_code"/>
+			<property name="com.jaspersoft.studio.field.tree.path" value="product_product"/>
+			<fieldDescription><![CDATA[Vendor Product Code]]></fieldDescription>
+		</field>
+		<field name="sku" class="java.lang.String">
+			<property name="com.jaspersoft.studio.field.label" value="sku"/>
+			<property name="com.jaspersoft.studio.field.tree.path" value="product_template"/>
+		</field>
+		<field name="product_name" class="java.lang.String">
+			<property name="com.jaspersoft.studio.field.label" value="product_name"/>
+			<property name="com.jaspersoft.studio.field.tree.path" value="product_template"/>
+			<fieldDescription><![CDATA[Vendor Product Name]]></fieldDescription>
+		</field>
+		<field name="product_uom" class="java.lang.String">
+			<property name="com.jaspersoft.studio.field.label" value="product_uom"/>
+			<property name="com.jaspersoft.studio.field.tree.path" value="product_uom"/>
+			<fieldDescription><![CDATA[Product Unit of Measure]]></fieldDescription>
+		</field>
+		<field name="qty_invoiced" class="java.math.BigDecimal">
+			<property name="com.jaspersoft.studio.field.label" value="qty_invoiced"/>
+			<property name="com.jaspersoft.studio.field.tree.path" value="purchase_order_line"/>
+		</field>
+		<field name="price_untaxed" class="java.math.BigDecimal">
+			<property name="com.jaspersoft.studio.field.label" value="price_untaxed"/>
+			<property name="com.jaspersoft.studio.field.tree.path" value="purchase_order_line"/>
+		</field>
+		<field name="price_subtotal" class="java.math.BigDecimal">
+			<property name="com.jaspersoft.studio.field.label" value="price_subtotal"/>
+			<property name="com.jaspersoft.studio.field.tree.path" value="purchase_order_line"/>
+		</field>
+		<field name="product_status" class="java.lang.String">
+			<property name="com.jaspersoft.studio.field.label" value="product_status"/>
+			<property name="com.jaspersoft.studio.field.tree.path" value="product_template"/>
+			<fieldDescription><![CDATA[Product Status]]></fieldDescription>
+		</field>
+		<field name="delivery_destination" class="java.lang.String">
+			<property name="com.jaspersoft.studio.field.label" value="delivery_destination"/>
+		</field>
+	</subDataset>
+	<parameter name="company_id" class="java.lang.String"/>
+	<parameter name="branch_id" class="java.lang.String"/>
+	<parameter name="po_no" class="java.lang.String"/>
+	<parameter name="start_date" class="java.lang.String"/>
+	<parameter name="end_date" class="java.lang.String"/>
+	<parameter name="product_status" class="java.lang.String"/>
+	<parameter name="type_to_ofm" class="java.lang.String"/>
+	<parameter name="po_status" class="java.lang.String"/>
+	<parameter name="stock_received" class="java.lang.String"/>
+	<queryString>
+		<![CDATA[select cast('Report Summary' as varchar) as summary, cast('Report Detail' as varchar) as detail]]>
+	</queryString>
+	<field name="summary" class="java.lang.String"/>
+	<field name="detail" class="java.lang.String"/>
+	<detail>
+		<band height="62">
+			<textField pattern="" isBlankWhenNull="false">
+				<reportElement mode="Transparent" x="0" y="0" width="1900" height="14" forecolor="#000000" backcolor="#FFFFFF"/>
+				<box rightPadding="2"/>
+				<textElement verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="12" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{summary}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="0" y="14" width="1900" height="14"/>
+				<textElement textAlignment="Center" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="14" isBold="true"/>
+				</textElement>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<componentElement>
+				<reportElement key="table 3" x="0" y="28" width="1280" height="34"/>
+				<jr:table xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd">
+					<datasetRun subDataset="ds_po_summary">
+						<datasetParameter name="company_id">
+							<datasetParameterExpression><![CDATA[$P{company_id}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="branch_id">
+							<datasetParameterExpression><![CDATA[$P{branch_id}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="po_no">
+							<datasetParameterExpression><![CDATA[$P{po_no}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="start_date">
+							<datasetParameterExpression><![CDATA[$P{start_date}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="end_date">
+							<datasetParameterExpression><![CDATA[$P{end_date}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="po_status">
+							<datasetParameterExpression><![CDATA[$P{po_status}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="product_status">
+							<datasetParameterExpression><![CDATA[$P{product_status}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="type_to_ofm">
+							<datasetParameterExpression><![CDATA[$P{type_to_ofm}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="stock_received">
+							<datasetParameterExpression><![CDATA[$P{stock_received}]]></datasetParameterExpression>
+						</datasetParameter>
+						<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					</datasetRun>
+					<jr:column width="50">
+						<jr:columnHeader height="17" rowSpan="1">
+							<staticText>
+								<reportElement stretchType="RelativeToTallestObject" mode="Opaque" x="0" y="0" width="50" height="17" isPrintWhenDetailOverflows="true" backcolor="#FFCC33"/>
+								<box>
+									<pen lineWidth="0.5"/>
+									<topPen lineWidth="0.5"/>
+									<leftPen lineWidth="0.5"/>
+									<bottomPen lineWidth="0.5"/>
+									<rightPen lineWidth="0.5"/>
+								</box>
+								<textElement textAlignment="Center" lineSpacing="Single">
+									<font fontName="TH SarabunPSK" size="12" isBold="true"/>
+								</textElement>
+								<text><![CDATA[ลำดับที่]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell height="17" rowSpan="1">
+							<textField pattern="###0" isBlankWhenNull="true">
+								<reportElement stretchType="RelativeToTallestObject" x="0" y="0" width="50" height="17" isPrintWhenDetailOverflows="true"/>
+								<box leftPadding="0" rightPadding="0">
+									<pen lineWidth="0.5" lineColor="#666666"/>
+									<topPen lineWidth="0.5" lineColor="#666666"/>
+									<leftPen lineWidth="0.5" lineColor="#666666"/>
+									<bottomPen lineWidth="0.5" lineColor="#666666"/>
+									<rightPen lineWidth="0.5" lineColor="#666666"/>
+								</box>
+								<textElement textAlignment="Center" lineSpacing="Single">
+									<font fontName="TH SarabunPSK" size="12"/>
+								</textElement>
+								<textFieldExpression class="java.lang.Integer"><![CDATA[$V{COLUMN_COUNT}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="120">
+						<jr:columnHeader height="17" rowSpan="1">
+							<staticText>
+								<reportElement stretchType="RelativeToTallestObject" mode="Opaque" x="0" y="0" width="120" height="17" isPrintWhenDetailOverflows="true" backcolor="#FFCC33"/>
+								<box>
+									<pen lineWidth="0.5"/>
+									<topPen lineWidth="0.5"/>
+									<leftPen lineWidth="0.5"/>
+									<bottomPen lineWidth="0.5"/>
+									<rightPen lineWidth="0.5"/>
+								</box>
+								<textElement textAlignment="Center" lineSpacing="Single">
+									<font fontName="TH SarabunPSK" size="12" isBold="true"/>
+								</textElement>
+								<text><![CDATA[เลขที่ PO]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell height="17" rowSpan="1">
+							<textField isBlankWhenNull="true">
+								<reportElement stretchType="RelativeToTallestObject" x="0" y="0" width="120" height="17" isPrintWhenDetailOverflows="true"/>
+								<box leftPadding="0" rightPadding="0">
+									<pen lineWidth="0.5" lineColor="#666666"/>
+									<topPen lineWidth="0.5" lineColor="#666666"/>
+									<leftPen lineWidth="0.5" lineColor="#666666"/>
+									<bottomPen lineWidth="0.5" lineColor="#666666"/>
+									<rightPen lineWidth="0.5" lineColor="#666666"/>
+								</box>
+								<textElement textAlignment="Center" lineSpacing="Single">
+									<font fontName="TH SarabunPSK" size="12"/>
+								</textElement>
+								<textFieldExpression class="java.lang.String"><![CDATA[$F{po_no}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="120">
+						<jr:columnHeader height="17" rowSpan="1">
+							<staticText>
+								<reportElement stretchType="RelativeToTallestObject" mode="Opaque" x="0" y="0" width="120" height="17" isPrintWhenDetailOverflows="true" backcolor="#FFCC33"/>
+								<box>
+									<pen lineWidth="0.5"/>
+									<topPen lineWidth="0.5"/>
+									<leftPen lineWidth="0.5"/>
+									<bottomPen lineWidth="0.5"/>
+									<rightPen lineWidth="0.5"/>
+								</box>
+								<textElement textAlignment="Center" lineSpacing="Single">
+									<font fontName="TH SarabunPSK" size="12" isBold="true"/>
+								</textElement>
+								<text><![CDATA[วันที่สร้าง PO ]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell height="17" rowSpan="1">
+							<textField pattern="dd/MM/yyyy" isBlankWhenNull="true">
+								<reportElement stretchType="RelativeToTallestObject" x="0" y="0" width="120" height="17" isPrintWhenDetailOverflows="true"/>
+								<box leftPadding="0" rightPadding="0">
+									<pen lineWidth="0.5" lineColor="#666666"/>
+									<topPen lineWidth="0.5" lineColor="#666666"/>
+									<leftPen lineWidth="0.5" lineColor="#666666"/>
+									<bottomPen lineWidth="0.5" lineColor="#666666"/>
+									<rightPen lineWidth="0.5" lineColor="#666666"/>
+								</box>
+								<textElement textAlignment="Center" lineSpacing="Single">
+									<font fontName="TH SarabunPSK" size="12"/>
+								</textElement>
+								<textFieldExpression class="java.util.Date"><![CDATA[$F{po_date}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="90">
+						<jr:columnHeader height="17" rowSpan="1">
+							<staticText>
+								<reportElement stretchType="RelativeToTallestObject" mode="Opaque" x="0" y="0" width="90" height="17" isPrintWhenDetailOverflows="true" backcolor="#FFCC33"/>
+								<box>
+									<pen lineWidth="0.5"/>
+									<topPen lineWidth="0.5"/>
+									<leftPen lineWidth="0.5"/>
+									<bottomPen lineWidth="0.5"/>
+									<rightPen lineWidth="0.5"/>
+								</box>
+								<textElement textAlignment="Center" lineSpacing="Single">
+									<font fontName="TH SarabunPSK" size="12" isBold="true"/>
+								</textElement>
+								<text><![CDATA[สถานะ PO]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell height="17" rowSpan="1">
+							<textField isBlankWhenNull="true">
+								<reportElement stretchType="RelativeToTallestObject" x="0" y="0" width="90" height="17" isPrintWhenDetailOverflows="true"/>
+								<box leftPadding="0" rightPadding="0">
+									<pen lineWidth="0.5" lineColor="#666666"/>
+									<topPen lineWidth="0.5" lineColor="#666666"/>
+									<leftPen lineWidth="0.5" lineColor="#666666"/>
+									<bottomPen lineWidth="0.5" lineColor="#666666"/>
+									<rightPen lineWidth="0.5" lineColor="#666666"/>
+								</box>
+								<textElement lineSpacing="Single">
+									<font fontName="TH SarabunPSK" size="12"/>
+								</textElement>
+								<textFieldExpression class="java.lang.String"><![CDATA[$F{po_status}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="60">
+						<jr:columnHeader height="17" rowSpan="1">
+							<staticText>
+								<reportElement stretchType="RelativeToTallestObject" mode="Opaque" x="0" y="0" width="60" height="17" isPrintWhenDetailOverflows="true" backcolor="#FFCC33"/>
+								<box>
+									<pen lineWidth="0.5"/>
+									<topPen lineWidth="0.5"/>
+									<leftPen lineWidth="0.5"/>
+									<bottomPen lineWidth="0.5"/>
+									<rightPen lineWidth="0.5"/>
+								</box>
+								<textElement textAlignment="Center" lineSpacing="Single">
+									<font fontName="TH SarabunPSK" size="12" isBold="true"/>
+								</textElement>
+								<text><![CDATA[รหัส Vendor]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell height="17" rowSpan="1">
+							<textField isBlankWhenNull="true">
+								<reportElement stretchType="RelativeToTallestObject" x="0" y="0" width="60" height="17" isPrintWhenDetailOverflows="true"/>
+								<box leftPadding="0" rightPadding="0">
+									<pen lineWidth="0.5" lineColor="#666666"/>
+									<topPen lineWidth="0.5" lineColor="#666666"/>
+									<leftPen lineWidth="0.5" lineColor="#666666"/>
+									<bottomPen lineWidth="0.5" lineColor="#666666"/>
+									<rightPen lineWidth="0.5" lineColor="#666666"/>
+								</box>
+								<textElement textAlignment="Center" lineSpacing="Single">
+									<font fontName="TH SarabunPSK" size="12"/>
+								</textElement>
+								<textFieldExpression class="java.lang.String"><![CDATA[$F{vendor_code}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="180">
+						<jr:columnHeader height="17" rowSpan="1">
+							<staticText>
+								<reportElement stretchType="RelativeToTallestObject" mode="Opaque" x="0" y="0" width="180" height="17" isPrintWhenDetailOverflows="true" backcolor="#FFCC33"/>
+								<box>
+									<pen lineWidth="0.5"/>
+									<topPen lineWidth="0.5"/>
+									<leftPen lineWidth="0.5"/>
+									<bottomPen lineWidth="0.5"/>
+									<rightPen lineWidth="0.5"/>
+								</box>
+								<textElement textAlignment="Center" lineSpacing="Single">
+									<font fontName="TH SarabunPSK" size="12" isBold="true"/>
+								</textElement>
+								<text><![CDATA[ชื่อ Vendor]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell height="17" rowSpan="1">
+							<textField isBlankWhenNull="true">
+								<reportElement stretchType="RelativeToTallestObject" x="0" y="0" width="180" height="17" isPrintWhenDetailOverflows="true"/>
+								<box leftPadding="0" rightPadding="0">
+									<pen lineWidth="0.5" lineColor="#666666"/>
+									<topPen lineWidth="0.5" lineColor="#666666"/>
+									<leftPen lineWidth="0.5" lineColor="#666666"/>
+									<bottomPen lineWidth="0.5" lineColor="#666666"/>
+									<rightPen lineWidth="0.5" lineColor="#666666"/>
+								</box>
+								<textElement lineSpacing="Single">
+									<font fontName="TH SarabunPSK" size="12"/>
+								</textElement>
+								<textFieldExpression class="java.lang.String"><![CDATA[$F{vendor_name}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="90">
+						<jr:columnHeader height="17" rowSpan="1">
+							<staticText>
+								<reportElement stretchType="RelativeToTallestObject" mode="Opaque" x="0" y="0" width="90" height="17" isPrintWhenDetailOverflows="true" backcolor="#FFCC33"/>
+								<box>
+									<pen lineWidth="0.5"/>
+									<topPen lineWidth="0.5"/>
+									<leftPen lineWidth="0.5"/>
+									<bottomPen lineWidth="0.5"/>
+									<rightPen lineWidth="0.5"/>
+								</box>
+								<textElement textAlignment="Center" lineSpacing="Single">
+									<font fontName="TH SarabunPSK" size="12" isBold="true"/>
+								</textElement>
+								<text><![CDATA[ประเภทการชำระเงิน]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell height="17" rowSpan="1">
+							<textField isBlankWhenNull="true">
+								<reportElement stretchType="RelativeToTallestObject" x="0" y="0" width="90" height="17" isPrintWhenDetailOverflows="true"/>
+								<box leftPadding="0" rightPadding="0">
+									<pen lineWidth="0.5" lineColor="#666666"/>
+									<topPen lineWidth="0.5" lineColor="#666666"/>
+									<leftPen lineWidth="0.5" lineColor="#666666"/>
+									<bottomPen lineWidth="0.5" lineColor="#666666"/>
+									<rightPen lineWidth="0.5" lineColor="#666666"/>
+								</box>
+								<textElement lineSpacing="Single">
+									<font fontName="TH SarabunPSK" size="12"/>
+								</textElement>
+								<textFieldExpression class="java.lang.String"><![CDATA[$F{payment_term}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="90">
+						<jr:columnHeader height="17" rowSpan="1">
+							<staticText>
+								<reportElement stretchType="RelativeToTallestObject" mode="Opaque" x="0" y="0" width="90" height="17" isPrintWhenDetailOverflows="true" backcolor="#FFCC33"/>
+								<box>
+									<pen lineWidth="0.5"/>
+									<topPen lineWidth="0.5"/>
+									<leftPen lineWidth="0.5"/>
+									<bottomPen lineWidth="0.5"/>
+									<rightPen lineWidth="0.5"/>
+								</box>
+								<textElement textAlignment="Center" lineSpacing="Single">
+									<font fontName="TH SarabunPSK" size="12" isBold="true"/>
+								</textElement>
+								<text><![CDATA[ยอดเงิน (Exc. Vat)]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell height="17" rowSpan="1">
+							<textField pattern="#,##0.00;-#,##0.00" isBlankWhenNull="true">
+								<reportElement stretchType="RelativeToTallestObject" x="0" y="0" width="90" height="17" isPrintWhenDetailOverflows="true"/>
+								<box leftPadding="0" rightPadding="0">
+									<pen lineWidth="0.5" lineColor="#666666"/>
+									<topPen lineWidth="0.5" lineColor="#666666"/>
+									<leftPen lineWidth="0.5" lineColor="#666666"/>
+									<bottomPen lineWidth="0.5" lineColor="#666666"/>
+									<rightPen lineWidth="0.5" lineColor="#666666"/>
+								</box>
+								<textElement textAlignment="Right" lineSpacing="Single">
+									<font fontName="TH SarabunPSK" size="12"/>
+								</textElement>
+								<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{amount_untaxed}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="90">
+						<jr:columnHeader height="17" rowSpan="1">
+							<staticText>
+								<reportElement stretchType="RelativeToTallestObject" mode="Opaque" x="0" y="0" width="90" height="17" isPrintWhenDetailOverflows="true" backcolor="#FFCC33"/>
+								<box>
+									<pen lineWidth="0.5"/>
+									<topPen lineWidth="0.5"/>
+									<leftPen lineWidth="0.5"/>
+									<bottomPen lineWidth="0.5"/>
+									<rightPen lineWidth="0.5"/>
+								</box>
+								<textElement textAlignment="Center" lineSpacing="Single">
+									<font fontName="TH SarabunPSK" size="12" isBold="true"/>
+								</textElement>
+								<text><![CDATA[วันที่กำหนดส่ง]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell height="17" rowSpan="1">
+							<textField pattern="dd/MM/yyyy" isBlankWhenNull="true">
+								<reportElement stretchType="RelativeToTallestObject" x="0" y="0" width="90" height="17" isPrintWhenDetailOverflows="true"/>
+								<box leftPadding="0" rightPadding="0">
+									<pen lineWidth="0.5" lineColor="#666666"/>
+									<topPen lineWidth="0.5" lineColor="#666666"/>
+									<leftPen lineWidth="0.5" lineColor="#666666"/>
+									<bottomPen lineWidth="0.5" lineColor="#666666"/>
+									<rightPen lineWidth="0.5" lineColor="#666666"/>
+								</box>
+								<textElement textAlignment="Center" lineSpacing="Single">
+									<font fontName="TH SarabunPSK" size="12"/>
+								</textElement>
+								<textFieldExpression class="java.util.Date"><![CDATA[$F{date_planned}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="90">
+						<jr:columnHeader height="17" rowSpan="1">
+							<staticText>
+								<reportElement stretchType="RelativeToTallestObject" mode="Opaque" x="0" y="0" width="90" height="17" isPrintWhenDetailOverflows="true" backcolor="#FFCC33"/>
+								<box>
+									<pen lineWidth="0.5"/>
+									<topPen lineWidth="0.5"/>
+									<leftPen lineWidth="0.5"/>
+									<bottomPen lineWidth="0.5"/>
+									<rightPen lineWidth="0.5"/>
+								</box>
+								<textElement textAlignment="Center" lineSpacing="Single">
+									<font fontName="TH SarabunPSK" size="12" isBold="true"/>
+								</textElement>
+								<text><![CDATA[วันที่รับสินค้า]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell height="17" rowSpan="1">
+							<textField pattern="dd/MM/yyyy" isBlankWhenNull="true">
+								<reportElement stretchType="RelativeToTallestObject" x="0" y="0" width="90" height="17" isPrintWhenDetailOverflows="true"/>
+								<box leftPadding="0" rightPadding="0">
+									<pen lineWidth="0.5" lineColor="#666666"/>
+									<topPen lineWidth="0.5" lineColor="#666666"/>
+									<leftPen lineWidth="0.5" lineColor="#666666"/>
+									<bottomPen lineWidth="0.5" lineColor="#666666"/>
+									<rightPen lineWidth="0.5" lineColor="#666666"/>
+								</box>
+								<textElement textAlignment="Center" lineSpacing="Single">
+									<font fontName="TH SarabunPSK" size="12"/>
+								</textElement>
+								<textFieldExpression class="java.util.Date"><![CDATA[$F{date_done}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="180">
+						<jr:columnHeader height="17" rowSpan="1">
+							<staticText>
+								<reportElement stretchType="RelativeToTallestObject" mode="Opaque" x="0" y="0" width="180" height="17" isPrintWhenDetailOverflows="true" backcolor="#FFCC33"/>
+								<box>
+									<pen lineWidth="0.5"/>
+									<topPen lineWidth="0.5"/>
+									<leftPen lineWidth="0.5"/>
+									<bottomPen lineWidth="0.5"/>
+									<rightPen lineWidth="0.5"/>
+								</box>
+								<textElement textAlignment="Center" lineSpacing="Single">
+									<font fontName="TH SarabunPSK" size="12" isBold="true"/>
+								</textElement>
+								<text><![CDATA[สถานะการรับสินค้า]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell height="17" rowSpan="1">
+							<textField isBlankWhenNull="true">
+								<reportElement stretchType="RelativeToTallestObject" x="0" y="0" width="180" height="17" isPrintWhenDetailOverflows="true"/>
+								<box leftPadding="0" rightPadding="0">
+									<pen lineWidth="0.5" lineColor="#666666"/>
+									<topPen lineWidth="0.5" lineColor="#666666"/>
+									<leftPen lineWidth="0.5" lineColor="#666666"/>
+									<bottomPen lineWidth="0.5" lineColor="#666666"/>
+									<rightPen lineWidth="0.5" lineColor="#666666"/>
+								</box>
+								<textElement lineSpacing="Single">
+									<font fontName="TH SarabunPSK" size="12"/>
+								</textElement>
+								<textFieldExpression class="java.lang.String"><![CDATA[$F{picking_status}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="150">
+						<jr:columnHeader height="17" rowSpan="1">
+							<staticText>
+								<reportElement stretchType="RelativeToTallestObject" mode="Opaque" x="0" y="0" width="150" height="17" isPrintWhenDetailOverflows="true" backcolor="#FFCC33"/>
+								<box>
+									<pen lineWidth="0.5"/>
+									<topPen lineWidth="0.5"/>
+									<leftPen lineWidth="0.5"/>
+									<bottomPen lineWidth="0.5"/>
+									<rightPen lineWidth="0.5"/>
+								</box>
+								<textElement textAlignment="Center" lineSpacing="Single">
+									<font fontName="TH SarabunPSK" size="12" isBold="true"/>
+								</textElement>
+								<text><![CDATA[ผู้สั่งซื้อ]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell height="17" rowSpan="1">
+							<textField isBlankWhenNull="true">
+								<reportElement stretchType="RelativeToTallestObject" x="0" y="0" width="150" height="17" isPrintWhenDetailOverflows="true"/>
+								<box leftPadding="0" rightPadding="0">
+									<pen lineWidth="0.5" lineColor="#666666"/>
+									<topPen lineWidth="0.5" lineColor="#666666"/>
+									<leftPen lineWidth="0.5" lineColor="#666666"/>
+									<bottomPen lineWidth="0.5" lineColor="#666666"/>
+									<rightPen lineWidth="0.5" lineColor="#666666"/>
+								</box>
+								<textElement lineSpacing="Single">
+									<font fontName="TH SarabunPSK" size="12"/>
+								</textElement>
+								<textFieldExpression class="java.lang.String"><![CDATA[$F{requester_name}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="150">
+						<jr:columnHeader height="17" rowSpan="1">
+							<staticText>
+								<reportElement stretchType="RelativeToTallestObject" mode="Opaque" x="0" y="0" width="150" height="17" isPrintWhenDetailOverflows="true" backcolor="#FFCC33"/>
+								<box>
+									<pen lineWidth="0.5"/>
+									<topPen lineWidth="0.5"/>
+									<leftPen lineWidth="0.5"/>
+									<bottomPen lineWidth="0.5"/>
+									<rightPen lineWidth="0.5"/>
+								</box>
+								<textElement textAlignment="Center" lineSpacing="Single">
+									<font fontName="TH SarabunPSK" size="12" isBold="true"/>
+								</textElement>
+								<text><![CDATA[หมายเหตุ PO]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell height="17" rowSpan="1">
+							<textField isBlankWhenNull="true">
+								<reportElement stretchType="RelativeToTallestObject" x="0" y="0" width="150" height="17" isPrintWhenDetailOverflows="true"/>
+								<box leftPadding="0" rightPadding="0">
+									<pen lineWidth="0.5" lineColor="#666666"/>
+									<topPen lineWidth="0.5" lineColor="#666666"/>
+									<leftPen lineWidth="0.5" lineColor="#666666"/>
+									<bottomPen lineWidth="0.5" lineColor="#666666"/>
+									<rightPen lineWidth="0.5" lineColor="#666666"/>
+								</box>
+								<textElement lineSpacing="Single">
+									<font fontName="TH SarabunPSK" size="12"/>
+								</textElement>
+								<textFieldExpression class="java.lang.String"><![CDATA[$F{comment_po}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+				</jr:table>
+			</componentElement>
+		</band>
+		<band height="76">
+			<textField pattern="" isBlankWhenNull="false">
+				<reportElement mode="Transparent" x="0" y="14" width="1900" height="14" forecolor="#000000" backcolor="#FFFFFF"/>
+				<box rightPadding="2"/>
+				<textElement verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="12" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{detail}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="0" y="28" width="1900" height="14"/>
+				<textElement textAlignment="Center" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="14" isBold="true"/>
+				</textElement>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<componentElement>
+				<reportElement key="table 3" x="0" y="42" width="1900" height="34"/>
+				<jr:table xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd">
+					<datasetRun subDataset="ds_po_detail">
+						<datasetParameter name="company_id">
+							<datasetParameterExpression><![CDATA[$P{company_id}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="branch_id">
+							<datasetParameterExpression><![CDATA[$P{branch_id}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="po_no">
+							<datasetParameterExpression><![CDATA[$P{po_no}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="start_date">
+							<datasetParameterExpression><![CDATA[$P{start_date}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="end_date">
+							<datasetParameterExpression><![CDATA[$P{end_date}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="po_status">
+							<datasetParameterExpression><![CDATA[$P{po_status}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="product_status">
+							<datasetParameterExpression><![CDATA[$P{product_status}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="type_to_ofm">
+							<datasetParameterExpression><![CDATA[$P{type_to_ofm}]]></datasetParameterExpression>
+						</datasetParameter>
+						<datasetParameter name="stock_received">
+							<datasetParameterExpression><![CDATA[$P{stock_received}]]></datasetParameterExpression>
+						</datasetParameter>
+						<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					</datasetRun>
+					<jr:column width="50">
+						<jr:columnHeader height="17" rowSpan="1">
+							<staticText>
+								<reportElement stretchType="RelativeToTallestObject" mode="Opaque" x="0" y="0" width="50" height="17" isPrintWhenDetailOverflows="true" backcolor="#FFCC33"/>
+								<box>
+									<pen lineWidth="0.5"/>
+									<topPen lineWidth="0.5"/>
+									<leftPen lineWidth="0.5"/>
+									<bottomPen lineWidth="0.5"/>
+									<rightPen lineWidth="0.5"/>
+								</box>
+								<textElement textAlignment="Center" lineSpacing="Single">
+									<font fontName="TH SarabunPSK" size="12" isBold="true"/>
+								</textElement>
+								<text><![CDATA[ลำดับที่]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell height="17" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="###0" isBlankWhenNull="true">
+								<reportElement stretchType="RelativeToTallestObject" x="0" y="0" width="50" height="17" isPrintWhenDetailOverflows="true"/>
+								<box leftPadding="0" rightPadding="0">
+									<pen lineWidth="0.5" lineColor="#666666"/>
+									<topPen lineWidth="0.5" lineColor="#666666"/>
+									<leftPen lineWidth="0.5" lineColor="#666666"/>
+									<bottomPen lineWidth="0.5" lineColor="#666666"/>
+									<rightPen lineWidth="0.5" lineColor="#666666"/>
+								</box>
+								<textElement textAlignment="Center" lineSpacing="Single">
+									<font fontName="TH SarabunPSK" size="12"/>
+								</textElement>
+								<textFieldExpression class="java.lang.Integer"><![CDATA[$V{COLUMN_COUNT}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="120">
+						<jr:columnHeader height="17" rowSpan="1">
+							<staticText>
+								<reportElement stretchType="RelativeToTallestObject" mode="Opaque" x="0" y="0" width="120" height="17" isPrintWhenDetailOverflows="true" backcolor="#FFCC33"/>
+								<box>
+									<pen lineWidth="0.5"/>
+									<topPen lineWidth="0.5"/>
+									<leftPen lineWidth="0.5"/>
+									<bottomPen lineWidth="0.5"/>
+									<rightPen lineWidth="0.5"/>
+								</box>
+								<textElement textAlignment="Center" lineSpacing="Single">
+									<font fontName="TH SarabunPSK" size="12" isBold="true"/>
+								</textElement>
+								<text><![CDATA[เลขที่ Invoice]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell height="17" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement stretchType="RelativeToTallestObject" x="0" y="0" width="120" height="17" isPrintWhenDetailOverflows="true"/>
+								<box leftPadding="0" rightPadding="0">
+									<pen lineWidth="0.5" lineColor="#666666"/>
+									<topPen lineWidth="0.5" lineColor="#666666"/>
+									<leftPen lineWidth="0.5" lineColor="#666666"/>
+									<bottomPen lineWidth="0.5" lineColor="#666666"/>
+									<rightPen lineWidth="0.5" lineColor="#666666"/>
+								</box>
+								<textElement textAlignment="Center" lineSpacing="Single">
+									<font fontName="TH SarabunPSK" size="12"/>
+								</textElement>
+								<textFieldExpression class="java.lang.String"><![CDATA[$F{col_invoice_no}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="120">
+						<jr:columnHeader height="17" rowSpan="1">
+							<staticText>
+								<reportElement stretchType="RelativeToTallestObject" mode="Opaque" x="0" y="0" width="120" height="17" isPrintWhenDetailOverflows="true" backcolor="#FFCC33"/>
+								<box>
+									<pen lineWidth="0.5"/>
+									<topPen lineWidth="0.5"/>
+									<leftPen lineWidth="0.5"/>
+									<bottomPen lineWidth="0.5"/>
+									<rightPen lineWidth="0.5"/>
+								</box>
+								<textElement textAlignment="Center" lineSpacing="Single">
+									<font fontName="TH SarabunPSK" size="12" isBold="true"/>
+								</textElement>
+								<text><![CDATA[เลขที่ PO]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell height="17" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="" isBlankWhenNull="true">
+								<reportElement stretchType="RelativeToTallestObject" x="0" y="0" width="120" height="17" isPrintWhenDetailOverflows="true"/>
+								<box leftPadding="0" rightPadding="0">
+									<pen lineWidth="0.5" lineColor="#666666"/>
+									<topPen lineWidth="0.5" lineColor="#666666"/>
+									<leftPen lineWidth="0.5" lineColor="#666666"/>
+									<bottomPen lineWidth="0.5" lineColor="#666666"/>
+									<rightPen lineWidth="0.5" lineColor="#666666"/>
+								</box>
+								<textElement textAlignment="Center" lineSpacing="Single">
+									<font fontName="TH SarabunPSK" size="12"/>
+								</textElement>
+								<textFieldExpression class="java.lang.String"><![CDATA[$F{po_doc_no}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="90">
+						<jr:columnHeader height="17" rowSpan="1">
+							<staticText>
+								<reportElement stretchType="RelativeToTallestObject" mode="Opaque" x="0" y="0" width="90" height="17" isPrintWhenDetailOverflows="true" backcolor="#FFCC33"/>
+								<box>
+									<pen lineWidth="0.5"/>
+									<topPen lineWidth="0.5"/>
+									<leftPen lineWidth="0.5"/>
+									<bottomPen lineWidth="0.5"/>
+									<rightPen lineWidth="0.5"/>
+								</box>
+								<textElement textAlignment="Center" lineSpacing="Single">
+									<font fontName="TH SarabunPSK" size="12" isBold="true"/>
+								</textElement>
+								<text><![CDATA[สถานะ PO]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell height="17" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement stretchType="RelativeToTallestObject" x="0" y="0" width="90" height="17" isPrintWhenDetailOverflows="true"/>
+								<box leftPadding="0" rightPadding="0">
+									<pen lineWidth="0.5" lineColor="#666666"/>
+									<topPen lineWidth="0.5" lineColor="#666666"/>
+									<leftPen lineWidth="0.5" lineColor="#666666"/>
+									<bottomPen lineWidth="0.5" lineColor="#666666"/>
+									<rightPen lineWidth="0.5" lineColor="#666666"/>
+								</box>
+								<textElement textAlignment="Center" lineSpacing="Single">
+									<font fontName="TH SarabunPSK" size="12"/>
+								</textElement>
+								<textFieldExpression class="java.lang.String"><![CDATA[$F{po_status}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="60">
+						<jr:columnHeader height="17" rowSpan="1">
+							<staticText>
+								<reportElement stretchType="RelativeToTallestObject" mode="Opaque" x="0" y="0" width="60" height="17" isPrintWhenDetailOverflows="true" backcolor="#FFCC33"/>
+								<box>
+									<pen lineWidth="0.5"/>
+									<topPen lineWidth="0.5"/>
+									<leftPen lineWidth="0.5"/>
+									<bottomPen lineWidth="0.5"/>
+									<rightPen lineWidth="0.5"/>
+								</box>
+								<textElement textAlignment="Center" lineSpacing="Single">
+									<font fontName="TH SarabunPSK" size="12" isBold="true"/>
+								</textElement>
+								<text><![CDATA[รหัส Vendor]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell height="17" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement stretchType="RelativeToTallestObject" x="0" y="0" width="60" height="17" isPrintWhenDetailOverflows="true"/>
+								<box leftPadding="0" rightPadding="0">
+									<pen lineWidth="0.5" lineColor="#666666"/>
+									<topPen lineWidth="0.5" lineColor="#666666"/>
+									<leftPen lineWidth="0.5" lineColor="#666666"/>
+									<bottomPen lineWidth="0.5" lineColor="#666666"/>
+									<rightPen lineWidth="0.5" lineColor="#666666"/>
+								</box>
+								<textElement textAlignment="Center" lineSpacing="Single">
+									<font fontName="TH SarabunPSK" size="12"/>
+								</textElement>
+								<textFieldExpression class="java.lang.String"><![CDATA[$F{vendor_code}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="180">
+						<jr:columnHeader height="17" rowSpan="1">
+							<staticText>
+								<reportElement stretchType="RelativeToTallestObject" mode="Opaque" x="0" y="0" width="180" height="17" isPrintWhenDetailOverflows="true" backcolor="#FFCC33"/>
+								<box>
+									<pen lineWidth="0.5"/>
+									<topPen lineWidth="0.5"/>
+									<leftPen lineWidth="0.5"/>
+									<bottomPen lineWidth="0.5"/>
+									<rightPen lineWidth="0.5"/>
+								</box>
+								<textElement textAlignment="Center" lineSpacing="Single">
+									<font fontName="TH SarabunPSK" size="12" isBold="true"/>
+								</textElement>
+								<text><![CDATA[ชื่อ Vendor]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell height="17" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement stretchType="RelativeToTallestObject" x="0" y="0" width="180" height="17" isPrintWhenDetailOverflows="true"/>
+								<box leftPadding="0" rightPadding="0">
+									<pen lineWidth="0.5" lineColor="#666666"/>
+									<topPen lineWidth="0.5" lineColor="#666666"/>
+									<leftPen lineWidth="0.5" lineColor="#666666"/>
+									<bottomPen lineWidth="0.5" lineColor="#666666"/>
+									<rightPen lineWidth="0.5" lineColor="#666666"/>
+								</box>
+								<textElement lineSpacing="Single">
+									<font fontName="TH SarabunPSK" size="12"/>
+								</textElement>
+								<textFieldExpression class="java.lang.String"><![CDATA[$F{vendor_name}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="90">
+						<jr:columnHeader height="17" rowSpan="1">
+							<staticText>
+								<reportElement stretchType="RelativeToTallestObject" mode="Opaque" x="0" y="0" width="90" height="17" isPrintWhenDetailOverflows="true" backcolor="#FFCC33"/>
+								<box>
+									<pen lineWidth="0.5"/>
+									<topPen lineWidth="0.5"/>
+									<leftPen lineWidth="0.5"/>
+									<bottomPen lineWidth="0.5"/>
+									<rightPen lineWidth="0.5"/>
+								</box>
+								<textElement textAlignment="Center" lineSpacing="Single">
+									<font fontName="TH SarabunPSK" size="12" isBold="true"/>
+								</textElement>
+								<text><![CDATA[Dept.]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell height="17" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement stretchType="RelativeToTallestObject" x="0" y="0" width="90" height="17" isPrintWhenDetailOverflows="true"/>
+								<box leftPadding="0" rightPadding="0">
+									<pen lineWidth="0.5" lineColor="#666666"/>
+									<topPen lineWidth="0.5" lineColor="#666666"/>
+									<leftPen lineWidth="0.5" lineColor="#666666"/>
+									<bottomPen lineWidth="0.5" lineColor="#666666"/>
+									<rightPen lineWidth="0.5" lineColor="#666666"/>
+								</box>
+								<textElement textAlignment="Center" lineSpacing="Single">
+									<font fontName="TH SarabunPSK" size="12"/>
+								</textElement>
+								<textFieldExpression class="java.lang.String"><![CDATA[$F{dept_id}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="90">
+						<jr:columnHeader height="17" rowSpan="1">
+							<staticText>
+								<reportElement stretchType="RelativeToTallestObject" mode="Opaque" x="0" y="0" width="90" height="17" isPrintWhenDetailOverflows="true" backcolor="#FFCC33"/>
+								<box>
+									<pen lineWidth="0.5"/>
+									<topPen lineWidth="0.5"/>
+									<leftPen lineWidth="0.5"/>
+									<bottomPen lineWidth="0.5"/>
+									<rightPen lineWidth="0.5"/>
+								</box>
+								<textElement textAlignment="Center" lineSpacing="Single">
+									<font fontName="TH SarabunPSK" size="12" isBold="true"/>
+								</textElement>
+								<text><![CDATA[Sub-Dept.]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell height="17" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="" isBlankWhenNull="true">
+								<reportElement stretchType="RelativeToTallestObject" x="0" y="0" width="90" height="17" isPrintWhenDetailOverflows="true"/>
+								<box leftPadding="0" rightPadding="0">
+									<pen lineWidth="0.5" lineColor="#666666"/>
+									<topPen lineWidth="0.5" lineColor="#666666"/>
+									<leftPen lineWidth="0.5" lineColor="#666666"/>
+									<bottomPen lineWidth="0.5" lineColor="#666666"/>
+									<rightPen lineWidth="0.5" lineColor="#666666"/>
+								</box>
+								<textElement textAlignment="Center" lineSpacing="Single">
+									<font fontName="TH SarabunPSK" size="12"/>
+								</textElement>
+								<textFieldExpression class="java.lang.String"><![CDATA[$F{sub_dept_id}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="90">
+						<jr:columnHeader height="17" rowSpan="1">
+							<staticText>
+								<reportElement stretchType="RelativeToTallestObject" mode="Opaque" x="0" y="0" width="90" height="17" isPrintWhenDetailOverflows="true" backcolor="#FFCC33"/>
+								<box>
+									<pen lineWidth="0.5"/>
+									<topPen lineWidth="0.5"/>
+									<leftPen lineWidth="0.5"/>
+									<bottomPen lineWidth="0.5"/>
+									<rightPen lineWidth="0.5"/>
+								</box>
+								<textElement textAlignment="Center" lineSpacing="Single">
+									<font fontName="TH SarabunPSK" size="12" isBold="true"/>
+								</textElement>
+								<text><![CDATA[Cat. ID]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell height="17" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="" isBlankWhenNull="true">
+								<reportElement stretchType="RelativeToTallestObject" x="0" y="0" width="90" height="17" isPrintWhenDetailOverflows="true"/>
+								<box leftPadding="0" rightPadding="0">
+									<pen lineWidth="0.5" lineColor="#666666"/>
+									<topPen lineWidth="0.5" lineColor="#666666"/>
+									<leftPen lineWidth="0.5" lineColor="#666666"/>
+									<bottomPen lineWidth="0.5" lineColor="#666666"/>
+									<rightPen lineWidth="0.5" lineColor="#666666"/>
+								</box>
+								<textElement textAlignment="Center" lineSpacing="Single">
+									<font fontName="TH SarabunPSK" size="12"/>
+								</textElement>
+								<textFieldExpression class="java.lang.String"><![CDATA[$F{cat_id}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="90">
+						<jr:columnHeader height="17" rowSpan="1">
+							<staticText>
+								<reportElement stretchType="RelativeToTallestObject" mode="Opaque" x="0" y="0" width="90" height="17" isPrintWhenDetailOverflows="true" backcolor="#FFCC33"/>
+								<box>
+									<pen lineWidth="0.5"/>
+									<topPen lineWidth="0.5"/>
+									<leftPen lineWidth="0.5"/>
+									<bottomPen lineWidth="0.5"/>
+									<rightPen lineWidth="0.5"/>
+								</box>
+								<textElement textAlignment="Center" lineSpacing="Single">
+									<font fontName="TH SarabunPSK" size="12" isBold="true"/>
+								</textElement>
+								<text><![CDATA[Sub-Cat.]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell height="17" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="" isBlankWhenNull="true">
+								<reportElement stretchType="RelativeToTallestObject" x="0" y="0" width="90" height="17" isPrintWhenDetailOverflows="true"/>
+								<box leftPadding="0" rightPadding="0">
+									<pen lineWidth="0.5" lineColor="#666666"/>
+									<topPen lineWidth="0.5" lineColor="#666666"/>
+									<leftPen lineWidth="0.5" lineColor="#666666"/>
+									<bottomPen lineWidth="0.5" lineColor="#666666"/>
+									<rightPen lineWidth="0.5" lineColor="#666666"/>
+								</box>
+								<textElement textAlignment="Center" lineSpacing="Single">
+									<font fontName="TH SarabunPSK" size="12"/>
+								</textElement>
+								<textFieldExpression class="java.lang.String"><![CDATA[$F{sub_cat_id}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="180">
+						<jr:columnHeader height="17" rowSpan="1">
+							<staticText>
+								<reportElement stretchType="RelativeToTallestObject" mode="Opaque" x="0" y="0" width="180" height="17" isPrintWhenDetailOverflows="true" backcolor="#FFCC33"/>
+								<box>
+									<pen lineWidth="0.5"/>
+									<topPen lineWidth="0.5"/>
+									<leftPen lineWidth="0.5"/>
+									<bottomPen lineWidth="0.5"/>
+									<rightPen lineWidth="0.5"/>
+								</box>
+								<textElement textAlignment="Center" lineSpacing="Single">
+									<font fontName="TH SarabunPSK" size="12" isBold="true"/>
+								</textElement>
+								<text><![CDATA[Category Name]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell height="17" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement stretchType="RelativeToTallestObject" x="0" y="0" width="180" height="17" isPrintWhenDetailOverflows="true"/>
+								<box leftPadding="0" rightPadding="0">
+									<pen lineWidth="0.5" lineColor="#666666"/>
+									<topPen lineWidth="0.5" lineColor="#666666"/>
+									<leftPen lineWidth="0.5" lineColor="#666666"/>
+									<bottomPen lineWidth="0.5" lineColor="#666666"/>
+									<rightPen lineWidth="0.5" lineColor="#666666"/>
+								</box>
+								<textElement lineSpacing="Single">
+									<font fontName="TH SarabunPSK" size="12"/>
+								</textElement>
+								<textFieldExpression class="java.lang.String"><![CDATA[$F{product_category}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="150">
+						<jr:columnHeader height="17" rowSpan="1">
+							<staticText>
+								<reportElement stretchType="RelativeToTallestObject" mode="Opaque" x="0" y="0" width="150" height="17" isPrintWhenDetailOverflows="true" backcolor="#FFCC33"/>
+								<box>
+									<pen lineWidth="0.5"/>
+									<topPen lineWidth="0.5"/>
+									<leftPen lineWidth="0.5"/>
+									<bottomPen lineWidth="0.5"/>
+									<rightPen lineWidth="0.5"/>
+								</box>
+								<textElement textAlignment="Center" lineSpacing="Single">
+									<font fontName="TH SarabunPSK" size="12" isBold="true"/>
+								</textElement>
+								<text><![CDATA[Brand]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell height="17" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement stretchType="RelativeToTallestObject" x="0" y="0" width="150" height="17" isPrintWhenDetailOverflows="true"/>
+								<box leftPadding="0" rightPadding="0">
+									<pen lineWidth="0.5" lineColor="#666666"/>
+									<topPen lineWidth="0.5" lineColor="#666666"/>
+									<leftPen lineWidth="0.5" lineColor="#666666"/>
+									<bottomPen lineWidth="0.5" lineColor="#666666"/>
+									<rightPen lineWidth="0.5" lineColor="#666666"/>
+								</box>
+								<textElement lineSpacing="Single">
+									<font fontName="TH SarabunPSK" size="12"/>
+								</textElement>
+								<textFieldExpression class="java.lang.String"><![CDATA[$F{product_brand}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="150">
+						<jr:columnHeader height="17" rowSpan="1">
+							<staticText>
+								<reportElement stretchType="RelativeToTallestObject" mode="Opaque" x="0" y="0" width="150" height="17" isPrintWhenDetailOverflows="true" backcolor="#FFCC33"/>
+								<box>
+									<pen lineWidth="0.5"/>
+									<topPen lineWidth="0.5"/>
+									<leftPen lineWidth="0.5"/>
+									<bottomPen lineWidth="0.5"/>
+									<rightPen lineWidth="0.5"/>
+								</box>
+								<textElement textAlignment="Center" lineSpacing="Single">
+									<font fontName="TH SarabunPSK" size="12" isBold="true"/>
+								</textElement>
+								<text><![CDATA[รหัสสินค้า]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell height="17" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement stretchType="RelativeToTallestObject" x="0" y="0" width="150" height="17" isPrintWhenDetailOverflows="true"/>
+								<box leftPadding="0" rightPadding="0">
+									<pen lineWidth="0.5" lineColor="#666666"/>
+									<topPen lineWidth="0.5" lineColor="#666666"/>
+									<leftPen lineWidth="0.5" lineColor="#666666"/>
+									<bottomPen lineWidth="0.5" lineColor="#666666"/>
+									<rightPen lineWidth="0.5" lineColor="#666666"/>
+								</box>
+								<textElement textAlignment="Center" lineSpacing="Single">
+									<font fontName="TH SarabunPSK" size="12"/>
+								</textElement>
+								<textFieldExpression class="java.lang.String"><![CDATA[$F{product_code}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="50">
+						<jr:columnHeader height="17" rowSpan="1">
+							<staticText>
+								<reportElement stretchType="RelativeToTallestObject" mode="Opaque" x="0" y="0" width="50" height="17" isPrintWhenDetailOverflows="true" backcolor="#FFCC33"/>
+								<box>
+									<pen lineWidth="0.5"/>
+									<topPen lineWidth="0.5"/>
+									<leftPen lineWidth="0.5"/>
+									<bottomPen lineWidth="0.5"/>
+									<rightPen lineWidth="0.5"/>
+								</box>
+								<textElement textAlignment="Center" lineSpacing="Single">
+									<font fontName="TH SarabunPSK" size="12" isBold="true"/>
+								</textElement>
+								<text><![CDATA[SKU]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell height="17" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement stretchType="RelativeToTallestObject" x="0" y="0" width="50" height="17" isPrintWhenDetailOverflows="true"/>
+								<box leftPadding="0" rightPadding="0">
+									<pen lineWidth="0.5" lineColor="#666666"/>
+									<topPen lineWidth="0.5" lineColor="#666666"/>
+									<leftPen lineWidth="0.5" lineColor="#666666"/>
+									<bottomPen lineWidth="0.5" lineColor="#666666"/>
+									<rightPen lineWidth="0.5" lineColor="#666666"/>
+								</box>
+								<textElement textAlignment="Center" lineSpacing="Single">
+									<font fontName="TH SarabunPSK" size="12"/>
+								</textElement>
+								<textFieldExpression class="java.lang.String"><![CDATA[$F{sku}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="250">
+						<jr:columnHeader height="17" rowSpan="1">
+							<staticText>
+								<reportElement stretchType="RelativeToTallestObject" mode="Opaque" x="0" y="0" width="250" height="17" isPrintWhenDetailOverflows="true" backcolor="#FFCC33"/>
+								<box>
+									<pen lineWidth="0.5"/>
+									<topPen lineWidth="0.5"/>
+									<leftPen lineWidth="0.5"/>
+									<bottomPen lineWidth="0.5"/>
+									<rightPen lineWidth="0.5"/>
+								</box>
+								<textElement textAlignment="Center" lineSpacing="Single">
+									<font fontName="TH SarabunPSK" size="12" isBold="true"/>
+								</textElement>
+								<text><![CDATA[ชื่อสินค้า]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell height="17" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement stretchType="RelativeToTallestObject" x="0" y="0" width="250" height="17" isPrintWhenDetailOverflows="true"/>
+								<box leftPadding="0" rightPadding="0">
+									<pen lineWidth="0.5" lineColor="#666666"/>
+									<topPen lineWidth="0.5" lineColor="#666666"/>
+									<leftPen lineWidth="0.5" lineColor="#666666"/>
+									<bottomPen lineWidth="0.5" lineColor="#666666"/>
+									<rightPen lineWidth="0.5" lineColor="#666666"/>
+								</box>
+								<textElement lineSpacing="Single">
+									<font fontName="TH SarabunPSK" size="12"/>
+								</textElement>
+								<textFieldExpression class="java.lang.String"><![CDATA[$F{product_name}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="50">
+						<jr:columnHeader height="17" rowSpan="1">
+							<staticText>
+								<reportElement stretchType="RelativeToTallestObject" mode="Opaque" x="0" y="0" width="50" height="17" isPrintWhenDetailOverflows="true" backcolor="#FFCC33"/>
+								<box>
+									<pen lineWidth="0.5"/>
+									<topPen lineWidth="0.5"/>
+									<leftPen lineWidth="0.5"/>
+									<bottomPen lineWidth="0.5"/>
+									<rightPen lineWidth="0.5"/>
+								</box>
+								<textElement textAlignment="Center" lineSpacing="Single">
+									<font fontName="TH SarabunPSK" size="12" isBold="true"/>
+								</textElement>
+								<text><![CDATA[หน่วยซื้อ]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell height="17" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement stretchType="RelativeToTallestObject" x="0" y="0" width="50" height="17" isPrintWhenDetailOverflows="true"/>
+								<box leftPadding="0" rightPadding="0">
+									<pen lineWidth="0.5" lineColor="#666666"/>
+									<topPen lineWidth="0.5" lineColor="#666666"/>
+									<leftPen lineWidth="0.5" lineColor="#666666"/>
+									<bottomPen lineWidth="0.5" lineColor="#666666"/>
+									<rightPen lineWidth="0.5" lineColor="#666666"/>
+								</box>
+								<textElement lineSpacing="Single">
+									<font fontName="TH SarabunPSK" size="12"/>
+								</textElement>
+								<textFieldExpression class="java.lang.String"><![CDATA[$F{product_uom}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="90">
+						<jr:columnHeader height="17" rowSpan="1">
+							<staticText>
+								<reportElement stretchType="RelativeToTallestObject" mode="Opaque" x="0" y="0" width="90" height="17" isPrintWhenDetailOverflows="true" backcolor="#FFCC33"/>
+								<box>
+									<pen lineWidth="0.5"/>
+									<topPen lineWidth="0.5"/>
+									<leftPen lineWidth="0.5"/>
+									<bottomPen lineWidth="0.5"/>
+									<rightPen lineWidth="0.5"/>
+								</box>
+								<textElement textAlignment="Center" lineSpacing="Single">
+									<font fontName="TH SarabunPSK" size="12" isBold="true"/>
+								</textElement>
+								<text><![CDATA[จำนวน]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell height="17">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00;-#,##0.00" isBlankWhenNull="true">
+								<reportElement stretchType="RelativeToTallestObject" x="0" y="0" width="90" height="17" isPrintWhenDetailOverflows="true"/>
+								<box leftPadding="0" rightPadding="0">
+									<pen lineWidth="0.5" lineColor="#666666"/>
+									<topPen lineWidth="0.5" lineColor="#666666"/>
+									<leftPen lineWidth="0.5" lineColor="#666666"/>
+									<bottomPen lineWidth="0.5" lineColor="#666666"/>
+									<rightPen lineWidth="0.5" lineColor="#666666"/>
+								</box>
+								<textElement textAlignment="Right" lineSpacing="Single">
+									<font fontName="TH SarabunPSK" size="12"/>
+								</textElement>
+								<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{qty_invoiced}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="90">
+						<jr:columnHeader height="17" rowSpan="1">
+							<staticText>
+								<reportElement stretchType="RelativeToTallestObject" mode="Opaque" x="0" y="0" width="90" height="17" isPrintWhenDetailOverflows="true" backcolor="#FFCC33"/>
+								<box>
+									<pen lineWidth="0.5"/>
+									<topPen lineWidth="0.5"/>
+									<leftPen lineWidth="0.5"/>
+									<bottomPen lineWidth="0.5"/>
+									<rightPen lineWidth="0.5"/>
+								</box>
+								<textElement textAlignment="Center" lineSpacing="Single">
+									<font fontName="TH SarabunPSK" size="12" isBold="true"/>
+								</textElement>
+								<text><![CDATA[ราคาซื้อ (ต่อหน่วย)]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell height="17" rowSpan="1">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00;-#,##0.00" isBlankWhenNull="true">
+								<reportElement stretchType="RelativeToTallestObject" x="0" y="0" width="90" height="17" isPrintWhenDetailOverflows="true"/>
+								<box leftPadding="0" rightPadding="0">
+									<pen lineWidth="0.5" lineColor="#666666"/>
+									<topPen lineWidth="0.5" lineColor="#666666"/>
+									<leftPen lineWidth="0.5" lineColor="#666666"/>
+									<bottomPen lineWidth="0.5" lineColor="#666666"/>
+									<rightPen lineWidth="0.5" lineColor="#666666"/>
+								</box>
+								<textElement textAlignment="Right" lineSpacing="Single">
+									<font fontName="TH SarabunPSK" size="12"/>
+								</textElement>
+								<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{price_untaxed}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="90">
+						<jr:columnHeader height="17" rowSpan="1">
+							<staticText>
+								<reportElement stretchType="RelativeToTallestObject" mode="Opaque" x="0" y="0" width="90" height="17" isPrintWhenDetailOverflows="true" backcolor="#FFCC33"/>
+								<box>
+									<pen lineWidth="0.5"/>
+									<topPen lineWidth="0.5"/>
+									<leftPen lineWidth="0.5"/>
+									<bottomPen lineWidth="0.5"/>
+									<rightPen lineWidth="0.5"/>
+								</box>
+								<textElement textAlignment="Center" lineSpacing="Single">
+									<font fontName="TH SarabunPSK" size="12" isBold="true"/>
+								</textElement>
+								<text><![CDATA[ยอดเงิน (Exc. Vat)]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell height="17">
+							<textField isStretchWithOverflow="true" pattern="#,##0.00;-#,##0.00" isBlankWhenNull="true">
+								<reportElement stretchType="RelativeToTallestObject" x="0" y="0" width="90" height="17" isPrintWhenDetailOverflows="true"/>
+								<box leftPadding="0" rightPadding="0">
+									<pen lineWidth="0.5" lineColor="#666666"/>
+									<topPen lineWidth="0.5" lineColor="#666666"/>
+									<leftPen lineWidth="0.5" lineColor="#666666"/>
+									<bottomPen lineWidth="0.5" lineColor="#666666"/>
+									<rightPen lineWidth="0.5" lineColor="#666666"/>
+								</box>
+								<textElement textAlignment="Right" lineSpacing="Single">
+									<font fontName="TH SarabunPSK" size="12"/>
+								</textElement>
+								<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{price_subtotal}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="90">
+						<jr:columnHeader height="17" rowSpan="1">
+							<staticText>
+								<reportElement stretchType="RelativeToTallestObject" mode="Opaque" x="0" y="0" width="90" height="17" isPrintWhenDetailOverflows="true" backcolor="#FFCC33"/>
+								<box>
+									<pen lineWidth="0.5"/>
+									<topPen lineWidth="0.5"/>
+									<leftPen lineWidth="0.5"/>
+									<bottomPen lineWidth="0.5"/>
+									<rightPen lineWidth="0.5"/>
+								</box>
+								<textElement textAlignment="Center" lineSpacing="Single">
+									<font fontName="TH SarabunPSK" size="12" isBold="true"/>
+								</textElement>
+								<text><![CDATA[สถานะสินค้า]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell height="17" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement stretchType="RelativeToTallestObject" x="0" y="0" width="90" height="17" isPrintWhenDetailOverflows="true"/>
+								<box leftPadding="0" rightPadding="0">
+									<pen lineWidth="0.5" lineColor="#666666"/>
+									<topPen lineWidth="0.5" lineColor="#666666"/>
+									<leftPen lineWidth="0.5" lineColor="#666666"/>
+									<bottomPen lineWidth="0.5" lineColor="#666666"/>
+									<rightPen lineWidth="0.5" lineColor="#666666"/>
+								</box>
+								<textElement lineSpacing="Single">
+									<font fontName="TH SarabunPSK" size="12"/>
+								</textElement>
+								<textFieldExpression class="java.lang.String"><![CDATA[$F{product_status}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="90">
+						<jr:columnHeader height="17" rowSpan="1">
+							<staticText>
+								<reportElement stretchType="RelativeToTallestObject" mode="Opaque" x="0" y="0" width="90" height="17" isPrintWhenDetailOverflows="true" backcolor="#FFCC33"/>
+								<box>
+									<pen lineWidth="0.5"/>
+									<topPen lineWidth="0.5"/>
+									<leftPen lineWidth="0.5"/>
+									<bottomPen lineWidth="0.5"/>
+									<rightPen lineWidth="0.5"/>
+								</box>
+								<textElement textAlignment="Center" lineSpacing="Single">
+									<font fontName="TH SarabunPSK" size="12" isBold="true"/>
+								</textElement>
+								<text><![CDATA[สถานที่จัดส่งสินค้า]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:detailCell height="17" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement stretchType="RelativeToTallestObject" x="0" y="0" width="90" height="17" isPrintWhenDetailOverflows="true"/>
+								<box leftPadding="0" rightPadding="0">
+									<pen lineWidth="0.5" lineColor="#666666"/>
+									<topPen lineWidth="0.5" lineColor="#666666"/>
+									<leftPen lineWidth="0.5" lineColor="#666666"/>
+									<bottomPen lineWidth="0.5" lineColor="#666666"/>
+									<rightPen lineWidth="0.5" lineColor="#666666"/>
+								</box>
+								<textElement lineSpacing="Single">
+									<font fontName="TH SarabunPSK" size="12"/>
+								</textElement>
+								<textFieldExpression class="java.lang.String"><![CDATA[$F{delivery_destination}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+				</jr:table>
+			</componentElement>
+			<staticText>
+				<reportElement x="0" y="0" width="1900" height="14"/>
+				<textElement textAlignment="Center" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="14" isBold="true"/>
+				</textElement>
+				<text><![CDATA[]]></text>
+			</staticText>
+		</band>
+	</detail>
+	<noData>
+		<band height="20">
+			<staticText>
+				<reportElement x="0" y="0" width="1900" height="20"/>
+				<textElement textAlignment="Center" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="14" isBold="true"/>
+				</textElement>
+				<text><![CDATA[No Data]]></text>
+			</staticText>
+		</band>
+	</noData>
+</jasperReport>

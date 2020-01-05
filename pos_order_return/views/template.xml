@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c) 2016-Present Webkul Software Pvt. Ltd. (<https://webkul.com/>) -->
+<!-- See LICENSE file for full copyright and licensing details. -->
+<!-- License URL : <https://store.webkul.com/license.html/> -->
+<odoo>
+	<data>
+		<template id="assets" inherit_id="point_of_sale.assets">
+			<xpath expr="." position="inside">
+				<script type="text/javascript" src="/pos_order_return/static/src/js/pos_order_return.js"></script>
+				<link rel="stylesheet" href="/pos_order_return/static/src/css/pos_order_return.css" />
+			</xpath>
+		</template>
+	</data>
+</odoo>

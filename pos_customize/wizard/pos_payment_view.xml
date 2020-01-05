@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_pos_payment_inherit" model="ir.ui.view">
+            <field name="name">pos.make.payment.form.inherit</field>
+            <field name="model">pos.make.payment</field>
+            <field name="inherit_id" ref="point_of_sale.view_pos_payment"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='journal_id']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//field[@name='amount']" position="before">
+                        <field name="is_credit_card" invisible="1"/>
+                        <field name="payment_methods" required="1"/>
+                                <field name="credit_card_no_pos"
+                                       attrs="{
+                                            'required':[('is_credit_card', '=', True)],
+                                            'invisible':[('is_credit_card', '!=', True),]
+                                            }"
+                                       widget="allow_number"
+                                />
+                                <field name="approve_code"
+                                       attrs="{
+                                            'required':[('is_credit_card', '=', True)],
+                                            'invisible':[('is_credit_card', '!=', True),]
+                                            }"
+                                />
+                                <field name="tender"
+                                       attrs="{
+                                            'required':[('is_credit_card', '=', True)],
+                                            'invisible':[('is_credit_card', '!=', True),]
+                                            }"
+                                />
+                </xpath>
+
+            </field>
+    </record>
+
+
+</odoo>

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+        <record id="wizard_change_customer_info" model="ir.ui.view">
+            <field name="name">Change Customer Info</field>
+            <field name="model">wizard.chage.customer.info</field>
+            <field name="arch" type="xml">
+            	<form string="Change Detail Customer">
+            		<group>
+                        <group>
+                            <field name='customer_id' invisible='True'/>
+            			    <field name='name'/>
+                            <field name='street'/>
+                            <field name='street2'/>
+                            <field name='city'/>
+                            <field name='state_id'/>
+                            <field name="zip"/>
+                        </group>
+                        <group>
+                            <field name='vat'/>
+                            <field name='shop_id'/>
+                            <field name='phone'/>
+                            <field name='mobile'/>
+                        </group>
+
+            		</group>
+
+            		 <footer>
+                        <button name="confirm_change" string="Confirm" type="object" class="oe_highlight"/>
+                        or
+                        <button string="Cancel" class="oe_link" special="cancel" />
+                    </footer>
+            	</form>
+            </field>
+        </record>
+
+    </data>
+</openerp>

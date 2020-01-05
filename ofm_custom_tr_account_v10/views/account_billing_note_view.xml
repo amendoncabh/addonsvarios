@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Inherit Form View to Modify it -->
+        <record id="view_account_billing_note_form_inherit" model="ir.ui.view">
+            <field name="name">account.billing.note.form.inherit</field>
+            <field name="model">account.billing.note</field>
+            <field name="inherit_id" ref="account_billing_note.view_account_billing_note_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='partner_id']" position="after">
+                    <field name="is_hide_contact" invisible="1"/>
+                    <field name="contact_id"
+                           domain="[('parent_id', '=', partner_id)]"
+                           options="{'no_quick_create': True, 'no_create_edit': True}"
+                           attrs="{
+                               'invisible':[
+                                   ('is_hide_contact', '=', True),
+                               ],
+                               'readonly':[
+                                   ('state', '!=', 'draft'),
+                               ],
+                           }"
+                    />
+                    <field name="address_billing_note" attrs="{
+                               'readonly':[
+                                   ('state', '!=', 'draft'),
+                               ],
+                           }"/>
+                </xpath>
+                <xpath expr="//field[@name='partner_id']" position="attributes">
+                    <attribute name="options">{
+                        'no_quick_create': True,
+                        'no_create_edit': True,
+                    }
+                    </attribute>
+                    <attribute name="attrs">
+                        {'readonly': [('state', '!=', 'draft')]}
+                    </attribute>
+                </xpath>
+                <xpath expr="//field[@name='date']" position="attributes">
+                    <attribute name="attrs">
+                        {'readonly': [('state', '!=', 'draft')]}
+                    </attribute>
+                </xpath>
+                <xpath expr="//field[@name='billing_term_id']" position="attributes">
+                    <attribute name="attrs">
+                        {'readonly': [('state', '!=', 'draft')]}
+                    </attribute>
+                </xpath>
+                <xpath expr="//field[@name='line_ids']" position="attributes">
+                    <attribute name="attrs">
+                        {'readonly': [('state', '!=', 'draft')]}
+                    </attribute>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

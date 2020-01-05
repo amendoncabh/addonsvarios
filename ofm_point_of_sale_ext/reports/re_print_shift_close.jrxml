@@ -1,0 +1,616 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="re_print_shift_close" language="groovy" pageWidth="226" pageHeight="720" whenNoDataType="BlankPage" columnWidth="196" leftMargin="5" rightMargin="25" topMargin="0" bottomMargin="0" isIgnorePagination="true">
+	<property name="ireport.zoom" value="2.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<style name="font_sarabunpsk" lineSpacing="Single" fontName="TH SarabunPSK" fontSize="14" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun.ttf" pdfEncoding="Identity-H"/>
+	<parameter name="IDS" class="java.lang.Object">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[select  psi.id as session_id,
+	comp.company_logo as company_logo,
+	com_rpn.name as company_name,
+        concat('สาขา ', pbr.branch_name, ' สาขาที่ ', pbr.branch_id) as branch_name,
+        com_rpn.vat as tax_id,
+        coalesce(pcf.pos_no,'XXXXXXXXXXXXX') as pos_no,
+        psi.stop_at + '7 hour'::interval as stop_date,
+        psi.pre_stop_date + '7 hour'::interval as pre_stop_date,
+        psi.session_code as session_code,
+        usr_rpn.name as emp_name,
+        psi.start_at + '7 hour'::interval as start_date,
+        coalesce(void_pos.void_values, 0) as void_values,
+        coalesce(void_pos.void_count, 0) as void_count,
+        0 as void_line_values,
+        0 as void_line_count,
+        coalesce(return_pos.return_values, 0) as return_values,
+        coalesce(return_pos.return_count, 0) as return_count,
+        psi.balance_start as open_balance,
+        acl.number as amount_qty,
+        abs(coalesce(cash_abs_line.cash_out_amount, 0)) as cash_out_amount,
+        concat(replace((acl.coin_value)::text, '.0', ''), ' บาท') as coin_value,
+        (acl.number * acl.coin_value) as amount_value,
+        coalesce(pbr.phone,'') as phone,
+        coalesce(psi.balance_end, 0) as credit_amount
+from ( select pss.id,
+	      pss.session_code,
+	      cash_abs.balance_start,
+	      pss.cash_register_id,
+	      pss.stop_at,
+	      pss.pre_stop_date,
+	      pss.start_at,
+	      pss.config_id,
+	      pss.user_id,
+	      cash_abs.cashbox_end_id,
+	      credit_abs.balance_end,
+	      cash_abs.id as cash_statment_id
+       from (select id,
+		    cash_register_id,
+		    config_id,
+		    stop_at,
+		    start_at,
+		    user_id,
+		    pre_stop_date,
+		    name as session_code
+	     from pos_session
+	     where id in ($P!{IDS})) pss
+       inner join account_bank_statement cash_abs on pss.cash_register_id = cash_abs.id
+       /* Temp Payment Credit */
+       left join (select sub_abs.pos_session_id,
+			  sub_abs.balance_end
+		   from account_bank_statement sub_abs
+		   inner join (select id
+			       from account_journal
+			       where is_credit_card = true) ajn on sub_abs.journal_id = ajn.id
+	          ) credit_abs on pss.id = credit_abs.pos_session_id) psi
+left join (select statement_id,
+		  sum(amount) as cash_out_amount
+	   from account_bank_statement_line
+	   where cash_box_type = 'out'
+	   group by statement_id) cash_abs_line on cash_abs_line.statement_id = psi.cash_statment_id
+left join account_cashbox_line acl on psi.cashbox_end_id = acl.cashbox_id
+left join (select session_id,
+		  count('') as void_count,
+	          SUM(abs(amount_total)) as void_values
+	   from pos_order
+	   where session_id in ($P!{IDS})
+	         and is_void_order = true
+             and state not in ('draft', 'cancel')
+	   group by session_id) void_pos on psi.id = void_pos.session_id
+left join (select session_id,
+		  count('') as return_count,
+	          SUM(abs(amount_total)) as return_values
+	   from pos_order
+	   where session_id in ($P!{IDS})
+	         and is_return_order = true
+             and state not in ('draft', 'cancel')
+	   group by session_id) return_pos on psi.id = return_pos.session_id
+inner join pos_config pcf on psi.config_id = pcf.id
+inner join res_company rcn ON pcf.company_id = rcn.id
+inner join res_partner com_rpn ON rcn.partner_id = com_rpn.id
+inner join pos_branch pbr ON pcf.branch_id = pbr.id
+inner join res_users rus on psi.user_id = rus.id
+inner join res_partner usr_rpn ON rus.partner_id = usr_rpn.id
+cross join (SELECT value || '/web/binary/company_logo?dbname=' || current_database() as company_logo
+	    FROM ir_config_parameter
+	    WHERE key = 'report.image.url') as comp]]>
+	</queryString>
+	<field name="session_id" class="java.lang.Integer">
+		<fieldDescription><![CDATA[Session]]></fieldDescription>
+	</field>
+	<field name="company_logo" class="java.lang.String"/>
+	<field name="company_name" class="java.lang.String">
+		<fieldDescription><![CDATA[Company Name]]></fieldDescription>
+	</field>
+	<field name="branch_name" class="java.lang.String">
+		<fieldDescription><![CDATA[Branch Name]]></fieldDescription>
+	</field>
+	<field name="tax_id" class="java.lang.String"/>
+	<field name="pos_no" class="java.lang.String">
+		<fieldDescription><![CDATA[POS ID]]></fieldDescription>
+	</field>
+	<field name="stop_date" class="java.sql.Timestamp"/>
+	<field name="pre_stop_date" class="java.sql.Timestamp">
+		<fieldDescription><![CDATA[Pre stop date]]></fieldDescription>
+	</field>
+	<field name="session_code" class="java.lang.String"/>
+	<field name="emp_name" class="java.lang.String"/>
+	<field name="start_date" class="java.sql.Timestamp">
+		<fieldDescription><![CDATA[Start Date]]></fieldDescription>
+	</field>
+	<field name="void_values" class="java.math.BigDecimal"/>
+	<field name="void_count" class="java.lang.Long"/>
+	<field name="void_line_values" class="java.lang.Integer"/>
+	<field name="void_line_count" class="java.lang.Integer"/>
+	<field name="return_values" class="java.math.BigDecimal"/>
+	<field name="return_count" class="java.lang.Long"/>
+	<field name="open_balance" class="java.math.BigDecimal"/>
+	<field name="amount_qty" class="java.lang.Integer"/>
+	<field name="cash_out_amount" class="java.math.BigDecimal"/>
+	<field name="coin_value" class="java.lang.String">
+		<fieldDescription><![CDATA[Coin/Bill Value]]></fieldDescription>
+	</field>
+	<field name="amount_value" class="java.math.BigDecimal"/>
+	<field name="phone" class="java.lang.String">
+		<fieldDescription><![CDATA[Phone]]></fieldDescription>
+	</field>
+	<field name="credit_amount" class="java.math.BigDecimal"/>
+	<variable name="sum_close_balance" class="java.lang.Float" incrementType="Report" calculation="Sum">
+		<variableExpression><![CDATA[$F{amount_value}]]></variableExpression>
+	</variable>
+	<variable name="sum_close" class="java.math.BigDecimal" resetType="Group" resetGroup="session" calculation="Sum">
+		<variableExpression><![CDATA[$F{amount_value}]]></variableExpression>
+		<initialValueExpression><![CDATA[0]]></initialValueExpression>
+	</variable>
+	<group name="session">
+		<groupExpression><![CDATA[$F{session_id}]]></groupExpression>
+		<groupHeader>
+			<band height="338">
+				<textField isBlankWhenNull="true">
+					<reportElement style="font_sarabunpsk" mode="Transparent" x="105" y="96" width="91" height="14" forecolor="#000000" backcolor="#FFFFFF"/>
+					<textElement textAlignment="Left" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+						<font fontName="TH SarabunPSK" size="12" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+					</textElement>
+					<textFieldExpression class="java.lang.String"><![CDATA[$F{session_code}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement style="font_sarabunpsk" mode="Transparent" x="0" y="54" width="196" height="14" forecolor="#000000" backcolor="#FFFFFF"/>
+					<textElement textAlignment="Center" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+						<font fontName="TH SarabunPSK" size="12" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="false"/>
+					</textElement>
+					<textFieldExpression class="java.lang.String"><![CDATA[$F{branch_name}]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement style="font_sarabunpsk" mode="Transparent" x="0" y="68" width="75" height="14" forecolor="#000000" backcolor="#FFFFFF"/>
+					<textElement verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+						<font fontName="TH SarabunPSK" size="12" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+					</textElement>
+					<text><![CDATA[TAX INVOICE (ABB)]]></text>
+				</staticText>
+				<textField>
+					<reportElement style="font_sarabunpsk" mode="Transparent" x="0" y="40" width="196" height="14" forecolor="#000000" backcolor="#FFFFFF"/>
+					<textElement textAlignment="Center" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+						<font fontName="TH SarabunPSK" size="12" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+					</textElement>
+					<textFieldExpression class="java.lang.String"><![CDATA[$F{company_name}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement style="font_sarabunpsk" mode="Transparent" x="0" y="82" width="196" height="14" forecolor="#000000" backcolor="#FFFFFF"/>
+					<textElement verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+						<font fontName="TH SarabunPSK" size="12" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+					</textElement>
+					<textFieldExpression class="java.lang.String"><![CDATA["POS ID : " + $F{pos_no}]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement style="font_sarabunpsk" mode="Transparent" x="75" y="96" width="30" height="14" forecolor="#000000" backcolor="#FFFFFF"/>
+					<textElement textAlignment="Left" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+						<font fontName="TH SarabunPSK" size="12" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+					</textElement>
+					<text><![CDATA[Rcpt]]></text>
+				</staticText>
+				<textField>
+					<reportElement style="font_sarabunpsk" mode="Transparent" x="75" y="68" width="121" height="14" forecolor="#000000" backcolor="#FFFFFF"/>
+					<textElement verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+						<font fontName="TH SarabunPSK" size="12" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+					</textElement>
+					<textFieldExpression class="java.lang.String"><![CDATA["TAX ID No." + $F{tax_id}]]></textFieldExpression>
+				</textField>
+				<image>
+					<reportElement style="font_sarabunpsk" x="53" y="0" width="90" height="40"/>
+					<imageExpression class="java.lang.String"><![CDATA[$F{company_logo}]]></imageExpression>
+				</image>
+				<textField pattern="dd.MM.yyyy HH:mm">
+					<reportElement style="font_sarabunpsk" mode="Transparent" x="0" y="96" width="75" height="14" forecolor="#000000" backcolor="#FFFFFF"/>
+					<textElement textAlignment="Left" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+						<font fontName="TH SarabunPSK" size="12" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+					</textElement>
+					<textFieldExpression class="java.sql.Timestamp"><![CDATA[$F{pre_stop_date}]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement style="font_sarabunpsk" x="0" y="110" width="196" height="14"/>
+					<textElement verticalAlignment="Middle" lineSpacing="Single">
+						<font size="12" isBold="false"/>
+					</textElement>
+					<text><![CDATA[********************************************************]]></text>
+				</staticText>
+				<staticText>
+					<reportElement style="font_sarabunpsk" x="0" y="124" width="196" height="14"/>
+					<textElement lineSpacing="Single">
+						<font size="12" isBold="false"/>
+					</textElement>
+					<text><![CDATA[****                           Z-READ                          ****]]></text>
+				</staticText>
+				<staticText>
+					<reportElement style="font_sarabunpsk" x="0" y="138" width="196" height="14"/>
+					<textElement lineSpacing="Single">
+						<font size="12"/>
+					</textElement>
+					<text><![CDATA[********************************************************]]></text>
+				</staticText>
+				<staticText>
+					<reportElement style="font_sarabunpsk" mode="Transparent" x="0" y="157" width="53" height="14" forecolor="#000000" backcolor="#FFFFFF"/>
+					<textElement verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+						<font fontName="TH SarabunPSK" size="12" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+					</textElement>
+					<text><![CDATA[Cashier]]></text>
+				</staticText>
+				<textField>
+					<reportElement style="font_sarabunpsk" mode="Transparent" x="64" y="157" width="132" height="14" forecolor="#000000" backcolor="#FFFFFF"/>
+					<textElement verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+						<font fontName="TH SarabunPSK" size="12" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+					</textElement>
+					<textFieldExpression class="java.lang.String"><![CDATA[$F{emp_name}]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement style="font_sarabunpsk" mode="Transparent" x="0" y="173" width="53" height="14" forecolor="#000000" backcolor="#FFFFFF"/>
+					<textElement verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+						<font fontName="TH SarabunPSK" size="12" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+					</textElement>
+					<text><![CDATA[Sigh on on]]></text>
+				</staticText>
+				<staticText>
+					<reportElement style="font_sarabunpsk" mode="Transparent" x="53" y="157" width="11" height="14" forecolor="#000000" backcolor="#FFFFFF"/>
+					<textElement textAlignment="Center" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+						<font fontName="TH SarabunPSK" size="12" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+					</textElement>
+					<text><![CDATA[:]]></text>
+				</staticText>
+				<staticText>
+					<reportElement style="font_sarabunpsk" mode="Transparent" x="53" y="173" width="11" height="14" forecolor="#000000" backcolor="#FFFFFF"/>
+					<textElement textAlignment="Center" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+						<font fontName="TH SarabunPSK" size="12" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+					</textElement>
+					<text><![CDATA[:]]></text>
+				</staticText>
+				<staticText>
+					<reportElement style="font_sarabunpsk" mode="Transparent" x="0" y="189" width="75" height="14" forecolor="#000000" backcolor="#FFFFFF"/>
+					<textElement verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+						<font fontName="TH SarabunPSK" size="12" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+					</textElement>
+					<text><![CDATA[Corrections]]></text>
+				</staticText>
+				<staticText>
+					<reportElement style="font_sarabunpsk" mode="Transparent" x="75" y="189" width="30" height="14" forecolor="#000000" backcolor="#FFFFFF"/>
+					<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+						<font fontName="TH SarabunPSK" size="12" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+					</textElement>
+					<text><![CDATA[Cnt]]></text>
+				</staticText>
+				<staticText>
+					<reportElement style="font_sarabunpsk" mode="Transparent" x="105" y="189" width="91" height="14" forecolor="#000000" backcolor="#FFFFFF"/>
+					<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+						<font fontName="TH SarabunPSK" size="12" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+					</textElement>
+					<text><![CDATA[Values]]></text>
+				</staticText>
+				<line>
+					<reportElement x="0" y="211" width="64" height="1"/>
+					<graphicElement>
+						<pen lineStyle="Dashed"/>
+					</graphicElement>
+				</line>
+				<line>
+					<reportElement x="75" y="211" width="30" height="1"/>
+					<graphicElement>
+						<pen lineStyle="Dashed"/>
+					</graphicElement>
+				</line>
+				<line>
+					<reportElement x="118" y="211" width="79" height="1"/>
+					<graphicElement>
+						<pen lineStyle="Dashed"/>
+					</graphicElement>
+				</line>
+				<staticText>
+					<reportElement style="font_sarabunpsk" mode="Transparent" x="0" y="213" width="75" height="14" forecolor="#000000" backcolor="#FFFFFF"/>
+					<textElement verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+						<font fontName="TH SarabunPSK" size="12" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+					</textElement>
+					<text><![CDATA[Void receipt]]></text>
+				</staticText>
+				<staticText>
+					<reportElement style="font_sarabunpsk" mode="Transparent" x="0" y="227" width="75" height="14" forecolor="#000000" backcolor="#FFFFFF"/>
+					<textElement verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+						<font fontName="TH SarabunPSK" size="12" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+					</textElement>
+					<text><![CDATA[Line Void]]></text>
+				</staticText>
+				<staticText>
+					<reportElement style="font_sarabunpsk" mode="Transparent" x="0" y="241" width="75" height="14" forecolor="#000000" backcolor="#FFFFFF"/>
+					<textElement verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+						<font fontName="TH SarabunPSK" size="12" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+					</textElement>
+					<text><![CDATA[Return receipt]]></text>
+				</staticText>
+				<textField pattern="#,##0">
+					<reportElement style="font_sarabunpsk" mode="Transparent" x="75" y="213" width="30" height="14" forecolor="#000000" backcolor="#FFFFFF"/>
+					<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+						<font fontName="TH SarabunPSK" size="12" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+					</textElement>
+					<textFieldExpression class="java.lang.Integer"><![CDATA[$F{void_count}]]></textFieldExpression>
+				</textField>
+				<textField pattern="#,##0">
+					<reportElement style="font_sarabunpsk" mode="Transparent" x="75" y="241" width="30" height="14" forecolor="#000000" backcolor="#FFFFFF"/>
+					<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+						<font fontName="TH SarabunPSK" size="12" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+					</textElement>
+					<textFieldExpression class="java.lang.Integer"><![CDATA[$F{return_count}]]></textFieldExpression>
+				</textField>
+				<textField pattern="#,##0">
+					<reportElement style="font_sarabunpsk" mode="Transparent" x="75" y="227" width="30" height="14" forecolor="#000000" backcolor="#FFFFFF"/>
+					<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+						<font fontName="TH SarabunPSK" size="12" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+					</textElement>
+					<textFieldExpression class="java.lang.Integer"><![CDATA[$F{void_line_count}]]></textFieldExpression>
+				</textField>
+				<textField pattern="#,##0.00">
+					<reportElement style="font_sarabunpsk" mode="Transparent" x="118" y="213" width="78" height="14" forecolor="#000000" backcolor="#FFFFFF"/>
+					<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+						<font fontName="TH SarabunPSK" size="12" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+					</textElement>
+					<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{void_values}]]></textFieldExpression>
+				</textField>
+				<textField pattern="#,##0.00">
+					<reportElement style="font_sarabunpsk" mode="Transparent" x="118" y="227" width="78" height="14" forecolor="#000000" backcolor="#FFFFFF"/>
+					<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+						<font fontName="TH SarabunPSK" size="12" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+					</textElement>
+					<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{void_line_values}]]></textFieldExpression>
+				</textField>
+				<textField pattern="#,##0.00">
+					<reportElement style="font_sarabunpsk" mode="Transparent" x="118" y="241" width="78" height="14" forecolor="#000000" backcolor="#FFFFFF"/>
+					<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+						<font fontName="TH SarabunPSK" size="12" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+					</textElement>
+					<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{return_values}]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement style="font_sarabunpsk" mode="Transparent" x="0" y="266" width="75" height="14" forecolor="#000000" backcolor="#FFFFFF"/>
+					<textElement verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+						<font fontName="TH SarabunPSK" size="12" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+					</textElement>
+					<text><![CDATA[Cash In]]></text>
+				</staticText>
+				<textField pattern="#,##0.00">
+					<reportElement style="font_sarabunpsk" mode="Transparent" x="118" y="266" width="78" height="14" forecolor="#000000" backcolor="#FFFFFF"/>
+					<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+						<font fontName="TH SarabunPSK" size="12" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+					</textElement>
+					<textFieldExpression class="java.lang.Float"><![CDATA[$F{open_balance}]]></textFieldExpression>
+				</textField>
+				<line>
+					<reportElement x="118" y="316" width="79" height="1"/>
+					<graphicElement>
+						<pen lineStyle="Dashed"/>
+					</graphicElement>
+				</line>
+				<line>
+					<reportElement x="0" y="316" width="64" height="1"/>
+					<graphicElement>
+						<pen lineStyle="Dashed"/>
+					</graphicElement>
+				</line>
+				<staticText>
+					<reportElement style="font_sarabunpsk" mode="Transparent" x="105" y="294" width="91" height="14" forecolor="#000000" backcolor="#FFFFFF"/>
+					<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+						<font fontName="TH SarabunPSK" size="12" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+					</textElement>
+					<text><![CDATA[Values]]></text>
+				</staticText>
+				<line>
+					<reportElement x="75" y="316" width="30" height="1"/>
+					<graphicElement>
+						<pen lineStyle="Dashed"/>
+					</graphicElement>
+				</line>
+				<staticText>
+					<reportElement style="font_sarabunpsk" mode="Transparent" x="0" y="294" width="75" height="14" forecolor="#000000" backcolor="#FFFFFF"/>
+					<textElement verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+						<font fontName="TH SarabunPSK" size="12" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+					</textElement>
+					<text><![CDATA[ยอดเงินนำส่ง]]></text>
+				</staticText>
+				<staticText>
+					<reportElement style="font_sarabunpsk" mode="Transparent" x="75" y="294" width="30" height="14" forecolor="#000000" backcolor="#FFFFFF"/>
+					<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+						<font fontName="TH SarabunPSK" size="12" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+					</textElement>
+					<text><![CDATA[Cur.]]></text>
+				</staticText>
+				<staticText>
+					<reportElement style="font_sarabunpsk" mode="Transparent" x="0" y="318" width="64" height="14" forecolor="#000000" backcolor="#FFFFFF"/>
+					<textElement verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+						<font fontName="TH SarabunPSK" size="12" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+					</textElement>
+					<text><![CDATA[Cash]]></text>
+				</staticText>
+				<staticText>
+					<reportElement style="font_sarabunpsk" mode="Transparent" x="75" y="318" width="30" height="14" forecolor="#000000" backcolor="#FFFFFF"/>
+					<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+						<font fontName="TH SarabunPSK" size="12" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+					</textElement>
+					<text><![CDATA[THB]]></text>
+				</staticText>
+				<textField evaluationTime="Group" evaluationGroup="session" pattern="#,##0.00">
+					<reportElement style="font_sarabunpsk" mode="Transparent" x="118" y="318" width="78" height="14" forecolor="#000000" backcolor="#FFFFFF"/>
+					<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+						<font fontName="TH SarabunPSK" size="12" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+					</textElement>
+					<textFieldExpression class="java.lang.Float"><![CDATA[$V{sum_close}]]></textFieldExpression>
+				</textField>
+				<textField pattern="dd.MM.yyyy HH:mm:ss" isBlankWhenNull="false">
+					<reportElement style="font_sarabunpsk" mode="Transparent" x="64" y="173" width="132" height="14" forecolor="#000000" backcolor="#FFFFFF"/>
+					<textElement textAlignment="Left" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+						<font fontName="TH SarabunPSK" size="12" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+					</textElement>
+					<textFieldExpression class="java.util.Date"><![CDATA[$F{start_date}]]></textFieldExpression>
+				</textField>
+				<textField evaluationTime="Group" evaluationGroup="session" pattern="#,##0.00">
+					<reportElement style="font_sarabunpsk" mode="Transparent" x="118" y="280" width="78" height="14" forecolor="#000000" backcolor="#FFFFFF"/>
+					<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+						<font fontName="TH SarabunPSK" size="12" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+					</textElement>
+					<textFieldExpression class="java.lang.Float"><![CDATA[$F{open_balance}]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement style="font_sarabunpsk" mode="Transparent" x="0" y="280" width="75" height="14" forecolor="#000000" backcolor="#FFFFFF"/>
+					<textElement verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+						<font fontName="TH SarabunPSK" size="12" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+					</textElement>
+					<text><![CDATA[Cash Out]]></text>
+				</staticText>
+			</band>
+		</groupHeader>
+		<groupFooter>
+			<band height="169">
+				<textField pattern="dd.MM.yyyy HH:mm:ss" isBlankWhenNull="false">
+					<reportElement style="font_sarabunpsk" mode="Transparent" x="0" y="49" width="86" height="14" forecolor="#000000" backcolor="#FFFFFF"/>
+					<textElement textAlignment="Left" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+						<font fontName="TH SarabunPSK" size="12" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+					</textElement>
+					<textFieldExpression class="java.util.Date"><![CDATA[$F{stop_date}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement style="font_sarabunpsk" mode="Transparent" x="64" y="69" width="132" height="14" forecolor="#000000" backcolor="#FFFFFF"/>
+					<textElement verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+						<font fontName="TH SarabunPSK" size="12" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+					</textElement>
+					<textFieldExpression class="java.lang.String"><![CDATA[$F{emp_name}]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement style="font_sarabunpsk" mode="Transparent" x="0" y="69" width="53" height="14" forecolor="#000000" backcolor="#FFFFFF"/>
+					<textElement verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+						<font fontName="TH SarabunPSK" size="12" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+					</textElement>
+					<text><![CDATA[Cashier]]></text>
+				</staticText>
+				<staticText>
+					<reportElement style="font_sarabunpsk" mode="Transparent" x="53" y="69" width="11" height="14" forecolor="#000000" backcolor="#FFFFFF"/>
+					<textElement textAlignment="Center" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+						<font fontName="TH SarabunPSK" size="12" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+					</textElement>
+					<text><![CDATA[:]]></text>
+				</staticText>
+				<staticText>
+					<reportElement style="font_sarabunpsk" mode="Transparent" x="0" y="112" width="53" height="14" forecolor="#000000" backcolor="#FFFFFF"/>
+					<textElement verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+						<font fontName="TH SarabunPSK" size="12" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+					</textElement>
+					<text><![CDATA[Cashier Sign]]></text>
+				</staticText>
+				<staticText>
+					<reportElement style="font_sarabunpsk" mode="Transparent" x="53" y="112" width="11" height="14" forecolor="#000000" backcolor="#FFFFFF"/>
+					<textElement textAlignment="Center" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+						<font fontName="TH SarabunPSK" size="12" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+					</textElement>
+					<text><![CDATA[:]]></text>
+				</staticText>
+				<line>
+					<reportElement x="64" y="125" width="132" height="1"/>
+					<graphicElement>
+						<pen lineStyle="Dashed"/>
+					</graphicElement>
+				</line>
+				<textField>
+					<reportElement style="font_sarabunpsk" mode="Transparent" x="0" y="126" width="196" height="14" forecolor="#000000" backcolor="#FFFFFF"/>
+					<textElement textAlignment="Center" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+						<font fontName="TH SarabunPSK" size="12" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+					</textElement>
+					<textFieldExpression class="java.lang.String"><![CDATA["TEL : " + $F{phone}]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement style="font_sarabunpsk" mode="Transparent" x="0" y="140" width="196" height="14" forecolor="#000000" backcolor="#FFFFFF"/>
+					<textElement textAlignment="Center" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+						<font fontName="TH SarabunPSK" size="12" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+					</textElement>
+					<text><![CDATA[รับเปลี่ยน/คืนสินค้าภายใน 30 วัน]]></text>
+				</staticText>
+				<staticText>
+					<reportElement style="font_sarabunpsk" mode="Transparent" x="0" y="154" width="196" height="14" forecolor="#000000" backcolor="#FFFFFF"/>
+					<textElement textAlignment="Center" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+						<font fontName="TH SarabunPSK" size="12" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+					</textElement>
+					<text><![CDATA[พร้อมใบเสร็จรับเงิน]]></text>
+				</staticText>
+				<staticText>
+					<reportElement style="font_sarabunpsk" mode="Transparent" x="0" y="14" width="64" height="14" forecolor="#000000" backcolor="#FFFFFF"/>
+					<textElement verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+						<font fontName="TH SarabunPSK" size="12" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+					</textElement>
+					<text><![CDATA[Credit Card]]></text>
+				</staticText>
+				<staticText>
+					<reportElement style="font_sarabunpsk" mode="Transparent" x="75" y="14" width="30" height="14" forecolor="#000000" backcolor="#FFFFFF"/>
+					<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+						<font fontName="TH SarabunPSK" size="12" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+					</textElement>
+					<text><![CDATA[THB]]></text>
+				</staticText>
+				<line>
+					<reportElement x="76" y="12" width="30" height="1"/>
+					<graphicElement>
+						<pen lineStyle="Dashed"/>
+					</graphicElement>
+				</line>
+				<line>
+					<reportElement x="1" y="12" width="64" height="1"/>
+					<graphicElement>
+						<pen lineStyle="Dashed"/>
+					</graphicElement>
+				</line>
+				<line>
+					<reportElement x="119" y="12" width="79" height="1"/>
+					<graphicElement>
+						<pen lineStyle="Dashed"/>
+					</graphicElement>
+				</line>
+				<textField pattern="#,##0.00">
+					<reportElement style="font_sarabunpsk" mode="Transparent" x="116" y="14" width="78" height="14" forecolor="#000000" backcolor="#FFFFFF"/>
+					<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+						<font fontName="TH SarabunPSK" size="12" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+					</textElement>
+					<textFieldExpression class="java.lang.Float"><![CDATA[$F{credit_amount}]]></textFieldExpression>
+				</textField>
+			</band>
+		</groupFooter>
+	</group>
+	<detail>
+		<band height="18" splitType="Stretch">
+			<textField pattern="">
+				<reportElement style="font_sarabunpsk" mode="Transparent" x="0" y="1" width="64" height="14" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="12" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{coin_value}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement style="font_sarabunpsk" mode="Transparent" x="64" y="1" width="11" height="14" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Center" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="12" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<text><![CDATA[X]]></text>
+			</staticText>
+			<textField pattern="#,##0">
+				<reportElement style="font_sarabunpsk" mode="Transparent" x="75" y="1" width="30" height="14" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="12" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<textFieldExpression class="java.lang.Integer"><![CDATA[$F{amount_qty}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement style="font_sarabunpsk" mode="Transparent" x="105" y="1" width="11" height="14" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Center" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="12" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<text><![CDATA[=]]></text>
+			</staticText>
+			<textField pattern="#,##0.00">
+				<reportElement style="font_sarabunpsk" mode="Transparent" x="116" y="1" width="80" height="14" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="12" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{amount_value}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+</jasperReport>

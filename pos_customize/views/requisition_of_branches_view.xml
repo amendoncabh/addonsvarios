@@ -1,0 +1,467 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+
+        <record id="requisition_branches_form" model="ir.ui.view">
+            <field name="name">requisition.branches.form</field>
+            <field name="model">requisition.branches</field>
+            <field name="arch" type="xml">
+                <form string="Requisition Branches" >
+                    <header>
+                        <button name="action_confirm"
+                                class="btn-primary"
+                                states="draft"
+                                string="Confirm Requisition"
+                                type="object"/>
+                        <button name="action_approve"
+                                class="btn-primary"
+                                states="confirmed"
+                                string="Approve"
+                                type="object"
+                                groups="stock.group_stock_manager"/>
+                        <button name="action_create_picking_diff"
+                                class="btn-primary"
+                                states="waiting"
+                                string="Back Order"
+                                type="object"
+                                groups="stock.group_stock_manager"/>
+                        <button name="action_cancel"
+                                class="btn-danger"
+                                states="draft,confirmed,passed"
+                                string="Cancel"
+                                confirm="Are you sure you want to Cancel this?"
+                                type="object"/>
+                        <field name="state" widget="statusbar" statusbar_visible="draft,confirmed,passed,waiting,done" />
+                    </header>
+                    <sheet>
+                        <div class="oe_button_box" name="button_box">
+                            <button name="rb_view_pickings_out"
+                                    class="oe_stat_button"
+                                    icon="fa-bars"
+                                    context="{'field_picking': 'request_out_id'}"
+                                    type="object">
+                                <field string="Picking Out Ids" name="count_picking_out_ids" widget="statinfo" />
+                            </button>
+                            <button name="rb_view_pickings_in"
+                                    class="oe_stat_button"
+                                    icon="fa-bars"
+                                    context="{'field_picking': 'request_in_id'}"
+                                    type="object">
+                                <field string="Picking In Ids" name="count_picking_in_ids" widget="statinfo" />
+                            </button>
+                        </div>
+                        <div class="oe_title">
+                            <h1>
+                                <field name="name" readonly="1"/>
+                            </h1>
+                        </div>
+                        <group col="4">
+                            <group name='general_info'>
+                                <field name="requisition_branches_round_id"
+                                       options="{
+                                        'no_quick_create': True,
+                                        'no_create_edit': True,
+                                        'no_open': True
+                                       }"/>
+                                <field name="user_id" />
+                                <field name="user_allow_id" />
+                                <field name="date_allowable_submit" />
+                            </group>
+                            <group name='picking_info'>
+                                <field name="date" />
+                                <field name="date_schedule" />
+                                <field name="pos_branch" />
+                                <field name="branch_phone" />
+                                <field name="picking_out_id" invisible="1"/>
+                                <field name="picking_in_id" invisible="1"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="Requisition Branches Order" name="order_line">
+                                <group name="load_product_template" class="oe_edit_only" attrs="{'invisible': ['|',('product_template_created', '=', True), ('state', '!=', 'draft')]}">
+                                    <group>
+                                        <field name="product_template_id"
+                                               options="{'no_quick_create': True, 'no_create_edit': True}"
+                                                />
+                                        <field name="product_template_created" invisible="1"/>
+                                    </group>
+                                    <group>
+                                        <button name="action_create_template"
+                                            class="btn-primary"
+                                            string="Load Template"
+                                            type="object"
+                                            />
+                                    </group>
+                                </group>
+                                <div>
+                                    <field name="requisition_branches_line_ids" >
+                                        <tree editable="bottom">
+                                            <field name="product_id"
+                                                   options="{
+                                                    'no_quick_create': True,
+                                                    'no_create_edit': True,
+                                                    'no_open': True
+                                                   }"
+                                                   attrs="{
+                                                    'readonly': [
+                                                        '|',
+                                                        ('state', '!=', 'draft'),
+                                                        ('state', '=', None)]
+                                                    }"
+                                                    />
+                                            <field name="qty" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
+                                            <field name="product_uom"
+                                                   options="{
+                                                    'no_quick_create': True,
+                                                    'no_create_edit': True,
+                                                    'no_open': True
+                                                   }"
+                                                    />
+                                            <!--<field name="qty_balance" />-->
+                                            <field name="qty_allow" attrs="{'readonly': [('state', '!=', 'confirmed')]}"/>
+                                            <field name="qty_diff" />
+                                            <field name="state" invisible="1"/>
+                                        </tree>
+                                    </field>
+                                </div>
+                                <div class="oe_clear">
+                                    <label for="note"/>
+                                </div>
+                                <field name="note" class="oe_inline" placeholder="Terms and conditions..."/>
+                            </page>
+                        </notebook>
+                    </sheet>
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids" widget="mail_followers"/>
+                        <field name="message_ids" widget="mail_thread"/>
+                    </div>
+                </form>
+            </field>
+        </record>
+
+        <record id="requisition_branches_sale_form" model="ir.ui.view">
+            <field name="name">requisition.branches.sale.form</field>
+            <field name="model">requisition.branches.sale</field>
+            <field name="inherit_id" ref="requisition_branches_form"/>
+            <field name="mode">primary</field>
+            <field name="arch" type="xml">
+
+                <form position="attributes" >
+                    <attribute name="string">Requisition Branches Sale</attribute>
+                </form>
+
+                <xpath expr="//button[@name='rb_view_pickings_out']" position="attributes">
+                    <attrbute name="context">{'field_picking': 'request_sale_out_id'}</attrbute>
+                </xpath>
+
+                <xpath expr="//button[@name='rb_view_pickings_in']" position="attributes">
+                    <attrbute name="context">{'field_picking': 'request_sale_in_id'}</attrbute>
+                </xpath>
+
+                <group name="general_info" position="replace">
+                    <group name='general_info'>
+                        <field name="requisition_branches_round_id"
+                               options="{
+                                'no_quick_create': True,
+                                'no_create_edit': True,
+                                'no_open': True
+                               }"/>
+                        <field name="partner_id"
+                               domain="[('customer','=',True)]"
+                               context="{'search_default_customer':1, 'show_address': 1}"
+                               options='{"always_reload": True}'
+                        />
+                        <field name="pricelist_id" groups="product.group_sale_pricelist"/>
+                        <field name="check_branches_stock_line" invisible="1" groups="base.group_no_one"/>
+                        <field name="check_branches_receive_line" invisible="1" groups="base.group_no_one"/>
+                        <field name="check_branches_reverse_line" invisible="1" groups="base.group_no_one"/>
+                    </group>
+                </group>
+
+                <xpath expr="//notebook/page/div/field[@name='requisition_branches_line_ids']" position="replace">
+
+                    <field name="requisition_branches_line_ids" >
+                        <tree editable="bottom">
+                            <field name="product_id"
+                                   options="{
+                                    'no_quick_create': True,
+                                    'no_create_edit': True,
+                                    'no_open': True
+                                   }"
+                                        context="{'partner_id':parent.partner_id, 'quantity':qty, 'pricelist':parent.pricelist_id, 'uom':product_uom, 'company_id': parent.company_id}"
+                                       />
+                            <field name="name"/>
+                            <field name="qty"
+                                string="Ordered Qty"
+                                context="{'partner_id':parent.partner_id, 'quantity':qty, 'pricelist':parent.pricelist_id, 'uom':product_uom, 'company_id': parent.company_id}"
+                            />
+                            <field name="product_uom"
+                                attrs="{'readonly': [('state', 'in', ('sale','done', 'cancel'))]}"
+                                context="{'company_id': parent.company_id}"
+                                groups="product.group_uom"
+                                options="{
+                                    'no_quick_create': True,
+                                    'no_create_edit': True,
+                                    'no_open': True
+                                   }"/>
+                            <field name="price_unit" />
+                            <field name="tax_id"
+                                   widget="many2many_tags"
+                                   domain="[('type_tax_use','=','sale'),('company_id','=',parent.company_id)]" />
+                            <field name="qty_allow" attrs="{'readonly': [('state', '!=', 'confirmed')]}"/>
+                            <field name="discount" groups="sale.group_discount_per_so_line"/>
+                            <field name="price_subtotal" widget="monetary"/>
+                            <field name="state" invisible="1"/>
+                        </tree>
+                    </field>
+
+                    <group class="oe_subtotal_footer oe_right" colspan="2" name="requisition_branches_sale_total">
+                        <field name="amount_untaxed" widget='monetary' options="{'currency_field': 'currency_id'}"/>
+                        <field name="amount_tax" widget='monetary' options="{'currency_field': 'currency_id'}"/>
+                        <div class="oe_subtotal_footer_separator oe_inline o_td_label">
+                            <label for="amount_total" />
+                            <button name="button_dummy"
+                                states="draft" string="(update)" type="object" class="oe_edit_only oe_link"/>
+                        </div>
+                        <field name="amount_total" nolabel="1" class="oe_subtotal_footer_separator" widget='monetary' options="{'currency_field': 'currency_id'}"/>
+                    </group>
+
+                </xpath>
+
+                <notebook position="inside">
+                    <page string="Show Detail From Stock" attrs="{'invisible': [('check_branches_stock_line', '=', False)]}">
+                        <field name="requisition_branches_stock_line_ids" >
+                            <tree editable="bottom">
+                                <field name="product_id"
+                                            context="{'partner_id':parent.partner_id, 'quantity':qty, 'pricelist':parent.pricelist_id, 'uom':product_uom, 'company_id': parent.company_id}"
+                                           />
+                                <field name="name"/>
+                                <field name="qty"
+                                    string="Ordered Qty"
+                                    context="{'partner_id':parent.partner_id, 'quantity':qty, 'pricelist':parent.pricelist_id, 'uom':product_uom, 'company_id': parent.company_id}"
+                                />
+                                <field name="product_uom"
+                                    attrs="{'readonly': [('state', 'in', ('sale','done', 'cancel'))]}"
+                                    context="{'company_id': parent.company_id}"
+                                    groups="product.group_uom"
+                                    options="{'no_quick_create': True, 'no_create_edit': True, 'no_open': True}"/>
+                                <field name="price_unit" />
+                                <field name="tax_id" widget="many2many_tags" domain="[('type_tax_use','=','sale'),('company_id','=',parent.company_id)]" />
+                                <field name="qty_allow" attrs="{'readonly': [('state', '!=', 'confirmed')]}"/>
+                                <field name="discount" groups="sale.group_discount_per_so_line"/>
+                                <field name="price_subtotal" widget="monetary"/>
+                                <field name="state" invisible="1"/>
+                            </tree>
+                        </field>
+
+                        <group class="oe_subtotal_footer oe_right" colspan="2" name="requisition_branches_sale_total">
+                            <field name="stock_amount_untaxed" widget='monetary' options="{'currency_field': 'currency_id'}"/>
+                            <field name="stock_amount_tax" widget='monetary' options="{'currency_field': 'currency_id'}"/>
+                            <div class="oe_subtotal_footer_separator oe_inline o_td_label">
+                                <label for="stock_amount_total" />
+                                <button name="button_dummy"
+                                    states="draft" string="(update)" type="object" class="oe_edit_only oe_link"/>
+                            </div>
+                            <field name="stock_amount_total" nolabel="1" class="oe_subtotal_footer_separator" widget='monetary' options="{'currency_field': 'currency_id'}"/>
+                        </group>
+                    </page>
+
+                    <page string="Show Detail From Receive" attrs="{'invisible': [('check_branches_receive_line', '=', False)]}">
+                        <field name="requisition_branches_receive_line_ids" >
+                            <tree editable="bottom">
+                                <field name="product_id"
+                                            context="{'partner_id':parent.partner_id, 'quantity':qty, 'pricelist':parent.pricelist_id, 'uom':product_uom, 'company_id': parent.company_id}"
+                                           />
+                                <field name="name"/>
+                                <field name="qty"
+                                    string="Ordered Qty"
+                                    context="{'partner_id':parent.partner_id, 'quantity':qty, 'pricelist':parent.pricelist_id, 'uom':product_uom, 'company_id': parent.company_id}"
+                                />
+                                <field name="product_uom"
+                                    attrs="{'readonly': [('state', 'in', ('sale','done', 'cancel'))]}"
+                                    context="{'company_id': parent.company_id}"
+                                    groups="product.group_uom" options="{'no_quick_create': True, 'no_create_edit': True, 'no_open': True}"/>
+                                <field name="price_unit" />
+                                <field name="tax_id" widget="many2many_tags" domain="[('type_tax_use','=','sale'),('company_id','=',parent.company_id)]" />
+                                <field name="qty_allow" attrs="{'readonly': [('state', '!=', 'confirmed')]}"/>
+                                <field name="discount" groups="sale.group_discount_per_so_line"/>
+                                <field name="price_subtotal" widget="monetary"/>
+                                <field name="state" invisible="1"/>
+                            </tree>
+                        </field>
+
+                        <group class="oe_subtotal_footer oe_right" colspan="2" name="requisition_branches_sale_total">
+                            <field name="receive_amount_untaxed" widget='monetary' options="{'currency_field': 'currency_id'}"/>
+                            <field name="receive_amount_tax" widget='monetary' options="{'currency_field': 'currency_id'}"/>
+                            <div class="oe_subtotal_footer_separator oe_inline o_td_label">
+                                <label for="receive_amount_total" />
+                                <button name="button_dummy"
+                                    states="draft" string="(update)" type="object" class="oe_edit_only oe_link"/>
+                            </div>
+                            <field name="receive_amount_total" nolabel="1" class="oe_subtotal_footer_separator" widget='monetary' options="{'currency_field': 'currency_id'}"/>
+                        </group>
+                    </page>
+
+                    <page string="Show Detail From Reverse" attrs="{'invisible': [('check_branches_reverse_line', '=', False)]}">
+                        <field name="requisition_branches_reverse_line_ids" >
+                            <tree editable="bottom">
+                                <field name="product_id"
+                                            context="{'partner_id':parent.partner_id, 'quantity':qty, 'pricelist':parent.pricelist_id, 'uom':product_uom, 'company_id': parent.company_id}"
+                                           />
+                                <field name="name"/>
+                                <field name="qty"
+                                    string="Ordered Qty"
+                                    context="{'partner_id':parent.partner_id, 'quantity':qty, 'pricelist':parent.pricelist_id, 'uom':product_uom, 'company_id': parent.company_id}"
+                                />
+                                <field name="product_uom"
+                                    attrs="{'readonly': [('state', 'in', ('sale','done', 'cancel'))]}"
+                                    context="{'company_id': parent.company_id}"
+                                    groups="product.group_uom" options="{'no_quick_create': True, 'no_create_edit': True, 'no_open': True}"/>
+                                <field name="price_unit" />
+                                <field name="tax_id" widget="many2many_tags" domain="[('type_tax_use','=','sale'),('company_id','=',parent.company_id)]" />
+                                <field name="qty_allow" attrs="{'readonly': [('state', '!=', 'confirmed')]}"/>
+                                <field name="discount" groups="sale.group_discount_per_so_line"/>
+                                <field name="price_subtotal" widget="monetary"/>
+                                <field name="state" invisible="1"/>
+                            </tree>
+                        </field>
+
+                        <group class="oe_subtotal_footer oe_right" colspan="2" name="requisition_branches_sale_total">
+                            <field name="reverse_amount_untaxed" widget='monetary' options="{'currency_field': 'currency_id'}"/>
+                            <field name="reverse_amount_tax" widget='monetary' options="{'currency_field': 'currency_id'}"/>
+                            <div class="oe_subtotal_footer_separator oe_inline o_td_label">
+                                <label for="reverse_amount_total" />
+                                <button name="button_dummy"
+                                    states="draft" string="(update)" type="object" class="oe_edit_only oe_link"/>
+                            </div>
+                            <field name="reverse_amount_total" nolabel="1" class="oe_subtotal_footer_separator" widget='monetary' options="{'currency_field': 'currency_id'}"/>
+                        </group>
+                    </page>
+                    <page string="Other Information">
+                        <group>
+                            <group string="Sales Information" name="sales_person">
+                                <field name="user_id" context="{'default_groups_ref': ['base.group_user', 'base.group_partner_manager', 'account.group_account_invoice', 'base.group_sale_salesman_all_leads']}"/>
+                                <field name="company_id" options="{'no_create': True}" groups="base.group_multi_company"/>
+                                <field name="user_id" />
+                                <field name="user_allow_id" />
+                                <field name="date_allowable_submit" />
+                            </group>
+                        </group>
+                    </page>
+                </notebook>
+
+            </field>
+        </record>
+
+        <record id="requisition_branches_tree" model="ir.ui.view">
+            <field name="name">requisition.branches.tree</field>
+            <field name="model">requisition.branches</field>
+            <field name="priority">2</field>
+            <field name="arch" type="xml">
+                <tree string="Requisition Branches" fonts="bold:name==True"
+                      decoration-bf="state == 'draft'"
+                      decoration-primary="state == 'confirmed'"
+                      decoration-success="state == 'passed' or state == 'done'"
+                      decoration-danger="state == 'canceled'"
+                      decoration-info="state == 'waiting'" >
+                    <field name="name"/>
+                    <field name="date"/>
+                    <field name="pos_branch"/>
+                    <field name="date_allowable_submit"/>
+                    <field name="product_template_id"/>
+                    <field name="requisition_branches_round_id" />
+                    <field name="state"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="requisition_branches_sale_tree" model="ir.ui.view">
+            <field name="name">requisition.branches.sale.tree</field>
+            <field name="model">requisition.branches.sale</field>
+            <field name="inherit_id" ref="requisition_branches_tree"/>
+            <field name="mode">primary</field>
+            <field name="priority">2</field>
+            <field name="arch" type="xml">
+                <tree>
+
+                </tree>
+            </field>
+        </record>
+
+        <record id="action_requisition_branches" model="ir.actions.act_window">
+            <field name="name">Requisition Branches</field>
+            <field name="res_model">requisition.branches</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="domain"></field>
+            <field name="help" type="html">
+              <p class="oe_view_nocontent_create">
+                Click here to create a new transfer.
+              </p><p>
+                You can either do it immediatly or mark it as Todo for future processing. Use your scanner to validate the transferred quantity quicker.
+              </p>
+            </field>
+        </record>
+
+        <record id="action_requisition_branches_sale" model="ir.actions.act_window">
+            <field name="name">Requisition Branches Sale</field>
+            <field name="res_model">requisition.branches.sale</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="domain"></field>
+            <field name="help" type="html">
+              <p class="oe_view_nocontent_create">
+                Click here to create a new transfer.
+              </p><p>
+                You can either do it immediatly or mark it as Todo for future processing. Use your scanner to validate the transferred quantity quicker.
+              </p>
+            </field>
+        </record>
+
+        <record id="requisition_branches_round_tree" model="ir.ui.view">
+            <field name="name">requisition.branches.round.tree</field>
+            <field name="model">requisition.branches.round</field>
+            <field name="arch" type="xml">
+                <tree string="Requisition Branches Round" editable="bottom">
+                    <field name="name"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="action_requisition_branches_round" model="ir.actions.act_window">
+            <field name="name">Requisition Branches Round</field>
+            <field name="res_model">requisition.branches.round</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="view_type">form</field>
+            <field name="view_id" ref="requisition_branches_round_tree"/>
+            <field name="help" type="html">
+              <p class="oe_view_nocontent_create">
+                Click here to create a new transfer.
+              </p><p>
+                You can either do it immediatly or mark it as Todo for future processing. Use your scanner to validate the transferred quantity quicker.
+              </p>
+            </field>
+        </record>
+
+        <menuitem id="requisition_branches_menu"
+                  name="Requisition Branches"
+                  parent="stock.menu_stock_inventory_control"
+                  sequence="3"
+                  action="action_requisition_branches"/>
+
+        <menuitem id="requisition_branches_round_menu"
+                  name="Requisition Branches Round"
+                  parent="stock.menu_stock_config_settings"
+                  sequence="3"
+                  action="action_requisition_branches_round"/>
+
+        <menuitem id="requisition_branches_sale_menu"
+                  name="Requisition Branches Sale"
+                  parent="stock.menu_stock_inventory_control"
+                  sequence="3"
+                  action="action_requisition_branches_sale"/>
+
+    </data>
+</openerp>

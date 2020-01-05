@@ -1,0 +1,13 @@
+<?xml version="1.0" ?>
+<openerp>
+  <data>
+
+    <menuitem name="Contacts"
+        id="mail.menu_contacts"
+        sequence="4"
+        action="mail.action_contacts"
+        web_icon="mail,static/description/icon2.png"
+        groups="base.group_partner_manager"/>
+
+  </data>
+</openerp>

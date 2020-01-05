@@ -1,0 +1,198 @@
+id,ofm_brand_id,brand_th,brand_eng
+product.product_brand_1,15042,ONE,ONE
+product.product_brand_2,12042,ลามิเรล,Lamirel
+product.product_brand_3,11715,นีโอแคล,Neocal
+product.product_brand_4,11365,คาสิโอ,Casio
+product.product_brand_5,10174,Brother,Brother
+product.product_brand_6,11990,ยูนิ-สมาร์ท,Uni-Smart
+product.product_brand_7,16725,นีโอ,Neo
+product.product_brand_8,11470,เชร็ดเอท,Shred-Et
+product.product_brand_9,12313,โอลิมเปีย,Olympia
+product.product_brand_10,15000,ออฟฟิซ โปร,OFFICE PRO
+product.product_brand_11,12115,เวอร์เทค,Vertex
+product.product_brand_12,12090,วิกเกอร์ฮูด,Vigorhood
+product.product_brand_13,11741,BOS,BOS
+product.product_brand_14,11326,คลิก เลเบล,Click Label
+product.product_brand_15,11618,ตราม้า,Horse
+product.product_brand_16,16822,แอสคูล,Askul
+product.product_brand_17,15042,ONE,ONE
+product.product_brand_18,10551,IQ,IQ
+product.product_brand_19,12563,T.K.S.,T.K.S.
+product.product_brand_20,11434,GNR,GNR
+product.product_brand_21,12322,ไอเดีย เวิร์ค,Idea Work
+product.product_brand_22,10315,Double A,Double A
+product.product_brand_23,10937,Quality,Quality
+product.product_brand_24,11461,ชิห์-สุ,Shih-Tzu
+product.product_brand_25,10458,Green Read,Green Read
+product.product_brand_26,12296,แอลคอท,Alcott
+product.product_brand_27,12320,ไอเดีย กรีน,Idea Green
+product.product_brand_28,11491,ซากุระ,Sakura
+product.product_brand_29,10635,KTV,KTV
+product.product_brand_30,10981,SB,SB
+product.product_brand_31,10011,555,555
+product.product_brand_32,16447,SAVE MORE,SAVE MORE
+product.product_brand_33,12361,HI-JET,HI-JET
+product.product_brand_34,10017,AAA,AAA
+product.product_brand_35,16778,OfficeMate X Kerry,OfficeMate X Kerry
+product.product_brand_36,12184,ออร์ก้า,ORCA
+product.product_brand_37,11596,เดลี่,Deli
+product.product_brand_38,11924,มาสเตอร์อาร์ต,Master Art
+product.product_brand_39,10391,Faber-Castell,Faber-Castell
+product.product_brand_40,12176,อโรม่า,Aroma
+product.product_brand_41,11712,นิโว,Nivo
+product.product_brand_42,11915,มาเพ็ด,Maped
+product.product_brand_43,10987,SDI,SDI
+product.product_brand_44,12145,สเต็ดเล่อร์,Staedtler
+product.product_brand_45,15043,ME.STYLE,ME.STYLE
+product.product_brand_46,12026,โรบิน,Robin
+product.product_brand_47,10269,Databank,Databank
+product.product_brand_48,12953,Wago,Wago
+product.product_brand_49,12269,เอลเฟ่น,Elfen
+product.product_brand_50,11743,บอสตัน,Boston
+product.product_brand_51,10825,Non-Brand,Non-Brand
+product.product_brand_52,13328,Quiet,Quiet
+product.product_brand_53,11889,เฟอร์ราเดค,Furradec
+product.product_brand_54,11829,เพนเทล,Pentel
+product.product_brand_55,11614,ตราช้าง,Elephant
+product.product_brand_56,11811,พลัส,Plus
+product.product_brand_57,13104,ลิควิดเปเป้อร์,Liquid Paper
+product.product_brand_58,11872,ฟาสเตอร์,Faster
+product.product_brand_59,11600,โดมินิค,Dominic
+product.product_brand_60,10704,M&G,M&G
+product.product_brand_61,10188,Canon,Canon
+product.product_brand_62,10500,HP,HP
+product.product_brand_63,10370,Epson,Epson
+product.product_brand_64,12942,M-SIGN,M-SIGN
+product.product_brand_65,12136,สตอร์ม,Storm
+product.product_brand_66,14245,Remax,Remax
+product.product_brand_67,15993,เทเลโซนิค,TELESONIC
+product.product_brand_68,13257,NOBI,NOBI
+product.product_brand_69,12289,แอนนิเทค,Anitech
+product.product_brand_70,10687,Logitech,Logitech
+product.product_brand_71,11967,โมนามิ,Monami
+product.product_brand_72,10958,Rotring,Rotring
+product.product_brand_73,12762,สก๊อตช์,Scotch
+product.product_brand_74,10278,เดลต้า,Delta
+product.product_brand_75,11985,ยูนิเทป,Unitape
+product.product_brand_76,11413,โคแมกซ์,Comax
+product.product_brand_77,11338,คอมพิวท์,Compute
+product.product_brand_78,11179,ยูดี,UD
+product.product_brand_79,11983,ยูนิ,Uni
+product.product_brand_80,13090,เปเป้อร์เมท,PaperMate
+product.product_brand_81,10974,SanDisk,SanDisk
+product.product_brand_82,10058,Apacer,Apacer
+product.product_brand_83,10611,Kingston,Kingston
+product.product_brand_84,11234,WD,WD
+product.product_brand_85,10866,Panasonic,Panasonic
+product.product_brand_86,10989,Seagate,Seagate
+product.product_brand_87,16127,DATA,DATA
+product.product_brand_88,13053,Data Power,Data Power
+product.product_brand_89,13679,Electon,Electon
+product.product_brand_90,11637,โตชิโน,ToshiNo
+product.product_brand_91,12167,หลุยส์,Louis
+product.product_brand_92,11766,เบนน่อน,Bennon
+product.product_brand_93,11943,มีซ่า,MESA
+product.product_brand_94,11523,ซีบร้า,Zebra
+product.product_brand_95,10451,GP,GP
+product.product_brand_96,12221,อินคา,Inca
+product.product_brand_97,10896,PK,PK
+product.product_brand_98,11614,ตราช้าง ,Elephant
+product.product_brand_99,11802,ผีเสื้อ,Butterfly
+product.product_brand_100,11411,โคมิค,Comix
+product.product_brand_101,10348,อี-ไฟล์,e-file
+product.product_brand_102,12580,VSK,VSK
+product.product_brand_103,12137,สตาบิโล,Stabilo
+product.product_brand_104,11329,ควอนตั้ม,Quantum
+product.product_brand_105,11821,พิกม่า,Pigma
+product.product_brand_106,16309,แพนโก,PANKO
+product.product_brand_107,11424,จีซอฟท์,G-Soft
+product.product_brand_108,12073,แลนเซอร์,Lancer
+product.product_brand_109,16693,เร็บน็อค,REBNOK
+product.product_brand_110,11719,นูโว,Nuvo
+product.product_brand_111,13044,YOYA,YOYA
+product.product_brand_112,11181,UHU,UHU
+product.product_brand_113,16760,วี.เอส.,V.S.
+product.product_brand_114,11134,TOA,TOA
+product.product_brand_115,11602,ไดโก้,DAICO
+product.product_brand_116,10255,ครอคโค,Croco
+product.product_brand_117,12215,อาร์มสตรองค์,Armstrong
+product.product_brand_118,10009,3M,3M
+product.product_brand_119,12004,ราปิด,Rapid
+product.product_brand_120,11546,แซนโก้,Sanko
+product.product_brand_121,12040,ลาบูม,La boom
+product.product_brand_122,11709,นิตโต้,Nitto
+product.product_brand_123,10542,INTER,INTER
+product.product_brand_124,11349,คาโต้,Kato
+product.product_brand_125,12190,ออลทีโก้,Alteco
+product.product_brand_126,11382,เคนจิ,Kenji
+product.product_brand_127,12643,ดอง-อาร์,Dong-A
+product.product_brand_128,12037,ลันตู,Lantu
+product.product_brand_129,11035,Snoopy,Snoopy
+product.product_brand_130,10763,มิตซูบิชิ,Mitsubishi
+product.product_brand_131,16449,ไอฮ่าว,AIHAO
+product.product_brand_132,12295,แอโรว์,Arrow
+product.product_brand_133,16717,แม๊กเอ๊กซ์,MagX
+product.product_brand_134,11332,ควาเตอร์,QUARTET
+product.product_brand_135,11864,ฟลามิงโก้,Flamingo
+product.product_brand_136,16870,ท๊อปทีม,Top Team-
+product.product_brand_137,11368,คิงส์จิม,King Jim
+product.product_brand_138,16331,CRAYON,CRAYON
+product.product_brand_139,10585,JW,JW
+product.product_brand_140,16628,เหวินกู่,wengu
+product.product_brand_141,11261,Xing,Xing
+product.product_brand_142,16685,โชสว์,Chosch
+product.product_brand_143,12214,อาร์ทไลน์,Artline
+product.product_brand_144,15563,ทริปเบิ้ลทรี,Triple 3
+product.product_brand_145,11118,Tex,Tex
+product.product_brand_146,11444,ชไนเดอร์,Schneider
+product.product_brand_147,16905,เท็นฟง,TenFonI
+product.product_brand_148,12093,วิงส์,Wings
+product.product_brand_149,11703,นานมี,Nanmee
+product.product_brand_150,11247,Win,Win
+product.product_brand_151,12899,SAPPHIRE,SAPPHIRE
+product.product_brand_152,11951,แม็กซ์,Max
+product.product_brand_153,12844,วินท๊อป,VINTOP
+product.product_brand_154,12306,โอฟ่า,Olfa
+product.product_brand_155,10912,โพสต์-อิท,Post-it
+product.product_brand_156,12232,อีเกิ้ล,Eagle
+product.product_brand_157,10342,Echo,Echo
+product.product_brand_158,12209,อาร์โก้,Argo
+product.product_brand_159,12141,สติก เอ็น,Stick N
+product.product_brand_160,16782,ต้าเซน,Dasen
+product.product_brand_161,11682,โทรดัท,Trodat
+product.product_brand_162,11966,โมเทค,Motex
+product.product_brand_163,11616,ตราเพชร,Diamond
+product.product_brand_164,10641,KW-trio,KW-trio
+product.product_brand_165,12915,Art,Art
+product.product_brand_166,12254,เอ็กซ์สแตมเปอร์,Xstamper
+product.product_brand_167,11484,ซันบี้,Sanby
+product.product_brand_168,12082,ไลอ้อน,Lion
+product.product_brand_169,11585,Deflect-o,Deflect-o
+product.product_brand_170,12958,777,777
+product.product_brand_171,10361,EMBASSY,Embassy
+product.product_brand_172,15885,GOLD HAND,GOLD HAND
+product.product_brand_173,11825,PS Sun,PS Sun
+product.product_brand_174,12848,DARLING,DARLING
+product.product_brand_175,12107,Venus,Venus
+product.product_brand_176,12200,อัลฟ่า,Alpha
+product.product_brand_177,11394,แคนสัน,Canson
+product.product_brand_178,16663,เล็นวา,Lenwa
+product.product_brand_179,10545,INTOP,Intop
+product.product_brand_180,13079,VR,VR
+product.product_brand_181,13078,BELL,BELL
+product.product_brand_182,11856,ไพล็อต,Pilot
+product.product_brand_183,11498,ซิก,Zig
+product.product_brand_184,11447,ชาร์ปี้,Sharpie
+product.product_brand_185,11341,Command,Command
+product.product_brand_186,10440,Glade,Glade
+product.product_brand_187,11487,ซันโว,SunVo
+product.product_brand_188,12127,สก๊อตช์-ไบรต์,Scotch-Brite
+product.product_brand_189,16387,ซันสตรอ,Sunstraw
+product.product_brand_190,11477,ซอฟต์ทร้า,Zoftra
+product.product_brand_191,11072,Sunbag,Sunbag
+product.product_brand_192,12871,CHAMPION,CHAMPION
+product.product_brand_193,10819,Nexcare,Nexcare
+product.product_brand_194,13042,สเตคลีน,STA CLEAN
+product.product_brand_195,13032,SUNZIP,SUNZIP
+product.product_brand_196,11328,คลีเน็กซ์,Kleenex
+product.product_brand_197,12128,สก๊อตต์,Scott

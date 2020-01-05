@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="tr_deposit_view_res_bank_form" model="ir.ui.view">
+            <field name="name">tr.deposit.res.bank.form</field>
+            <field name="model">res.bank</field>
+            <field name="inherit_id" ref="base.view_res_bank_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='name']" position="after">
+                    <field name="account_bank_id"/>
+                    <field name="bank_thai"/>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

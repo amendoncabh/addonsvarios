@@ -1,0 +1,7 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+point_template_group_user,point_template group_user,model_point_template,base.group_user,1,1,1,0
+point_template_line_group_user,point_template_line group_user,model_point_template_line,base.group_user,1,1,1,0
+pos_batch_user,pos_batch group_user,model_pos_batch,base.group_user,1,1,1,0
+pos_so_batch_group_user,pos_so_batch group_user,model_pos_so_batch,base.group_user,1,1,1,0
+redeem_type_user,redeem_type group_user,model_redeem_type,base.group_user,1,1,1,0
+tr_call_api_user,tr_call_api group_user,model_tr_call_api,base.group_user,1,1,1,0

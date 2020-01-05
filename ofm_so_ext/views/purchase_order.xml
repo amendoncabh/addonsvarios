@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="ofm_purchase_request_header_form_inherit" model="ir.ui.view">
+            <field name="name">ofm.purchase.request.header.form.inherit</field>
+            <field name="model">ofm.purchase.order.header</field>
+            <field name="inherit_id" ref="ofm_purchase_request.ofm_purchase_request_header_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//notebook/page/group/group/field[@name='date_approve']" position="after">
+                    <field name="sale_order_id"/>
+                </xpath>
+            </field>
+        </record>
+        <record id="ofm_purchase_request_form_inherit" model="ir.ui.view">
+            <field name="name">ofm.purchase.request.form.inherit</field>
+            <field name="model">purchase.order</field>
+            <field name="inherit_id" ref="ofm_purchase_request.ofm_purchase_request_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//button[@name='action_get_invoice_from_staging']" position="after">
+                    <field name="is_hide_action_get_invoice_for_sale" invisible="1"/>
+                    <button
+                            name="action_get_invoice_from_staging_for_sale"
+                            string="Get Invoice / CN"
+                            type="object"
+                            attrs="{
+                                'invisible': [
+                                    ('is_hide_action_get_invoice_for_sale', '=', True),
+                                ]
+                            }"
+                    />
+                </xpath>
+                <xpath expr="//field[@name='purchase_request_no']" position="after">
+                    <field
+                            name="sale_order_id"
+                            attrs="{'invisible':[('type_to_ofm', '!=', 'customer')]}"
+                    />
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

@@ -1,0 +1,23 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+
+tr_account_deposit_hq,Account Deposit HQ,model_account_deposit,ofm_access_right_center.group_ofm_hq,1,1,1,0
+tr_account_deposit_user,Account Deposit User,model_account_deposit,sales_team.group_sale_salesman,1,1,1,0
+tr_account_deposit_manager,Account Deposit Manager,model_account_deposit,sales_team.group_sale_manager,1,1,1,1
+
+tr_account_deposit_line_hq,Account Deposit Line HQ,model_account_deposit_line,ofm_access_right_center.group_ofm_hq,1,1,1,0
+tr_account_deposit_line_user,Account Deposit Line User,model_account_deposit_line,sales_team.group_sale_salesman,1,1,1,0
+tr_account_deposit_line_manager,Account Deposit Line Manager,model_account_deposit_line,sales_team.group_sale_manager,1,1,1,1
+
+tr_account_deposit_tax_hq,Account Deposit Tax HQ,model_account_deposit_tax,ofm_access_right_center.group_ofm_hq,1,1,1,0
+tr_account_deposit_tax_user,Account Deposit Tax User,model_account_deposit_tax,sales_team.group_sale_salesman,1,1,1,0
+tr_account_deposit_tax_manager,Account Deposit Tax Manager,model_account_deposit_tax,sales_team.group_sale_manager,1,1,1,1
+
+tr_account_deposit_payment_line_hq,Account Deposit Payment Line HQ,model_account_deposit_payment_line,ofm_access_right_center.group_ofm_hq,1,1,1,0
+tr_account_deposit_payment_line_user,Account Deposit Payment Line User,model_account_deposit_payment_line,sales_team.group_sale_salesman,1,1,1,0
+tr_account_deposit_payment_line_manager,Account Deposit Payment Line Manager,model_account_deposit_payment_line,sales_team.group_sale_manager,1,1,1,1
+
+so_partner_type,so_partner_type group_user,model_so_payment_type,base.group_user, 1,1,1,1
+
+
+
+

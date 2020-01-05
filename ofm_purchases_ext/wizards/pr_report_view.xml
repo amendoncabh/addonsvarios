@@ -1,0 +1,66 @@
+<?xml version="1.0"?>
+<odoo>
+   <data>
+
+       <record id="pr_report_jasper" model="ir.actions.report.xml">
+           <field name="string">รายงาน PR</field>
+           <field name="auto">True</field>
+           <field name="model">pr.report.wizard</field>
+           <field name="jasper_model_id" ref="base.model_res_users"/>
+           <field name="name">รายงาน PR</field>
+           <field name="report_name">pr.report.jasper</field>
+           <field name="rml">ofm_purchases_ext/reports/pr_report.jrxml</field>
+           <field name="report_rml">ofm_purchases_ext/reports/pr_report.jrxml</field>
+           <field name="menu">False</field>
+           <field name="header">False</field>
+           <field name="jasper_report">True</field>
+           <field name="jasper_output">xls</field>
+       </record>
+
+       <act_window id="action_pr_report_wizard"
+                   name="รายงาน PR"
+                   res_model="pr.report.wizard"
+                   view_mode="form"
+                   target="new"/>
+
+<!--       <menuitem id="menu_pr_report_wizard"-->
+<!--                 parent="purchase.purchase_report"-->
+<!--                 action="action_pr_report_wizard"-->
+<!--                 sequence="3"/>-->
+
+       <record id="view_pr_report_wizard" model="ir.ui.view">
+           <field name="name">pr.report.form</field>
+           <field name="model">pr.report.wizard</field>
+           <field name="arch" type="xml">
+               <form string="รายงาน PR">
+                   <group>
+                       <group>
+                           <field name="company_id"
+                                  options="{'no_quick_create': True, 'no_create_edit': True}"/>
+                           <field name="branch_id"
+                                  options="{'no_quick_create': True, 'no_create_edit': True}"
+                                  domain="[('pos_company_id', '=',company_id)]" />
+                           <field name="start_date"/>
+                           <field name="end_date"/>
+                           <field name="po_status" widget="many2many_checkboxes"/>
+                           <field name="type_to_ofm" widget="many2many_checkboxes"/>
+                       </group>
+                       <group>
+                           <field name="po_no"/>
+                           <field name="product_status" widget="many2many_checkboxes"/>
+                       </group>
+                   </group>
+                   <footer>
+                       <button name="action_print_report"
+                               string="Print Report" type="object"
+                               class="oe_highlight"/>
+                       or
+                       <button string="Cancel" class="oe_link"
+                               special="cancel"/>
+                   </footer>
+               </form>
+           </field>
+       </record>
+
+   </data>
+</odoo>

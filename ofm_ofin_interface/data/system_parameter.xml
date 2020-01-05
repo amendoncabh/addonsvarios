@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="ir_config_parameter_omni_franchise_store_code" model="ir.config_parameter">
+            <field name="key">omni_franchise_store_code</field>
+            <field name="value">056101</field>
+        </record>
+
+        <record id="ir_config_parameter_credit_card_code_account" model="ir.config_parameter">
+            <field name="key">credit_card_code_account</field>
+            <field name="value">11315710</field>
+        </record>
+
+        <record id="ir_config_parameter_credit_card_account_credit_sor" model="ir.config_parameter">
+            <field name="key">credit_card_account_credit_sor</field>
+            <field name="value">21405260</field>
+        </record>
+
+        <record id="ir_config_parameter_credit_card_account_debit_sor" model="ir.config_parameter">
+            <field name="key">credit_card_account_debit_sor</field>
+            <field name="value">11315500</field>
+        </record>
+    </data>
+</odoo>

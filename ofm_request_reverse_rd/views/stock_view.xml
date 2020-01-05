@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+        <record id="stock_view_picking_form_inherit" model="ir.ui.view">
+            <field name="name">stock.picking.form</field>
+            <field name="model">stock.picking</field>
+            <field name="priority">17</field>
+            <field name="inherit_id" ref="stock.view_picking_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//form" position="attributes">
+                    <attribute name="delete">false</attribute>
+                </xpath>
+                <xpath expr="//field[@name='state']" position="replace">
+                    <field name="state" widget="statusbar" statusbar_visible="draft,confirmed,waiting_approve,assigned,done" />
+                </xpath>
+            </field>
+        </record>
+
+        <record id="view_picking_ext" model="ir.ui.view">
+            <field name="name">stock.picking.form</field>
+            <field name="model">stock.picking</field>
+            <field name="inherit_id" ref="pos_customize.view_picking_form_inherited"/>
+            <field name="arch" type="xml">
+                <xpath expr="//button[@name='%(stock.act_stock_return_picking)d']" position="after">
+                    <field name="hide_request_button" invisible="1"/>
+                    <field name="hide_do_new_transfer" invisible="1"/>
+                    <field name="hide_do_new_transfer_customer" invisible="1"/>
+                    <field name="hide_force_button" invisible="1"/>
+                    <field name="hide_available_button" invisible="1"/>
+                    <field name="hide_tab_operations" invisible="1"/>
+                    <field name="readonly_operation_pack_ids" invisible="1"/>
+                    <button
+                            name="action_request_reverse"
+                            attrs="{'invisible': [
+                                '|',
+                                ('state', 'not in', ('confirmed')),
+                                ('hide_request_button', '!=', False)
+                            ]}"
+                            string="Request Reverse"
+                            type="object"
+                            groups="base.group_user"
+                    />
+
+
+                </xpath>
+                <xpath expr="//button[@name='do_new_transfer']" position="replace">
+                    <button
+                        name="do_new_transfer"
+                        attrs="{'invisible': [
+                            '|',
+                            ('hide_do_new_transfer', '!=', False),
+                            ('hide_do_new_transfer_customer', '!=', False)
+                        ]}"
+                        string="Validate"
+                        type="object"
+                        groups="stock.group_stock_user"
+                        class="oe_highlight"
+                />
+                </xpath>
+                <xpath expr="//button[@name='force_assign']" position="replace">
+                    <button
+                        name="force_assign"
+                        attrs="{'invisible': [
+                            ('hide_force_button', '!=', False)
+                        ]}"
+                        string="Force Availability"
+                        type="object"
+                        groups="stock.group_stock_manager"
+                    />
+                </xpath>
+                <xpath expr="//button[@name='force_assign']" position="after">
+                    <button
+                        name="force_assign"
+                        attrs="{'invisible': [
+                            ('hide_available_button', '=', True)
+                        ]}"
+                        string="Available"
+                        type="object"
+                    />
+                </xpath>
+                <xpath expr="//button[@name='action_cancel']" position="attributes">
+                    <attribute name="states">draft,confirmed</attribute>
+                </xpath>
+                <xpath expr="//field[@name='picking_type_id']" position="after">
+                    <field name="return_reason_id" readonly="1" />
+                    <field name="reason_reject"/>
+                    <field name="rtv_type"/>
+                    <field name="product_include_ids" invisible="1"/>
+                </xpath>
+                <xpath expr="//field[@name='pack_operation_product_ids']" position="attributes">
+                    <attribute name="attrs">{
+                            'readonly': [
+                                '|',
+                                ('state', 'not in', ('draft', 'confirmed', 'assigned')),
+                                ('readonly_operation_pack_ids', '!=', False)
+                            ]
+                        }
+                    </attribute>
+                </xpath>
+                <xpath expr="//field[@name='pack_operation_product_ids']/tree" position="attributes">
+                    <attribute name="create">0</attribute>
+                </xpath>
+                <xpath expr="//field[@name='pack_operation_product_ids']/tree/field[@name='product_id']" position="attributes">
+                    <attribute name="options">{
+                        'no_quick_create': True,
+                        'no_create_edit': True,
+                        'no_open': True
+                    }
+                    </attribute>
+                    <attribute name="context">{
+                        'exclude_order_line': parent.pack_operation_product_ids,
+                        'exclude_model': 'stock.pack.operation',
+                        'product_include_ids': parent.product_include_ids,
+                        'product_include_model': 'product.product',
+                        'search_model': 'stock.pack.operation',
+                    }
+                    </attribute>
+                </xpath>
+                <xpath expr="//field[@name='min_date']" position="attributes">
+                    <attribute name="attrs">{
+                            'readonly': ['|',('state', 'not in', ('draft', 'confirmed')),('readonly_operation_pack_ids', '!=', False)]
+                        }
+                    </attribute>
+                </xpath>
+                <xpath expr="//field[@name='origin']" position="attributes">
+                    <attribute name="attrs">{
+                            'readonly': ['|',('state', 'not in', ('draft')),('readonly_operation_pack_ids', '!=', False)]
+                        }
+                    </attribute>
+                </xpath>
+                <xpath expr="//field[@name='move_lines']" position="attributes">
+                    <attribute name="attrs">{
+                            'readonly': ['|',('state', 'not in', ('draft', 'confirmed')),('readonly_operation_pack_ids', '!=', False)]
+                        }
+                    </attribute>
+                </xpath>
+                <xpath expr="//field[@name='move_type']" position="attributes">
+                    <attribute name="attrs">{
+                            'readonly': ['|',('state', 'not in', ('draft', 'confirmed')),('readonly_operation_pack_ids', '!=', False)]
+                        }
+                    </attribute>
+                </xpath>
+                <xpath expr="//field[@name='picking_type_id']" position="attributes">
+                    <attribute name="attrs">{
+                            'readonly': ['|',('state', 'not in', ('draft', 'confirmed')),('readonly_operation_pack_ids', '!=', False)]
+                        }
+                    </attribute>
+                </xpath>
+                <xpath expr="//field[@name='company_id']" position="attributes">
+                    <attribute name="attrs">{
+                            'readonly': ['|',('state', 'not in', ('draft', 'confirmed')),('readonly_operation_pack_ids', '!=', False)]
+                        }
+                    </attribute>
+                </xpath>
+                <xpath expr="//field[@name='priority']" position="attributes">
+                    <attribute name="attrs">{
+                            'readonly': ['|',('state', 'not in', ('draft', 'confirmed')),('readonly_operation_pack_ids', '!=', False)]
+                        }
+                    </attribute>
+                </xpath>
+                <!--<xpath expr="//field[@name='carrier_id']" position="attributes">-->
+                    <!--<attribute name="attrs">{-->
+                            <!--'readonly': ['|',('state', 'not in', ('draft', 'confirmed')),('readonly_operation_pack_ids', '!=', False)]-->
+                        <!--}-->
+                    <!--</attribute>-->
+                <!--</xpath>-->
+                <!--<xpath expr="//field[@name='carrier_tracking_ref']" position="attributes">-->
+                    <!--<attribute name="attrs">{-->
+                            <!--'readonly': ['|',('state', 'not in', ('draft', 'confirmed')),('readonly_operation_pack_ids', '!=', False)]-->
+                        <!--}-->
+                    <!--</attribute>-->
+                <!--</xpath>-->
+                <!--<xpath expr="//field[@name='number_of_packages']" position="attributes">-->
+                    <!--<attribute name="attrs">{-->
+                            <!--'readonly': ['|',('state', 'not in', ('draft', 'confirmed')),('readonly_operation_pack_ids', '!=', False)]-->
+                        <!--}-->
+                    <!--</attribute>-->
+                <!--</xpath>-->
+                <xpath expr="//notebook/page[1]" position="attributes">
+                    <attribute name="attrs">{
+                            'invisible': [
+                                ('hide_tab_operations', '=', True)
+                            ]
+                        }
+                    </attribute>
+                </xpath>
+                <xpath expr="//field[@name='note']" position="attributes">
+                    <attribute name="attrs">{
+                            'readonly': ['|',('state', 'not in', ('draft', 'confirmed')),('readonly_operation_pack_ids', '!=', False)]
+                        }
+                    </attribute>
+                </xpath>
+                <xpath expr="//field[@name='product_id']" position="attributes">
+                    <attribute name="options">{
+                        'no_quick_create': True,
+                        'no_create_edit': True,
+                        'no_open': True
+                    }
+                    </attribute>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="view_move_picking_tree_inherit" model="ir.ui.view">
+            <field name="name">stock.move.tree.inherit</field>
+            <field name="model">stock.move</field>
+            <field name="inherit_id" ref="stock.view_move_picking_tree"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='product_uom']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//field[@name='product_uom']" position="before">
+                    <field name="product_uom_show"/>
+                </xpath>
+                <xpath expr="//field[@name='product_id']" position="attributes">
+                    <attribute name="options">{
+                        'no_quick_create': True,
+                        'no_create_edit': True,
+                        'no_open': True
+                    }
+                    </attribute>
+                    <attribute name="context">{
+                        'exclude_order_line': parent.move_lines,
+                        'exclude_model': 'stock.move',
+                        'product_include_ids': parent.product_include_ids,
+                        'product_include_model': 'product.product',
+                        'search_model': 'stock.move'
+                    }
+                    </attribute>
+                </xpath>
+                <xpath expr="//field[@name='product_uom_qty']" position="attributes">
+                    <attribute name="widget">allow_number</attribute>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</openerp>

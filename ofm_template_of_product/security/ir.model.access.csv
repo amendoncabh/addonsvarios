@@ -1,0 +1,8 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+
+inventory_template_of_product,Template of Product,model_template_of_product,stock.group_stock_manager,1,1,1,1
+inventory_template_of_product_line,Template of Product Line,model_template_of_product_line,stock.group_stock_manager,1,1,1,1
+
+
+
+

@@ -1,0 +1,195 @@
+id,name,parent_id/id,property_cost_method,property_valuation,cat_id,sub_cat_id
+product.product_category_all,All,,Average Price,Perpetual (automated),999,999
+product.ofm_product_category_1,Saleable,product.product_category_all,Average Price,Perpetual (automated),999,999
+product.ofm_product_category_6,แฟ้มและอุปกรณ์จัดเก็บเอกสาร,product.product_category_all,Average Price,Perpetual (automated),6,999
+product.ofm_product_category_3,กาว เทป และอุปกรณ์เพื่อการบรรจุ,product.product_category_all,Average Price,Perpetual (automated),3,999
+product.ofm_product_category_0,ชา กาแฟ และผลิตภัณฑ์ทำความสะอาด,product.product_category_all,Average Price,Perpetual (automated),0,999
+product.ofm_product_category_5,ผลิตภัณฑ์กระดาษ,product.product_category_all,Average Price,Perpetual (automated),5,999
+product.ofm_product_category_4,ผลิตภัณฑ์สำหรับคอมพิวเตอร์,product.product_category_all,Average Price,Perpetual (automated),4,999
+product.ofm_product_category_1_1,อุปกรณ์เพื่อการเขียนและลบคำผิด,product.product_category_all,Average Price,Perpetual (automated),1,999
+product.ofm_product_category_1_2,เฟอร์นิเจอร์,product.product_category_all,Average Price,Perpetual (automated),A,999
+product.ofm_product_category_7,อุปกรณ์เพื่อการประชุมและนำเสนอ,product.product_category_all,Average Price,Perpetual (automated),7,999
+product.ofm_product_category_2,อุปกรณ์สำนักงานเบ็ดเตล็ด,product.product_category_all,Average Price,Perpetual (automated),2,999
+product.ofm_product_category_8,อุปกรณ์สำนักงานอิเล็กทรอนิกส์,product.product_category_all,Average Price,Perpetual (automated),8,999
+product.ofm_product_category_9,อุปกรณ์สำหรับโรงงาน และซ่อมบำรุงอาคาร,product.product_category_all,Average Price,Perpetual (automated),9,999
+product.ofm_product_category_10,พลาสติกเคลือบบัตร,product.ofm_product_category_7,Average Price,Perpetual (automated),7,25
+product.ofm_product_category_11,เครื่องเคลือบบัตร,product.ofm_product_category_7,Average Price,Perpetual (automated),7,24
+product.ofm_product_category_12,เครื่องบันทึกเงินสด POS,product.ofm_product_category_8,Average Price,Perpetual (automated),8,31
+product.ofm_product_category_13,เครื่องพิมพ์อักษร,product.ofm_product_category_8,Average Price,Perpetual (automated),8,5
+product.ofm_product_category_14,"เครื่องนับธนบัตร, เครื่องนับเหรียญ",product.ofm_product_category_8,Average Price,Perpetual (automated),8,21
+product.ofm_product_category_15,เครื่องเข้าเล่ม,product.ofm_product_category_7,Average Price,Perpetual (automated),7,22
+product.ofm_product_category_16,"เครื่องตอกบัตร, เครื่องลงเวลา, แผงเสียบบัตร",product.ofm_product_category_8,Average Price,Perpetual (automated),8,15
+product.ofm_product_category_17,เครื่องทำลายเอกสาร,product.ofm_product_category_8,Average Price,Perpetual (automated),8,14
+product.ofm_product_category_18,ป้ายสติกเกอร์,product.ofm_product_category_5,Average Price,Perpetual (automated),5,29
+product.ofm_product_category_19,กระดาษต่อเนื่อง,product.ofm_product_category_5,Average Price,Perpetual (automated),5,4
+product.ofm_product_category_20,กระดาษถ่ายเอกสาร,product.ofm_product_category_5,Average Price,Perpetual (automated),5,1
+product.ofm_product_category_21,กระดาษบวกเลข,product.ofm_product_category_5,Average Price,Perpetual (automated),5,6
+product.ofm_product_category_22,"กระดาษสีถ่ายเอกสาร, กระดาษเพื่องานสร้างสรรค์",product.ofm_product_category_5,Average Price,Perpetual (automated),5,2
+product.ofm_product_category_23,"ซองเอกสาร, ซองจดหมาย",product.ofm_product_category_5,Average Price,Perpetual (automated),5,28
+product.ofm_product_category_24,กระดาษสำหรับ Inkjet & Laser Printer,product.ofm_product_category_5,Average Price,Perpetual (automated),5,9
+product.ofm_product_category_25,กล่องพัสดุ กระดาษห่อ กันกระแทก,product.ofm_product_category_5,Average Price,Perpetual (automated),5,31
+product.ofm_product_category_26,กระดาษแฟกซ์,product.ofm_product_category_5,Average Price,Perpetual (automated),5,5
+product.ofm_product_category_27,เครื่องเหลาดินสอ,product.ofm_product_category_1_1,Average Price,Perpetual (automated),1,53
+product.ofm_product_category_28,ถาดเอกสาร,product.ofm_product_category_6,Average Price,Perpetual (automated),6,27
+product.ofm_product_category_29,ตู้ใส่เอกสาร,product.ofm_product_category_6,Average Price,Perpetual (automated),6,29
+product.ofm_product_category_30,ขี้ผึ้งนับแบงก์ (ยกเลิก),product.ofm_product_category_2,Average Price,Perpetual (automated),2,20
+product.ofm_product_category_31,กล่องอเนกประสงค์,product.ofm_product_category_2,Average Price,Perpetual (automated),2,21
+product.ofm_product_category_32,ตู้จดหมาย,product.ofm_product_category_6,Average Price,Perpetual (automated),6,35
+product.ofm_product_category_33,"กล่องใส่เอกสาร, กล่อง กระเป๋าใส่แบบ",product.ofm_product_category_6,Average Price,Perpetual (automated),6,28
+product.ofm_product_category_34,ตะกร้าเอกสาร,product.ofm_product_category_6,Average Price,Perpetual (automated),6,26
+product.ofm_product_category_35,ขี้ผึ้งนับแบงก์,product.ofm_product_category_6,Average Price,Perpetual (automated),6,34
+product.ofm_product_category_36,กล่องใส่แฟ้มแขวน,product.ofm_product_category_6,Average Price,Perpetual (automated),6,25
+product.ofm_product_category_37,เชือก หนังยาง เครื่องแพ็คกล่อง,product.ofm_product_category_6,Average Price,Perpetual (automated),6,33
+product.ofm_product_category_38,อุปกรณ์เพื่อการบรรจุหีบห่อ (ยกเลิก),product.ofm_product_category_3,Average Price,Perpetual (automated),3,20
+product.ofm_product_category_39,เก้าอี้,product.ofm_product_category_1_2,Average Price,Perpetual (automated),A,52
+product.ofm_product_category_40,เทปลบคำผิด,product.ofm_product_category_1_1,Average Price,Perpetual (automated),1,31
+product.ofm_product_category_41,น้ำยาลบคำผิด,product.ofm_product_category_1_1,Average Price,Perpetual (automated),1,30
+product.ofm_product_category_42,"เครื่องคิดเลข, Organizer",product.ofm_product_category_8,Average Price,Perpetual (automated),8,1
+product.ofm_product_category_43,เครื่องพิมพ์อิงค์เจ็ท,product.ofm_product_category_4,Average Price,Perpetual (automated),4,54
+product.ofm_product_category_44,เครื่องพิมพ์ดอทเมตริกซ์,product.ofm_product_category_4,Average Price,Perpetual (automated),4,55
+product.ofm_product_category_45,เครื่องพิมพ์เลเซอร์,product.ofm_product_category_4,Average Price,Perpetual (automated),4,56
+product.ofm_product_category_46,ดินสอ,product.ofm_product_category_1_1,Average Price,Perpetual (automated),1,50
+product.ofm_product_category_47,สีน้ำ,product.ofm_product_category_1_1,Average Price,Perpetual (automated),1,18
+product.ofm_product_category_48,"สีเทียน, สีชอล์ค",product.ofm_product_category_1_1,Average Price,Perpetual (automated),1,21
+product.ofm_product_category_49,"สีไม้, สีไม้ระบายน้ำ",product.ofm_product_category_1_1,Average Price,Perpetual (automated),1,22
+product.ofm_product_category_50,อุปกรณ์จัดเก็บดิสเก็ต และซีดี,product.ofm_product_category_4,Average Price,Perpetual (automated),4,4
+product.ofm_product_category_51,แผ่นรองเมาส์,product.ofm_product_category_4,Average Price,Perpetual (automated),4,11
+product.ofm_product_category_52,อุปกรณ์ต่อพ่วงอื่น ๆ,product.ofm_product_category_4,Average Price,Perpetual (automated),4,61
+product.ofm_product_category_53,"พู่กัน, อุปกรณ์ศิลปะ",product.ofm_product_category_1_1,Average Price,Perpetual (automated),1,16
+product.ofm_product_category_54,สีโปสเตอร์,product.ofm_product_category_1_1,Average Price,Perpetual (automated),1,17
+product.ofm_product_category_55,กระดานไวท์บอร์ด,product.ofm_product_category_7,Average Price,Perpetual (automated),7,1
+product.ofm_product_category_56,อุปกรณ์เครือข่าย,product.ofm_product_category_4,Average Price,Perpetual (automated),4,58
+product.ofm_product_category_57,อุปกรณ์ทำความสะอาดคอมพิวเตอร์,product.ofm_product_category_4,Average Price,Perpetual (automated),4,21
+product.ofm_product_category_58,คีย์บอร์ด,product.ofm_product_category_4,Average Price,Perpetual (automated),4,9
+product.ofm_product_category_59,อุปกรณ์จัดเก็บสายไฟ,product.ofm_product_category_4,Average Price,Perpetual (automated),4,12
+product.ofm_product_category_60,"พอยท์เตอร์เสาอากาศ, เลเซอร์พ้อยท์เตอร์",product.ofm_product_category_4,Average Price,Perpetual (automated),4,31
+product.ofm_product_category_61,เมาส์,product.ofm_product_category_4,Average Price,Perpetual (automated),4,10
+product.ofm_product_category_62,หูฟังคอมพิวเตอร์,product.ofm_product_category_4,Average Price,Perpetual (automated),4,69
+product.ofm_product_category_63,เครื่องพิมพ์มัลติฟังก์ชั่นอิงค์เจ็ท,product.ofm_product_category_4,Average Price,Perpetual (automated),4,57
+product.ofm_product_category_64,Travel Accessories,product.ofm_product_category_2,Average Price,Perpetual (automated),2,73
+product.ofm_product_category_65,ลำโพง,product.ofm_product_category_4,Average Price,Perpetual (automated),4,63
+product.ofm_product_category_66,ปากกาลูกลื่น,product.ofm_product_category_1_1,Average Price,Perpetual (automated),1,3
+product.ofm_product_category_67,ยางลบ,product.ofm_product_category_1_1,Average Price,Perpetual (automated),1,52
+product.ofm_product_category_68,เทป OPP,product.ofm_product_category_3,Average Price,Perpetual (automated),3,17
+product.ofm_product_category_69,โต๊ะทำงาน,product.ofm_product_category_1_2,Average Price,Perpetual (automated),A,51
+product.ofm_product_category_70,ตลับผ้าพิมพ์เทียม Dot Matrix และ รีฟิวส์,product.ofm_product_category_4,Average Price,Perpetual (automated),4,19
+product.ofm_product_category_71,ปากกาโรลเลอร์บอล,product.ofm_product_category_1_1,Average Price,Perpetual (automated),1,4
+product.ofm_product_category_72,Memory Card,product.ofm_product_category_4,Average Price,Perpetual (automated),4,67
+product.ofm_product_category_73,Flash Drive,product.ofm_product_category_4,Average Price,Perpetual (automated),4,66
+product.ofm_product_category_74,"ผงหมึก, ฟิลม์สำหรับเครื่องโทรสาร",product.ofm_product_category_8,Average Price,Perpetual (automated),8,12
+product.ofm_product_category_75,"ปก, สันห่วง เข้าเล่ม",product.ofm_product_category_7,Average Price,Perpetual (automated),7,23
+product.ofm_product_category_76,External Hard disk,product.ofm_product_category_4,Average Price,Perpetual (automated),4,28
+product.ofm_product_category_77,"รางปลั๊กอเนกประสงค์, อแดปเตอร์, สายไฟ",product.ofm_product_category_8,Average Price,Perpetual (automated),8,17
+product.ofm_product_category_78,กาวน้ำ,product.ofm_product_category_3,Average Price,Perpetual (automated),3,2
+product.ofm_product_category_79,"แท่นตัดเทป, ที่ตัดเทป",product.ofm_product_category_3,Average Price,Perpetual (automated),3,12
+product.ofm_product_category_80,ปากกาหมึกเจล,product.ofm_product_category_1_1,Average Price,Perpetual (automated),1,15
+product.ofm_product_category_81,"ถ่านไฟฉาย, ถ่าน, แท่นชาร์จ, แบตเตอรี่",product.ofm_product_category_8,Average Price,Perpetual (automated),8,3
+product.ofm_product_category_82,ไม้บรรทัด,product.ofm_product_category_1_1,Average Price,Perpetual (automated),1,26
+product.ofm_product_category_83,ซองอเนกประสงค์,product.ofm_product_category_6,Average Price,Perpetual (automated),6,10
+product.ofm_product_category_84,แฟ้มคลิปสปริง,product.ofm_product_category_6,Average Price,Perpetual (automated),6,2
+product.ofm_product_category_85,"สมุดเก็บนามบัตร, รีฟิวส์",product.ofm_product_category_2,Average Price,Perpetual (automated),2,65
+product.ofm_product_category_86,แฟ้มพับ,product.ofm_product_category_6,Average Price,Perpetual (automated),6,16
+product.ofm_product_category_87,ลิ้นแฟ้ม,product.ofm_product_category_6,Average Price,Perpetual (automated),6,20
+product.ofm_product_category_88,"วงเวียน,เรขาคณิต,ไม้ที",product.ofm_product_category_1_1,Average Price,Perpetual (automated),1,27
+product.ofm_product_category_89,ชุดตัวอักษร ตัวเลข ป้ายข้อความ,product.ofm_product_category_7,Average Price,Perpetual (automated),7,12
+product.ofm_product_category_90,"ปากกาหัวเข็ม, ปากกาหมึกซึม",product.ofm_product_category_1_1,Average Price,Perpetual (automated),1,5
+product.ofm_product_category_91,เทปผ้า,product.ofm_product_category_3,Average Price,Perpetual (automated),3,18
+product.ofm_product_category_92,อุปกรณ์เสริมในการจัดนิทรรศการ,product.ofm_product_category_7,Average Price,Perpetual (automated),7,10
+product.ofm_product_category_93,กาวดินน้ำมัน,product.ofm_product_category_3,Average Price,Perpetual (automated),3,7
+product.ofm_product_category_94,เทปเยื่อกาว 2 หน้า,product.ofm_product_category_3,Average Price,Perpetual (automated),3,14
+product.ofm_product_category_95,ตลับหมึกเทียม Inkjet และ รีฟิวส์,product.ofm_product_category_4,Average Price,Perpetual (automated),4,15
+product.ofm_product_category_96,กาวลาเท็กซ์,product.ofm_product_category_3,Average Price,Perpetual (automated),3,3
+product.ofm_product_category_97,กาวแท่ง,product.ofm_product_category_3,Average Price,Perpetual (automated),3,1
+product.ofm_product_category_98,เทปพิมพ์อักษร,product.ofm_product_category_8,Average Price,Perpetual (automated),8,6
+product.ofm_product_category_99,ผ้าหมึกเครื่องคิดเลข,product.ofm_product_category_8,Average Price,Perpetual (automated),8,2
+product.ofm_product_category_100,เทปพลาสติกไวนิล เทปกันลื่น,product.ofm_product_category_3,Average Price,Perpetual (automated),3,19
+product.ofm_product_category_101,กาวสารพัดประโยชน์,product.ofm_product_category_3,Average Price,Perpetual (automated),3,5
+product.ofm_product_category_102,สติกเกอร์ตีเส้น,product.ofm_product_category_3,Average Price,Perpetual (automated),3,22
+product.ofm_product_category_103,เทปโฟม,product.ofm_product_category_3,Average Price,Perpetual (automated),3,16
+product.ofm_product_category_104,เทปใส,product.ofm_product_category_3,Average Price,Perpetual (automated),3,10
+product.ofm_product_category_105,เทปขุ่น,product.ofm_product_category_3,Average Price,Perpetual (automated),3,9
+product.ofm_product_category_106,"กาวสเปรย์, สเปรย์ล้างคราบกาว",product.ofm_product_category_3,Average Price,Perpetual (automated),3,6
+product.ofm_product_category_107,เทปใสกาว 2 หน้า,product.ofm_product_category_3,Average Price,Perpetual (automated),3,11
+product.ofm_product_category_108,ปืนยิงกาว กาวแท่ง,product.ofm_product_category_3,Average Price,Perpetual (automated),3,23
+product.ofm_product_category_109,เทปกระดาษกาวย่น (เทปมาร์คกิ้ง),product.ofm_product_category_3,Average Price,Perpetual (automated),3,15
+product.ofm_product_category_110,กาวซูเปอร์กลู,product.ofm_product_category_3,Average Price,Perpetual (automated),3,4
+product.ofm_product_category_111,ไส้ดินสอ,product.ofm_product_category_1_1,Average Price,Perpetual (automated),1,51
+product.ofm_product_category_112,ปากกาเน้นข้อความ,product.ofm_product_category_1_1,Average Price,Perpetual (automated),1,6
+product.ofm_product_category_113,ชุดเครื่องเขียน (โครงการสนับสนุนภาครัฐ/ทั่วไป),product.ofm_product_category_1_1,Average Price,Perpetual (automated),1,56
+product.ofm_product_category_114,ปากกา และดินสอเพื่องานเฉพาะด้าน,product.ofm_product_category_1_1,Average Price,Perpetual (automated),1,14
+product.ofm_product_category_115,สีเมจิก,product.ofm_product_category_1_1,Average Price,Perpetual (automated),1,23
+product.ofm_product_category_116,"เม็ดแม่เหล็กติดบอร์ด, หมุดติดบอร์ด",product.ofm_product_category_7,Average Price,Perpetual (automated),7,8
+product.ofm_product_category_117,กระดานดำ,product.ofm_product_category_7,Average Price,Perpetual (automated),7,11
+product.ofm_product_category_118,บอร์ดติดประกาศไม้ก๊อก,product.ofm_product_category_7,Average Price,Perpetual (automated),7,4
+product.ofm_product_category_119,บอร์ดติดประกาศกำมะหยี่,product.ofm_product_category_7,Average Price,Perpetual (automated),7,5
+product.ofm_product_category_120,ปากกาเขียนแผ่นใส,product.ofm_product_category_1_1,Average Price,Perpetual (automated),1,12
+product.ofm_product_category_121,ตาไก่พลาสติก,product.ofm_product_category_6,Average Price,Perpetual (automated),6,22
+product.ofm_product_category_122,อินเด็กซ์สำหรับแฟ้ม,product.ofm_product_category_6,Average Price,Perpetual (automated),6,18
+product.ofm_product_category_123,แฟ้ม 2 ห่วง,product.ofm_product_category_6,Average Price,Perpetual (automated),6,3
+product.ofm_product_category_124,คลิปบอร์ด,product.ofm_product_category_6,Average Price,Perpetual (automated),6,23
+product.ofm_product_category_125,ใบมีดคัตเตอร์,product.ofm_product_category_2,Average Price,Perpetual (automated),2,9
+product.ofm_product_category_126,แฟ้มหนีบ,product.ofm_product_category_6,Average Price,Perpetual (automated),6,6
+product.ofm_product_category_127,แฟ้มโชว์เอกสาร,product.ofm_product_category_6,Average Price,Perpetual (automated),6,9
+product.ofm_product_category_128,แฟ้มแขวน,product.ofm_product_category_6,Average Price,Perpetual (automated),6,8
+product.ofm_product_category_129,แฟ้ม 4 ห่วง,product.ofm_product_category_6,Average Price,Perpetual (automated),6,5
+product.ofm_product_category_130,ซองเอกสารพลาสติก,product.ofm_product_category_6,Average Price,Perpetual (automated),6,13
+product.ofm_product_category_131,แฟ้มซอง,product.ofm_product_category_6,Average Price,Perpetual (automated),6,12
+product.ofm_product_category_132,สมุดเสนอเซ็นต์ สมุดกล่าวรายงาน,product.ofm_product_category_6,Average Price,Perpetual (automated),6,31
+product.ofm_product_category_133,แฟ้มสันกว้าง,product.ofm_product_category_6,Average Price,Perpetual (automated),6,1
+product.ofm_product_category_134,แฟ้มหีบเพลง,product.ofm_product_category_6,Average Price,Perpetual (automated),6,15
+product.ofm_product_category_135,แฟ้มเจาะ,product.ofm_product_category_6,Average Price,Perpetual (automated),6,11
+product.ofm_product_category_136,แฟ้มกระเป๋า,product.ofm_product_category_6,Average Price,Perpetual (automated),6,14
+product.ofm_product_category_137,ปกพลาสติก สันรูด,product.ofm_product_category_6,Average Price,Perpetual (automated),6,32
+product.ofm_product_category_138,แฟ้ม 3 ห่วง,product.ofm_product_category_6,Average Price,Perpetual (automated),6,4
+product.ofm_product_category_139,ลวดเสียบกระดาษ,product.ofm_product_category_2,Average Price,Perpetual (automated),2,13
+product.ofm_product_category_140,"กรรไกร, ที่ตัดมุมกระดาษ",product.ofm_product_category_2,Average Price,Perpetual (automated),2,7
+product.ofm_product_category_141,"บัตรติดหน้าอก, ที่เจาะรูบัตร",product.ofm_product_category_2,Average Price,Perpetual (automated),2,18
+product.ofm_product_category_142,ลวดเย็บกระดาษ,product.ofm_product_category_2,Average Price,Perpetual (automated),2,2
+product.ofm_product_category_143,กล่องใส่ลวดเสียบ,product.ofm_product_category_2,Average Price,Perpetual (automated),2,14
+product.ofm_product_category_144,แท่นประทับตรา,product.ofm_product_category_2,Average Price,Perpetual (automated),2,42
+product.ofm_product_category_145,"Stick pad, เมมโมบอร์ด",product.ofm_product_category_5,Average Price,Perpetual (automated),5,21
+product.ofm_product_category_146,เครื่องเย็บกระดาษ,product.ofm_product_category_2,Average Price,Perpetual (automated),2,1
+product.ofm_product_category_147,เครื่องตีเบอร์,product.ofm_product_category_2,Average Price,Perpetual (automated),2,44
+product.ofm_product_category_148,"กล่อง, แท่นเก็บนามบัตร",product.ofm_product_category_2,Average Price,Perpetual (automated),2,64
+product.ofm_product_category_149,คลิปดำ,product.ofm_product_category_2,Average Price,Perpetual (automated),2,15
+product.ofm_product_category_150,คลิปหนีบ,product.ofm_product_category_2,Average Price,Perpetual (automated),2,16
+product.ofm_product_category_151,แท่นตัดกระดาษ,product.ofm_product_category_2,Average Price,Perpetual (automated),2,11
+product.ofm_product_category_152,"กระดาษโน้ตกาวในตัว, กระดาษโน้ต",product.ofm_product_category_5,Average Price,Perpetual (automated),5,20
+product.ofm_product_category_153,แผ่นยางรองตัด,product.ofm_product_category_2,Average Price,Perpetual (automated),2,10
+product.ofm_product_category_154,หมึกเติมแท่นประทับตรา,product.ofm_product_category_2,Average Price,Perpetual (automated),2,43
+product.ofm_product_category_155,ที่ถอนลวด,product.ofm_product_category_2,Average Price,Perpetual (automated),2,5
+product.ofm_product_category_156,"ถ้วยใส่ดินสอ, ที่ใส่ปากกา",product.ofm_product_category_2,Average Price,Perpetual (automated),2,61
+product.ofm_product_category_157,เครื่องพิมพ์ราคา,product.ofm_product_category_2,Average Price,Perpetual (automated),2,48
+product.ofm_product_category_158,"กรวยใส่เหรียญ, ตู้เซฟ, กระดิ่ง, แว่นขยาย, ลูกโลก",product.ofm_product_category_2,Average Price,Perpetual (automated),2,47
+product.ofm_product_category_159,เครื่องยิงบอร์ด,product.ofm_product_category_2,Average Price,Perpetual (automated),2,3
+product.ofm_product_category_160,"ตรายาง, หมึกเติมตรายาง",product.ofm_product_category_2,Average Price,Perpetual (automated),2,40
+product.ofm_product_category_161,ลวดยิงบอร์ด,product.ofm_product_category_2,Average Price,Perpetual (automated),2,4
+product.ofm_product_category_162,ตู้และที่แขวนกุญแจ,product.ofm_product_category_2,Average Price,Perpetual (automated),2,23
+product.ofm_product_category_163,มีดคัตเตอร์,product.ofm_product_category_2,Average Price,Perpetual (automated),2,8
+product.ofm_product_category_164,"อะไหล่,หมึกเติมเครื่องตีเบอร์",product.ofm_product_category_2,Average Price,Perpetual (automated),2,45
+product.ofm_product_category_165,"เครื่องเจาะกระดาษ, อะไหล่",product.ofm_product_category_2,Average Price,Perpetual (automated),2,6
+product.ofm_product_category_166,ที่แขวนตรายาง,product.ofm_product_category_2,Average Price,Perpetual (automated),2,41
+product.ofm_product_category_167,กล่องใส่โบร์ชัวร์ ป้ายอะคริลิค,product.ofm_product_category_2,Average Price,Perpetual (automated),2,71
+product.ofm_product_category_168,เหล็กเสียบบิล,product.ofm_product_category_2,Average Price,Perpetual (automated),2,17
+product.ofm_product_category_169,ที่เปิดซองจดหมาย,product.ofm_product_category_2,Average Price,Perpetual (automated),2,24
+product.ofm_product_category_170,สติกเกอร์ชนิดม้วน,product.ofm_product_category_2,Average Price,Perpetual (automated),2,49
+product.ofm_product_category_171,ฉากกั้นหนังสือ,product.ofm_product_category_2,Average Price,Perpetual (automated),2,72
+product.ofm_product_category_172,ชุดอุปกรณ์สำนักงาน,product.ofm_product_category_2,Average Price,Perpetual (automated),2,62
+product.ofm_product_category_173,สมุดบัญชี,product.ofm_product_category_5,Average Price,Perpetual (automated),5,25
+product.ofm_product_category_174,กระดาษคาร์บอน,product.ofm_product_category_5,Average Price,Perpetual (automated),5,8
+product.ofm_product_category_175,สมุดพีออนบุ๊ค,product.ofm_product_category_5,Average Price,Perpetual (automated),5,24
+product.ofm_product_category_176,"สมุดฉีก, สมุดรายงาน",product.ofm_product_category_5,Average Price,Perpetual (automated),5,22
+product.ofm_product_category_177,"สมุด, สมุดโน้ต",product.ofm_product_category_5,Average Price,Perpetual (automated),5,23
+product.ofm_product_category_178,"กระดาษวาดเขียน, สมุดวาดเขียน",product.ofm_product_category_5,Average Price,Perpetual (automated),5,11
+product.ofm_product_category_179,แบบฟอร์มเบ็ดเตล็ด,product.ofm_product_category_5,Average Price,Perpetual (automated),5,26
+product.ofm_product_category_180,หมึกเติมปากกาไวท์บอร์ด,product.ofm_product_category_1_1,Average Price,Perpetual (automated),1,11
+product.ofm_product_category_181,หมึกเติมปากกามาร์คเกอร์,product.ofm_product_category_1_1,Average Price,Perpetual (automated),1,9
+product.ofm_product_category_182,ปากกาไวท์บอร์ด,product.ofm_product_category_1_1,Average Price,Perpetual (automated),1,10
+product.ofm_product_category_183,ปากกาเพ้นท์,product.ofm_product_category_1_1,Average Price,Perpetual (automated),1,13
+product.ofm_product_category_184,ปากกามาร์คเกอร์,product.ofm_product_category_1_1,Average Price,Perpetual (automated),1,8
+product.ofm_product_category_185,เทปหนามเตย เทปสักหลาด,product.ofm_product_category_9,Average Price,Perpetual (automated),9,27
+product.ofm_product_category_186,สเปร์ยปรับอากาศ,product.ofm_product_category_0,Average Price,Perpetual (automated),0,31
+product.ofm_product_category_187,อุปกรณ์ทำความสะอาด,product.ofm_product_category_0,Average Price,Perpetual (automated),0,32
+product.ofm_product_category_188,หน้ากาก ผ้าปิดจมูก แว่นตานิรภัย,product.ofm_product_category_9,Average Price,Perpetual (automated),9,5
+product.ofm_product_category_189,น้ำยาทำความสะอาด,product.ofm_product_category_0,Average Price,Perpetual (automated),0,30
+product.ofm_product_category_190,อุปกรณ์สำหรับห้องแคนทีน,product.ofm_product_category_0,Average Price,Perpetual (automated),0,9

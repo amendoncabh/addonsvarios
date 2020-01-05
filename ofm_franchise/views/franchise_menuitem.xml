@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- daily menu item -->
+            <menuitem name="Franchise"
+                    id="menu_franchise"
+                    sequence="41"
+                    groups="point_of_sale.group_pos_user,point_of_sale.group_pos_manager,ofm_access_right_center.group_ofm_hq"/>
+
+            <menuitem name="รายการสรุปประจำวัน"
+                    id="menu_daily_summary_franchise_main_franchise"
+                    parent="ofm_franchise.menu_franchise"
+                    sequence="1"
+                    groups="point_of_sale.group_pos_user,point_of_sale.group_pos_manager,ofm_access_right_center.group_ofm_hq"/>
+
+            <menuitem id="menu_daily_summary_franchise_detail_franchise"
+                    parent="ofm_franchise.menu_daily_summary_franchise_main_franchise"
+                    action="action_daily_summary_franchise_detail"
+                    sequence="1"
+                    groups="point_of_sale.group_pos_manager,ofm_access_right_center.group_ofm_hq"/>
+
+            <menuitem name="รายการสรุปประจำวัน"
+                    id="menu_daily_summary_franchise_main_sales"
+                    parent="sales_team.menu_base_partner"
+                    sequence="8"
+                    groups="point_of_sale.group_pos_user,point_of_sale.group_pos_manager,ofm_access_right_center.group_ofm_hq"/>
+
+            <menuitem name="รายงานสรุปประจำวัน"
+                    id="menu_daily_summary_franchise_report_main"
+                    parent="ofm_franchise.menu_franchise"
+                    sequence="3"
+                    groups="point_of_sale.group_pos_manager,ofm_access_right_center.group_ofm_hq"/>
+        <!-- monthly menu item -->
+            <menuitem name="รายการสรุปประจำเดือน"
+                    id="menu_monthly_summary_franchise_main"
+                    parent="ofm_franchise.menu_franchise"
+                    sequence="2"
+                    groups="point_of_sale.group_pos_manager,ofm_access_right_center.group_ofm_hq"/>
+
+            <menuitem name="รายงานสรุปประจำเดือน"
+                    id="menu_monthly_summary_franchise_report_main"
+                    parent="ofm_franchise.menu_franchise"
+                    sequence="4"
+                    groups="point_of_sale.group_pos_manager,ofm_access_right_center.group_ofm_hq"/>
+
+            <menuitem id="menu_monthly_summary_franchise_detail"
+                    parent="ofm_franchise.menu_monthly_summary_franchise_main"
+                    action="action_monthly_summary_franchise_detail"
+                    sequence="1"
+                    groups="point_of_sale.group_pos_manager,ofm_access_right_center.group_ofm_hq"/>
+
+            <menuitem id="menu_import_summary_franchise_wizard"
+                    parent="ofm_franchise.menu_monthly_summary_franchise_main"
+                    action="ofm_franchise.action_open_import_monthly_summary_franchises"
+                    sequence="8"
+                    groups="ofm_access_right_center.group_ofm_hq"/>
+        <!-- Reporting sub-menus -->
+            <menuitem name="Reports"
+                    id="menu_franchise_reports_main"
+                    parent="ofm_franchise.menu_franchise"
+                    sequence="3"
+                    groups="point_of_sale.group_pos_manager,ofm_access_right_center.group_ofm_hq"/>
+<!--            <menuitem  name="รายงาน Franchisee Master"-->
+<!--                    id="menu_franchise_master_report_wizard"-->
+<!--                    parent="ofm_franchise.menu_franchise_reports_main"-->
+<!--                    action="action_franchise_master_report_wizard"-->
+<!--                    sequence="1"-->
+<!--                    groups="point_of_sale.group_pos_manager,ofm_access_right_center.group_ofm_hq"/>-->
+<!--            <menuitem  name="รายงาน Agreement Master"-->
+<!--                    id="menu_agreement_master_report_wizard"-->
+<!--                    parent="ofm_franchise.menu_franchise_reports_main"-->
+<!--                    action="action_agreement_master_report_wizard"-->
+<!--                    sequence="2"-->
+<!--                    groups="point_of_sale.group_pos_manager,ofm_access_right_center.group_ofm_hq"/>-->
+    </data>
+</odoo>
+

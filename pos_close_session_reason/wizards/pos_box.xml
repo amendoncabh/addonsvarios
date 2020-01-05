@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="cash_box_in_form" model="ir.ui.view">
+            <field name="name">cash.box.in.form</field>
+            <field name="model">cash.box.in</field>
+            <field name="inherit_id" ref="account.cash_box_in_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='name']" position="before">
+                    <field name="reason_id" options="{'no_quick_create': True, 'no_create_edit': True, 'no_open': True}"/>
+                </xpath>
+                <xpath expr="//field[@name='amount']" position="before">
+                    <field name="amount_text"/>
+                </xpath>
+                <xpath expr="//field[@name='amount']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//field[@name='name']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="cash_box_out_form" model="ir.ui.view">
+            <field name="name">cash.box.out.form</field>
+            <field name="model">cash.box.out</field>
+            <field name="inherit_id" ref="account.cash_box_out_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='name']" position="before">
+                    <field name="reason_id" options="{'no_quick_create': True, 'no_create_edit': True, 'no_open': True}"/>
+                </xpath>
+                <xpath expr="//field[@name='amount']" position="before">
+                    <field name="amount_text"/>
+                </xpath>
+                <xpath expr="//field[@name='amount']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//field[@name='name']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="account.action_cash_box_in" model="ir.actions.act_window">
+            <field name="name">Put Money In</field>
+            <!-- set default value to field from context parameter by name -->
+            <field name="context">{
+                'default_reason_id': context.get('reason_id', False),
+            }</field>
+            <field name="target">new</field>
+            <field name="groups_id" eval="[(6, 0, [ref('base.group_system')])]"/>
+        </record>
+
+        <record id="account.action_cash_box_out" model="ir.actions.act_window" >
+            <field name="name">Take Money Out</field>
+            <!-- set default value to field from context parameter by name -->
+            <field name="context">{
+                'default_reason_id': context.get('reason_id', False),
+            }</field>
+            <field name="target">new</field>
+            <field name="groups_id" eval="[(6, 0, [ref('base.group_system')])]"/>
+        </record>
+
+        <record id="point_of_sale.action_pos_box_in" model="ir.actions.act_window">
+            <field name="name">Put Money In</field>
+            <!-- set default value to field from context parameter by name -->
+            <field name="context">{
+                'default_reason_id': context.get('reason_id', False),
+            }</field>
+            <field name="target">new</field>
+            <field name="groups_id" eval="[(6, 0, [ref('base.group_system')])]"/>
+        </record>
+
+        <record id="point_of_sale.action_pos_box_out" model="ir.actions.act_window" >
+            <field name="name">Take Money Out</field>
+            <!-- set default value to field from context parameter by name -->
+            <field name="context">{
+                'default_reason_id': context.get('reason_id', False),
+            }</field>
+            <field name="target">new</field>
+            <field name="groups_id" eval="[(6, 0, [ref('base.group_system')])]"/>
+        </record>
+
+    </data>
+</odoo>

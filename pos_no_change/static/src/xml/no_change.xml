@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+
+    <t t-extend="PaymentScreenWidget">
+        <t t-jquery="div.js_set_customer" t-operation='after'>
+            <div class='button js_set_no_change'>
+                <i class='fa fa-money' />
+                <span>
+                     No Change
+                </span>
+            </div>
+        </t>
+    </t>
+
+</templates>

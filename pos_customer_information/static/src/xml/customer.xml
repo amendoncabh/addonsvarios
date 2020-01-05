@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+    <t t-extend="ClientDetailsEdit">
+        <t t-jquery=".client-details > input[name='name']" t-operation='replace'>
+            <input class='detail client-name required-form' name='name' t-att-value='partner.name' placeholder='Name'></input>
+        </t>
+        <t t-jquery=".client-details-left" t-operation='replace'>
+            <div class='client-details-left'>
+                <div class='client-detail'>
+                    <span class='label'>Type</span>
+                    <select class='detail company_type' name='company_type'>
+                        <option value='person' t-att-selected="partner.company_type ? ((partner.company_type === 'person') ? true : undefined) : undefined">
+                            บุคคล
+                        </option>
+                        <option value='company' t-att-selected="partner.company_type ? ((partner.company_type === 'company') ? true : undefined) : undefined">
+                            บริษัท
+                        </option>
+                    </select>
+
+                </div>
+                <div class='client-detail'>
+                    <span class='label'>Address</span>
+                    <input class='detail client-address-street' name='street' t-att-value='partner.street || ""' placeholder='Address'></input>
+                </div>
+                <div class='client-detail'>
+                    <span class='label'>Alley</span>
+                    <input class='detail client-address-alley' name='alley' t-att-value='partner.alley || ""' placeholder='Soi Pattanakarn'></input>
+                </div>
+                <div class='client-detail'>
+                    <span class='label'>Road</span>
+                    <input class='detail client-address-road' name='street2' t-att-value='partner.street2 || ""' placeholder='Road'></input>
+                </div>
+                <div class='client-detail'>
+                    <span class='label'>Moo</span>
+                    <input class='detail client-address-moo' name='moo' t-att-value='partner.moo || ""' placeholder='Moo'></input>
+                </div>
+                <div class='client-detail list-province'>
+                    <span class='label'>Province</span>
+                    <select class='required-form detail client-address-province' name='province_id'>
+                        <option value=''>None</option>
+                        <t t-foreach='widget.province' t-as='province'>
+                            <option t-att-value='province.id'
+                                    t-att-selected="partner.province_id? ((province.name === partner.province_id[1]) ? true : undefined) : undefined">
+                                <t t-esc='province.name'/>
+                            </option>
+                        </t>
+                    </select>
+                </div>
+                <div class='client-detail list-amphur'>
+                    <span class='label'>Amphur</span>
+                    <select class='required-form detail client-address-amphur' name='amphur_id'>
+                        <option value=''>None</option>
+                    </select>
+                </div>
+                <div class='client-detail list-tambon'>
+                    <span class='label'>Tambon</span>
+                    <select class='required-form detail client-address-tambon' name='tambon_id'>
+                        <option value=''>None</option>
+                    </select>
+                </div>
+                <div class='client-detail list-postcode'>
+                    <span class='label'>Postcode</span>
+                    <select class='required-form detail client-address-postcode' name='zip_id'>
+                        <option value=''>None</option>
+                    </select>
+                </div>
+                <div class='client-detail'>
+                    <span class='label'>Country</span>
+                    <select class='detail client-address-country needsclick' name='country_id'>
+                        <option value='219'>Thailand</option>
+                    </select>
+                </div>
+            </div>
+        </t>
+        <t t-jquery=".client-details-right" t-operation='append'>
+            <div class='client-detail'>
+                <span class='label'>Main Contact Person</span>
+                <t t-if="!partner.parent_id">
+                    <input class='detail required-form' maxlength="50" name='main_contact_person' t-att-value='partner.main_contact_person || ""'></input>
+                </t>
+            </div>
+        </t>
+        <t t-jquery=".client-details-right" t-operation='append'>
+            <div class='client-detail'>
+                <span class='label'>Branch ID</span>
+                <input class='detail shop_id only_number required-form' maxlength="5" name='shop_id' t-att-value='partner.shop_id || ""'></input>
+            </div>
+        </t>
+        <t t-jquery=".client-details-right" t-operation='append'>
+            <div class='client-detail'>
+                <span class='label'>Member </span>
+                <select class='detail is_member' name='is_member'>
+                    <option value='1' t-att-selected="(!!partner.is_member) ? true : undefined">
+                        Member
+                    </option>
+                    <option value='0' t-att-selected="(!partner.is_member) ? true : undefined">
+                        Non-member
+                    </option>
+                </select>
+
+            </div>
+        </t>
+        <t t-jquery=".client-details-right > .client-detail > input[name='vat']" t-operation='replace'>
+            <input class='detail vat only_number required-form' maxlength="13"  name='vat' t-att-value='partner.vat || ""'></input>
+        </t>
+    </t>
+    <t t-extend="ClientDetails">
+        <t t-jquery=".client-details-right" t-operation='append'>
+            <div class='client-detail'>
+                <span class='label'>Branch ID</span>
+                <t t-if='partner.shop_id'>
+                    <span class='detail shop_id'><t t-esc='partner.shop_id'/></span>
+                </t>
+                <t t-if='!partner.shop_id'>
+                    <span class='detail shop_id empty'>N/A</span>
+                </t>
+            </div>
+            <div class='client-detail'>
+                <span class='label'>Member</span>
+                <t t-if='partner.is_member'>
+                    <span class='detail is_member'>Yes</span>
+                </t>
+                <t t-if='!partner.is_member'>
+                    <span class='detail is_member'>No</span>
+                </t>
+
+            </div>
+        </t>
+        <!--<t t-jquery=".client-details > .edit-buttons" t-operation='replace'>-->
+        <!--</t>-->
+    </t>
+</templates>

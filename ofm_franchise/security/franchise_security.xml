@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="daily_franchise_pos_manager_rule" model="ir.rule">
+            <field name="name">Daily Franchise POS/Manager</field>
+            <field name="model_id" ref="ofm_franchise.model_daily_summary_franchise" />
+            <field name="groups" eval="[(4, ref('point_of_sale.group_pos_manager'))]"/>
+            <field name="domain_force">['&amp;',('branch_id', '=', user.branch_id.id),('state', 'not in', ['cancel'])]</field>
+        </record>
+        <record id="daily_franchise_pos_owner_rule" model="ir.rule">
+            <field name="name">Daily Franchise POS/Owner</field>
+            <field name="model_id" ref="ofm_franchise.model_daily_summary_franchise" />
+            <field name="groups" eval="[(4, [ref('point_of_sale.group_pos_owner')])]"/>
+            <field name="domain_force">['&amp;',('branch_id.id','in',user.company_id.branch_ids.ids),('state', 'not in', ['cancel'])]</field>
+        </record>
+        <record id="daily_franchise_hq_rule" model="ir.rule">
+            <field name="name">Daily Franchise HQ</field>
+            <field name="model_id" ref="ofm_franchise.model_daily_summary_franchise" />
+            <field name="groups" eval="[(4, [ref('ofm_access_right_center.group_ofm_hq')])]"/>
+            <field name="domain_force">[]</field>
+        </record>
+        <record id="monthly_franchise_pos_manager_rule" model="ir.rule">
+            <field name="name">Monthly Franchise POS/Manager</field>
+            <field name="model_id" ref="ofm_franchise.model_monthly_summary_franchise" />
+            <field name="groups" eval="[(4, ref('point_of_sale.group_pos_manager'))]"/>
+            <field name="domain_force">['&amp;',('branch_id', '=', user.branch_id.id),('state', 'not in', ['draft', 'cancel'])]</field>
+        </record>
+        <record id="monthly_franchise_pos_owner_rule" model="ir.rule">
+            <field name="name">Monthly Franchise POS/Owner</field>
+            <field name="model_id" ref="ofm_franchise.model_monthly_summary_franchise" />
+            <field name="groups" eval="[(4, [ref('point_of_sale.group_pos_owner')])]"/>
+            <field name="domain_force">['&amp;',('branch_id.id','in',user.company_id.branch_ids.ids),('state', 'not in', ['draft', 'cancel'])]</field>
+        </record>
+        <record id="monthly_franchise_hq_rule" model="ir.rule">
+            <field name="name">Monthly Franchise HQ</field>
+            <field name="model_id" ref="ofm_franchise.model_monthly_summary_franchise" />
+            <field name="groups" eval="[(4, [ref('ofm_access_right_center.group_ofm_hq')])]"/>
+            <field name="domain_force">[]</field>
+        </record>
+    </data>
+</odoo>

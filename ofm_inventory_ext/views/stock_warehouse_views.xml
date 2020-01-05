@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+        <!-- Order Point -->
+        <record id="view_warehouse_orderpoint_form" model="ir.ui.view">
+            <field name="name">stock.warehouse.orderpoint.form</field>
+            <field name="model">stock.warehouse.orderpoint</field>
+            <field name="inherit_id" ref="stock.view_warehouse_orderpoint_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//button[@name='%(stock.do_view_procurement_op)d']" position="after">
+                    <button
+                        type="action"
+                        name="action_forecast"
+                        class="oe_stat_button"
+                        icon="fa-building-o"
+                    >
+                        <field name="virtual_available" widget="statinfo" string="Forecasted"/>
+                    </button>
+                    <button
+                        type="object"
+                        name="action_on_hand"
+                        class="oe_stat_button" icon="fa-building-o"
+                    >
+                        <field name="qty_available" widget="statinfo" string="On Hand"/>
+                    </button>
+                    <button
+                        type="object"
+                        name="action_incoming_qty"
+                        class="oe_stat_button" icon="fa-building-o"
+                    >
+                        <div class="o_form_field o_stat_info">
+                            <span class="o_stat_value">
+                                <field name="incoming_qty" widget="integer"/>
+                                <span>
+                                    (<field name="incoming_qty_po" widget="integer"/>+<field name="incoming_qty_pr" widget="integer"/>)
+                                </span>
+                            </span>
+                            <span class="o_stat_text">Incoming Qty</span>
+                        </div>
+                    </button>
+                    <button
+                        type="object"
+                        name="action_outgoing_qty"
+                        class="oe_stat_button" icon="fa-building-o"
+                    >
+                        <field name="outgoing_qty" widget="statinfo" string="Outgoing Qty"/>
+                    </button>
+                </xpath>
+                <xpath expr="//field[@name='warehouse_id']" position="before">
+                    <field name="branch_id" options="{'no_open': True, 'no_create': True}"/>
+                </xpath>
+
+            </field>
+        </record>
+</odoo>

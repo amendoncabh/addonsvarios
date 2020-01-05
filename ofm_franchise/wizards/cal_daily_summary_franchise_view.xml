@@ -1,0 +1,111 @@
+<?xml version="1.0"?>
+<odoo>
+    <data>
+        <record id="view_cal_daily_summary_franchise_wizard" model="ir.ui.view">
+            <field name="name">cal.daily.summary.franchise.view.wizard</field>
+            <field name="model">cal.daily.summary.franchise.wizard</field>
+            <field name="arch" type="xml">
+                <form string="คำนวณสรุปยอดประจำวัน">
+                    <group>
+                        <group>
+                            <field name="date"/>
+                            <field name="pos_cash"/>
+                            <field name="so_cash"/>
+                            <field name="credit_term"/>
+                            <field name="kerry_cash"/>
+                        </group>
+                        <group>
+                            <field name="branch_id"
+                                  options="{
+                                               'no_quick_create': True,
+                                               'no_create_edit': True,
+                                               'no_open': True,
+                                           }"/>
+                            <field name="manager_id"
+                                  options="{
+                                               'no_quick_create': True,
+                                               'no_create_edit': True,
+                                               'no_open': True,
+                                           }"
+                                  domain="[('branch_id', '=', branch_id),
+                                           ('pos_security_pin', '!=', False),]"
+                                  required="True"/>
+                            <field name="manager_pin"
+                                  password="True"
+                                  widget="allow_number"
+                                  required="True"/>
+                        </group>
+                    </group>
+                    <footer>
+                        <button name="action_cal_daily_summary_franchise"
+                                string="Calculate" type="object"
+                                class="oe_highlight"/>
+                        or
+                        <button string="Cancel" class="oe_link"
+                                special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_open_cal_daily_summary_franchise_wizard" model="ir.actions.act_window">
+            <field name="name">คำนวณสรุปยอดประจำวัน</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">cal.daily.summary.franchise.wizard</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+        </record>
+
+        <menuitem id="menu_cal_daily_summary_franchise_wizard_franchise"
+                  parent="ofm_franchise.menu_daily_summary_franchise_main_franchise"
+                  action="ofm_franchise.action_open_cal_daily_summary_franchise_wizard"
+                  sequence="2"
+                  groups="point_of_sale.group_pos_user,point_of_sale.group_pos_manager,ofm_access_right_center.group_ofm_hq"/>
+
+        <menuitem id="menu_cal_daily_summary_franchise_wizard_sales"
+                  parent="ofm_franchise.menu_daily_summary_franchise_main_sales"
+                  action="ofm_franchise.action_open_cal_daily_summary_franchise_wizard"
+                  sequence="2"
+                  groups="point_of_sale.group_pos_user,point_of_sale.group_pos_manager,ofm_access_right_center.group_ofm_hq"/>
+
+        <record id="view_edit_daily_summary_franchise_wizard" model="ir.ui.view">
+            <field name="name">cal.daily.summary.franchise.view.wizard</field>
+            <field name="model">cal.daily.summary.franchise.wizard</field>
+            <field name="arch" type="xml">
+                <form string="คำนวณสรุปยอดประจำวัน">
+                    <group>
+                        <group>
+                            <field name="date" readonly="1"/>
+                            <field name="pos_cash" readonly="1"/>
+                            <field name="so_cash" readonly="1"/>
+                            <field name="credit_term" readonly="1"/>
+                            <field name="kerry_cash"/>
+                        </group>
+                        <group>
+                            <field name="branch_id"
+                                  options="{
+                                               'no_quick_create': True,
+                                               'no_create_edit': True,
+                                               'no_open': True,
+                                           }"
+                                 readonly="1"/>
+                        </group>
+                    </group>
+                    <div>
+                        <label for="reason"/>
+                        <field name="reason" required="True"/>
+                    </div>
+                    <footer>
+                        <button name="action_edit_daily_summary_franchise"
+                                string="Save" type="object"
+                                class="oe_highlight"/>
+                        or
+                        <button string="Cancel" class="oe_link"
+                                special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+    </data>
+</odoo>

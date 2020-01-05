@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+    <t t-name="Product">
+        <span class='product' t-att-data-product-id="product.id">
+            <div class="product-img">
+                <img t-att-src='image_url' />
+                <t t-set="o" t-value="widget.pos.config.product_ids"/>
+                <t t-foreach="o" t-as="product_id">
+                    <t t-if="product_id == product.id">
+                       <div class="product_hold_sale">
+                           Hold Sale
+                       </div>
+                    </t>
+                </t>
+                <t t-if="product.is_hold_sale">
+                   <div class="product_hold_sale">
+                       Hold Sale
+                   </div>
+                </t>
+                <t t-if="product.is_pack">
+                   <div class="product_pack">
+                       Product Pack
+                   </div>
+                </t>
+            </div>
+            <t t-if="product.is_pack">
+                <div class="combo_background product-name">
+                    <t t-esc="product.display_name"/>
+                </div>
+            </t>
+            <div class="product-name">
+                <t t-esc="product.display_name"/>
+            </div>
+        </span>
+    </t>
+    <t t-extend="Orderline">
+        <t t-jquery='ul.info-list' t-operation='append'>
+            <t t-if="line.get_product().is_pack">
+                <i style="color: green; font-size:13px;">
+                     <t t-if="line.getPackProduct()">
+                         <t t-foreach="line.getPackProduct().pack_product_list" t-as="pos_pack">
+                            &#187; <span t-esc="pos_pack.product.display_name"/><br/>
+                         </t>
+                     </t>
+                </i>
+             </t>
+        </t>
+    </t>
+</templates>

@@ -1,0 +1,355 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="inherit_product_product_form_view" model="ir.ui.view">
+        <field name="name">product.product.form</field>
+        <field name="model">product.product</field>
+        <field name="inherit_id" ref="product.product_normal_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//header" position="inside">
+                <button string="Update Product On Template"
+                    type="object"
+                    name="action_sync_data_template_product" />
+                <button string="Update Product"
+                    type="object"
+                    name="action_sync_data_product" />
+            </xpath>
+<!--            <xpath expr="//page[@name='notes']" position="after">-->
+<!--                <page string="Product Template" name="product_template">-->
+<!--                    <field name="template_ids"/>-->
+<!--                </page>-->
+<!--            </xpath>-->
+        </field>
+    </record>
+
+    <record id="product_template_only_form_view" model="ir.ui.view">
+        <field name="name">product.template.product.form</field>
+        <field name="model">product.template</field>
+        <field name="priority" eval="9"/>
+        <field name="inherit_id" ref="product.product_template_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//group[@name='group_standard_price']" position="inside">
+                <field name="is_delivery_fee_ofm"/>
+                <field name="delivery_fee_ofm"/>
+            </xpath>
+            <xpath expr="//page[@name='sales']" position="after">
+                <page string="OFM" name="info_ofm">
+                    <group name="sale">
+                        <group name="first">
+                            <field name="sku_ofm" widget="char"/>
+                            <field name="name_eng_ofm"/>
+                            <field name="parent_dept_ofm" readonly="1"/>
+                            <field name="dept_ofm" required="1"/>
+                        </group>
+                        <group name="second">
+                            <field name="brand_id"/>
+                            <field name="cp_cid_ofm"/>
+                            <field name="own_brand_ofm"/>
+                            <field name="prod_status"/>
+                            <field name="prod_remark_ofm"/>
+                            <field name="is_promotion"/>
+                            <field name="is_best_deal_promotion"/>
+                        </group>
+                    </group>
+                </page>
+            </xpath>
+            <xpath expr="//page[@name='notes']" position="after">
+                <page string="Log" name="product_log">
+                    <field name="product_price_log_ids">
+                        <tree string="Product Log">
+                            <field name="price_normal"/>
+                            <field name="price_promotion"/>
+                            <field name="date_promotion_start"/>
+                            <field name="date_promotion_end"/>
+                            <field name="create_date"/>
+                        </tree>
+                    </field>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="inherit_product_form_view_procurement_button" model="ir.ui.view">
+        <field name="name">product.product.procurement</field>
+        <field name="model">product.product</field>
+        <field name="inherit_id" ref="stock.product_template_form_view_procurement_button"/>
+        <field name="arch" type="xml">
+            <xpath expr="//button[@name='%(stock.action_stock_level_forecast_report_product)d']/div/span" position="replace">
+                <field name="virtual_available" widget="statinfo" nolabel="1"/>
+                <span attrs="{'invisible':[('outgoing_qty', '=', 0),('incoming_qty','=',0),('incoming_qty_pr_sent','=',0)]}">
+                    (-<field name="outgoing_qty" widget="statinfo" nolabel="1"/>
+                    +<field name="incoming_qty" widget="statinfo" nolabel="1"/>
+                    +<field name="incoming_qty_pr_sent" widget="statinfo" nolabel="1"/>)
+                </span>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="inherit_product_template_form_view_procurement_button" model="ir.ui.view">
+        <field name="name">product.template_procurement</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="stock.product_template_form_view_procurement_button"/>
+        <field name="arch" type="xml">
+            <xpath expr="//button[@name='%(stock.action_stock_level_forecast_report_template)d']/div/span" position="replace">
+                <field name="virtual_available" widget="integer"/>
+                <span attrs="{
+                        'invisible':[('outgoing_qty', '=', 0),('incoming_qty','=',0),('incoming_qty_pr_sent','=',0)]
+                    }"
+                    groups="base.group_no_one">
+                    (-<field name="outgoing_qty" widget="integer"/>
+                    +<field name="incoming_qty" widget="integer"/>
+                    +<field name="incoming_qty_pr_sent" widget="integer"/>)
+                </span>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="inherit_product_form_view_procurement_button" model="ir.ui.view">
+        <field name="name">product.product.procurement</field>
+        <field name="model">product.product</field>
+        <field name="inherit_id" ref="stock.product_template_form_view_procurement_button"/>
+        <field name="arch" type="xml">
+            <xpath expr="//button[@name='%(stock.action_stock_level_forecast_report_product)d']/div/span" position="replace">
+                <field name="virtual_available" widget="statinfo" nolabel="1"/>
+                <span attrs="{'invisible':[('outgoing_qty', '=', 0),('incoming_qty','=',0),('incoming_qty_pr_sent','=',0)]}">
+                    (-<field name="outgoing_qty" widget="statinfo" nolabel="1"/>
+                    +<field name="incoming_qty" widget="statinfo" nolabel="1"/>
+                    +<field name="incoming_qty_pr_sent" widget="statinfo" nolabel="1"/>)
+                </span>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="inherit_product_template_form_view_procurement_button" model="ir.ui.view">
+        <field name="name">product.template_procurement</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="stock.product_template_form_view_procurement_button"/>
+        <field name="arch" type="xml">
+            <xpath expr="//button[@name='%(stock.action_stock_level_forecast_report_template)d']/div/span" position="replace">
+                <field name="virtual_available" widget="integer"/>
+                <span attrs="{
+                        'invisible':[('outgoing_qty', '=', 0),('incoming_qty','=',0),('incoming_qty_pr_sent','=',0)]
+                    }"
+                    groups="base.group_no_one">
+                    (-<field name="outgoing_qty" widget="integer"/>
+                    +<field name="incoming_qty" widget="integer"/>
+                    +<field name="incoming_qty_pr_sent" widget="integer"/>)
+                </span>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="inherit_product_form_view_procurement_button" model="ir.ui.view">
+        <field name="name">product.product.procurement</field>
+        <field name="model">product.product</field>
+        <field name="inherit_id" ref="stock.product_template_form_view_procurement_button"/>
+        <field name="arch" type="xml">
+            <xpath expr="//button[@name='%(stock.action_stock_level_forecast_report_product)d']/div/span" position="replace">
+                <field name="virtual_available" widget="statinfo" nolabel="1"/>
+                <span attrs="{'invisible':[('outgoing_qty', '=', 0),('incoming_qty','=',0),('incoming_qty_pr_sent','=',0)]}">
+                    (-<field name="outgoing_qty" widget="statinfo" nolabel="1"/>
+                    +<field name="incoming_qty" widget="statinfo" nolabel="1"/>
+                    +<field name="incoming_qty_pr_sent" widget="statinfo" nolabel="1"/>)
+                </span>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="inherit_product_template_form_view_procurement_button" model="ir.ui.view">
+        <field name="name">product.template_procurement</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="stock.product_template_form_view_procurement_button"/>
+        <field name="arch" type="xml">
+            <xpath expr="//button[@name='%(stock.action_stock_level_forecast_report_template)d']/div/span" position="replace">
+                <field name="virtual_available" widget="integer"/>
+                <span attrs="{
+                        'invisible':[('outgoing_qty', '=', 0),('incoming_qty','=',0),('incoming_qty_pr_sent','=',0)]
+                    }"
+                    groups="base.group_no_one">
+                    (-<field name="outgoing_qty" widget="integer"/>
+                    +<field name="incoming_qty" widget="integer"/>
+                    +<field name="incoming_qty_pr_sent" widget="integer"/>)
+                </span>
+            </xpath>
+        </field>
+    </record>
+
+    <!--<record id="inherit_product_product_coupon_tree_view" model="ir.ui.view">-->
+    <!--<field name="name">product.product.form</field>-->
+    <!--<field name="model">product.product</field>-->
+    <!--<field name="priority" eval="15"/>-->
+    <!--<field name="mode">primary</field>-->
+    <!--<field name="inherit_id" ref="product.product_product_tree_view"/>-->
+    <!--<field name="arch" type="xml">-->
+    <!--<xpath expr="//tree" position="attributes">-->
+    <!--<attribute name="create">0</attribute>-->
+    <!--<attribute name="edit">0</attribute>-->
+    <!--</xpath>-->
+    <!--</field>-->
+    <!--</record>-->
+
+    <!--<record id="inherit_product_product_coupon_kanban_view" model="ir.ui.view">-->
+    <!--<field name="name">product.product.form</field>-->
+    <!--<field name="model">product.product</field>-->
+    <!--<field name="priority" eval="15"/>-->
+    <!--<field name="mode">primary</field>-->
+    <!--<field name="inherit_id" ref="product.product_kanban_view"/>-->
+    <!--<field name="arch" type="xml">-->
+    <!--<xpath expr="//kanban" position="attributes">-->
+    <!--<attribute name="create">0</attribute>-->
+    <!--<attribute name="edit">0</attribute>-->
+    <!--</xpath>-->
+    <!--</field>-->
+    <!--</record>-->
+
+    <!--<record id="product_product_barcode_search_view" model="ir.ui.view">-->
+    <!--<field name="name">product.template.search.bom</field>-->
+    <!--<field name="model">product.template</field>-->
+    <!--<field name="inherit_id" ref="product.product_template_search_view"/>-->
+    <!--<field name="arch" type="xml">-->
+    <!--<xpath expr="//filter[@name='consumable']" position="after">-->
+    <!--<separator/>-->
+    <!--<filter string="Components" name="components" domain="[('bom_ids','not in',[])]"/>-->
+    <!--</xpath>-->
+    <!--</field>-->
+    <!--</record>-->
+
+    <record id="product_product_default_code_search_view" model="ir.ui.view">
+        <field name="name">product.template.search.default.code</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_search_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='name']" position="after">
+                <field name="default_code" string="PID &amp; Name" filter_domain="['|',('default_code','ilike',self),('name','ilike',self)]"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record model="ir.ui.view" id="view_ofm_product_dept_tree">
+        <field name="name">ofm.product.dept.form.view</field>
+        <field name="model">ofm.product.dept</field>
+        <field name="priority">2</field>
+        <field name="arch" type="xml">
+            <tree string="Product Dept" editable="bottom">
+                <field name="name"/>
+                <field name="ofm_dept_id"/>
+                <field name="ofm_sub_dept_id"/>
+                <field name="ofm_class_id"/>
+                <field name="ofm_sub_class_id"/>
+                <field name="dept_parent_id"/>
+            </tree>
+        </field>
+    </record>
+
+    <record model="ir.ui.view" id="view_ofm_product_dept_tree_search_mode">
+        <field name="name">ofm.product.dept.search.mode.view</field>
+        <field name="model">ofm.product.dept</field>
+        <field name="mode">primary</field>
+        <field name="arch" type="xml">
+            <tree string="Product Dept">
+                <field name="name"/>
+                <field name="ofm_dept_id"/>
+            </tree>
+        </field>
+    </record>
+
+    <record model="ir.ui.view" id="view_ofm_product_sub_dept_tree_search_mode">
+        <field name="name">ofm.product.sub_dept.search.mode.view</field>
+        <field name="model">ofm.product.dept</field>
+        <field name="mode">primary</field>
+        <field name="arch" type="xml">
+            <tree string="Product Sub Dept">
+                <field name="name"/>
+                <field name="ofm_sub_dept_id"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_ofm_product_dept_search" model="ir.ui.view">
+        <field name="name">ofm.product.dept.search</field>
+        <field name="model">ofm.product.dept</field>
+        <field name="arch" type="xml">
+            <search string="Product Dept">
+                <field name="name" string="Name"
+                       filter_domain="[('name', 'ilike', self)]"/>
+            </search>
+        </field>
+    </record>
+
+    <record model="ir.actions.act_window" id="action_ofm_product_dept_form">
+        <field name="name">Product Dept</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">ofm.product.dept</field>
+        <field name="view_type">form</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="oe_view_nocontent_create">
+                Click to create a Product Dept.
+            </p>
+        </field>
+        <field name="search_view_id" ref="view_ofm_product_dept_search"/>
+    </record>
+
+    <record model="ir.ui.view" id="view_product_brand_handle_tree">
+        <field name="name">product.brand.form.view</field>
+        <field name="model">product.brand</field>
+        <field name="priority">2</field>
+        <field name="arch" type="xml">
+            <tree string="Product Brand" editable="bottom">
+                <field name="sequence" widget="handle"/>
+                <field name="ofm_brand_id"/>
+                <field name="brand_th"/>
+                <field name="brand_eng"/>
+            </tree>
+        </field>
+    </record>
+
+    <record model="ir.ui.view" id="view_product_brand_handle_tree_search_mode">
+        <field name="name">product.brand.search.mode.view</field>
+        <field name="model">product.brand</field>
+        <field name="mode">primary</field>
+        <field name="arch" type="xml">
+            <tree string="Product Brand" editable="bottom">
+                <field name="brand_eng"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_product_brand_search" model="ir.ui.view">
+        <field name="name">product.brand.search</field>
+        <field name="model">product.brand</field>
+        <field name="arch" type="xml">
+            <search string="Product Brand">
+                <field name="brand_th" string="Name"
+                       filter_domain="['|', ('brand_th', 'ilike', self), ('brand_eng', 'ilike', self)]"/>
+            </search>
+        </field>
+    </record>
+
+    <record model="ir.actions.act_window" id="action_product_brand_form">
+        <field name="name">Product Brand</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">product.brand</field>
+        <field name="view_type">form</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="oe_view_nocontent_create">
+                Click to create a Product Brand.
+            </p>
+        </field>
+        <field name="search_view_id" ref="view_product_brand_search"/>
+    </record>
+
+    <menuitem
+            parent="point_of_sale.menu_point_config_product"
+            action="action_ofm_product_dept_form"
+            id="menu_ofm_product_dept"
+            sequence="35"
+            groups="base.group_no_one,base.group_system"/>
+
+    <menuitem
+            parent="point_of_sale.menu_point_config_product"
+            action="action_product_brand_form"
+            id="menu_product_brand"
+            sequence="35"
+            groups="base.group_no_one,base.group_system"/>
+</odoo>

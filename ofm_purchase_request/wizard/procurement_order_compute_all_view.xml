@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="ofm_view_compute_schedulers_wizard" model="ir.ui.view">
+            <field name="name">Suggest Fulfillment OFM</field>
+            <field name="model">procurement.order.compute.all</field>
+            <field name="inherit_id" ref="procurement.view_compute_schedulers_wizard"/>
+            <field name="mode">primary</field>
+            <field name="priority">99</field>
+            <field name="arch" type="xml">
+                <xpath expr="//p" position="replace">
+                    <p>
+                        Suggest Fulfillment
+                    </p>
+                </xpath>
+                <xpath expr="//button[@name='procure_calculation']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//button[@name='procure_calculation']" position="after">
+                    <button name="ofm_procure_calculation" string="Suggest" type="object" class="btn-primary"/>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

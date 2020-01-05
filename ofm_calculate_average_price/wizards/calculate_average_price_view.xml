@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+<odoo>
+    <data>
+
+        <record id="action_calculate_average_price_wizard" model="ir.actions.act_window">
+            <field name="name">Calculate Average Price</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">calculate.average.price.wizard</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+        </record>
+
+        <menuitem id="menu_calculate_average_price_wizard"
+                  parent="stock.menu_stock_inventory_control"
+                  action="action_calculate_average_price_wizard"
+                  sequence="5"
+                  groups="stock.group_stock_manager"/>
+
+        <record id="view_calculate_average_price_wizard" model="ir.ui.view">
+            <field name="name">calculate.average.price.form</field>
+            <field name="model">calculate.average.price.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Daily Receive Document Report">
+                    <group>
+                        <group>
+                            <field name="year"/>
+                            <field name="month"/>
+                        </group>
+                        <group>
+                            <field name="branch_id"
+                                   options="{'no_quick_create': True, 'no_create_edit': True}"/>
+                        </group>
+                    </group>
+                    <footer>
+                        <button name="calculate_average_price"
+                                string="Calculate" type="object"
+                                class="oe_highlight"/>
+                        or
+                        <button string="Cancel" class="oe_link"
+                                special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+    </data>
+</odoo>

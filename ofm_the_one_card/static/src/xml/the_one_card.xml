@@ -1,0 +1,558 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+
+    <t t-extend="PosTicket">
+        <t t-jquery="#TaxInfo" t-operation='append'>
+            <div class='receipt-descript-size the_one_card_ticket_description'>
+                <t t-if='order.t1c_set' >
+                    <t t-if="!order.pos_offline">
+                        <div class='t1c_ticket_card_no'>The1 No : <t t-esc="order.membercard.the_one_card_no"/></div>
+                        <div class='t1c_ticket_member_name'>The1 Name : <t t-esc="order.membercard.member_name"/></div>
+                    </t>
+                    <t t-elif="order.pos_offline">
+                        <div class="t1c_ticket_card_no">The1 No : <t t-esc="order.membercard.the_one_card_no"/></div>
+                        <div class='t1c_ticket_member_name'>The1 Name : Pending</div>
+                    </t>
+                    <t t-else="">
+                        <div class='t1c_ticket_card_no'>The1 No : </div>
+                        <div class='t1c_ticket_member_name'>The1 Name : </div>
+                    </t>
+                </t>
+                <t t-else="">
+                    <div class='t1c_ticket_card_no'>The1 No : </div>
+                    <div class='t1c_ticket_member_name'>The1 Name : </div>
+                </t>
+            </div>
+        </t>
+    </t>
+
+    <t t-extend="PaymentScreenWidget">
+        <t t-jquery="div.js_set_customer" t-operation='before'>
+            <div class='theonecardpaymentscreen-container'>
+            </div>
+        </t>
+    </t>
+
+    <t t-extend="ProductScreenWidget">
+        <t t-jquery="div.subwindow-container-fix.pads" t-operation='replace'>
+            <div class="control-buttons oe_hidden"></div>
+            <div class="placeholder-ActionpadWidget"></div>
+            <div class="placeholder-NumpadWidget"></div>
+        </t>
+    </t>
+
+    <t t-name="TheOneCardScreenLabel">
+        <div class='button'>
+            <span class="text-center">
+                T1C: <span><t t-esc="the_one_card_no.length == 0 ? '-' : the_one_card_no"/></span>
+            </span>
+        </div>
+    </t>
+
+    <t t-name="CardOfflinePopupWidget">
+        <div class="modal-dialog">
+            <div class="popup popup-textinput">
+                <p class="title"><t t-esc=" widget.options.title || '' " /></p>
+                <p class="message">ไม่สามารถเชื่อมต่ออินเตอร์เน็ตได้<br />กรุณาใส่หมายเลข T1C ในช่องว่าง</p>
+                <input type='text' id="t1c_no_offline_input" class="only_number" maxlength="16" t-att-value="widget.options.value || ''" />
+                <div class="footer">
+                    <div class="button t1c_offline confirm">
+                        Ok
+                    </div>
+                    <div class="button t1c_offline cancel">
+                        Cancel
+                    </div>
+                </div>
+            </div>
+        </div>
+    </t>
+
+    <t t-name="CashCouponPopupWidget">
+        <div class="modal-dialog">
+            <div class="popup popup-textinput" style="height: 400px;">
+                <p class="title"><t t-esc=" widget.options.title || '' " /></p>
+                <p>Amount Due: <t t-esc="widget.pos.get_order().get_due()" /></p>
+                <div>
+                    <input type='text' name="barcode" placeholder="barcode no." id="cash-coupon-barcode"/>
+                    <input type='text' class="only_number" name="amount" placeholder="tender amt (THB)" id="cash-coupon-amount"/>
+                </div>
+                <p id="alert"></p>
+                <div class="footer">
+                    <div class="button confirm">
+                        Ok
+                    </div>
+                    <div class="button cancel">
+                        Cancel
+                    </div>
+                </div>
+            </div>
+        </div>
+    </t>
+
+    <t t-name="OtpPopupWidget">
+        <div class="modal-dialog">
+            <div class="popup popup-textinput">
+                <p class="title"><t t-esc=" widget.options.title || '' " /></p>
+                <p>
+                    <span id="no_tries_prefix" style="visibility: hidden;">Tries:</span>
+                    <span id="no_tries" style="visibility: hidden;"><t t-esc="widget.options.no_tries" /></span>
+                </p>
+                <p>
+                    <span id="otp_ref_text_prefix">OTP Ref:</span>
+                    <span id="otp_ref_text"><t t-esc="widget.options.otp_ref_text"/></span>
+                </p>
+                <input type='text' name="otp_code" placeholder="OTP Code" id="otp_code" maxlength="10" minlength="1"/>
+                <p id="status"><t t-esc="widget.options.status"/></p>
+                <div class="footer">
+                    <div class="button confirm">
+                        Validate
+                    </div>
+                    <div class="button resend">
+                        Resend OTP
+                    </div>
+                    <div class="button cancel">
+                        Cancel
+                    </div>
+                </div>
+            </div>
+        </div>
+    </t>
+
+    <t t-name="PointTemplatePopupWidget">
+        <div class="modal-dialog">
+            <div class="popup return_popup_style">
+                <div class="title" style="margin-bottom: 0px;">
+                    <span>
+                        <t t-esc="widget.options.title"/>
+                    </span>
+                </div>
+                <div class="body">
+                    <div class='container_div'>
+                        <table border="1" frame="void" rules="rows" class="return_popup_table">
+                            <tr class="return_popup_tr">
+                                <th class="table_data_cells"><p>Points</p></th>
+                                <th class="table_data_cells"><p>Exchange Rate</p></th>
+                                <th class="table_data_cells"><p>THB</p></th>
+                                <th class="table_data_cells"></th>
+                            </tr>
+
+                            <t t-foreach="widget.options.lines || []" t-as="line">
+                                <tr class="return_popup_tr" 
+                                    t-att-line-id="line.id"
+                                    t-att-points="line.points"
+                                    t-att-amount="line.amount">
+                                    <td class="table_data_cells">
+                                        <t t-esc="line.points"/>
+                                    </td>
+                                    <td class="table_data_cells">
+                                        <t t-esc="line.exchange_rate"/>
+                                    </td>
+                                    <td class="table_data_cells">
+                                        <t t-esc="line.amount"/>
+                                    </td>
+                                    <td >
+                                        <input type="checkbox" class="custom_checkbox"/>
+                                    </td>
+                                </tr>
+                            </t>
+                        </table>
+                    </div>
+                </div>
+                <div class="footer" style="background: #f0eeee;">
+                    <div class="button confirm">
+                        Redeem
+                    </div>
+                    <div class="button cancel">
+                        Cancel
+                    </div>
+                </div>
+            </div>
+        </div>
+    </t>
+
+    <t t-extend="ActionpadWidget">
+		<t t-jquery=".actionpad" t-operation="prepend">
+			<div class='theonecardproductscreen-container'>
+            </div>
+		</t>
+        <t t-jquery='.actionpad' t-operation='before'>
+            <div class='redeem-button'>
+                <button class='button' disabled="disabled">
+                    Redeem Product
+                </button>
+                <button class='button' disabled="disabled">
+                    Redeem Voucher
+                </button>
+                <button class='button' disabled="disabled">
+                    Redeem Tender
+                </button>
+                <button class='button' disabled="disabled">
+                    Redeem Coupon
+                </button>
+            </div>
+            <div class='the-one-card-search button set_the_one_card'>
+                <span class='button set_the_one_card'> 
+                    <div class='placeholder-MemberCardDetailsWidget'>
+                    </div>
+                </span>
+
+                <!-- <button t-attf-class='button set_the_one_card'>
+                    Search T1C
+                </button> -->
+            </div>
+        </t>
+	</t>
+
+    <t t-name="TheOneCardPaymentScreenInput">
+        <div class='t1c_card'>
+            <div class='member-detail'>
+                <span class='label'>T1C Name : </span>
+                    <span class='detail member-name'><t t-esc="widget.pos.get_order().membercard.member_name" /></span>
+            </div>
+            <div class='member-detail'>
+                <span class='label'>T1C No : </span>
+                    <span class='detail member-the_one_card_no'><t t-esc="widget.pos.get_order().membercard.the_one_card_no" /></span>
+            </div>
+            <div class='member-detail'>
+                <span class='label'>T1C Tel : </span>
+                    <span class='detail member-phone'><t t-esc="widget.pos.get_order().membercard.phone" /></span>
+            </div>
+        </div>
+	</t>
+
+    <t t-name="MemberCardDetailsWidget">
+        <div class="member_detail empty">
+            <div class='member-detail'>
+                <span class='label'>Status : </span>
+                    <span class='detail member-status'><t t-esc="widget.pos.get_order().membercard.status" /></span>
+            </div>
+            <div class='member-detail'>
+                <span class='label'>กลุ่ม/บริษัท : </span>
+                    <span class='detail member-company'><t t-esc="widget.pos.get_order().membercard.company" /></span>
+            </div>
+            <div class='member-detail'>
+                <span class='label'>Card Type : </span>
+                    <span class='detail member-card_type'><t t-esc="widget.pos.get_order().membercard.card_type" /></span>
+            </div>
+            <div class='member-detail'>
+                <span class='label'>Customer Group / Segment : </span>
+                    <span class='detail member-customer_group_segment'><t t-esc="widget.pos.get_order().membercard.customer_group_segment" /></span>
+            </div>
+            <div class='member-detail'>
+                <span class='label'>Tier : </span>
+                    <span class='detail member-tier'><t t-esc="widget.pos.get_order().membercard.tier" /></span>
+            </div>
+            <!--<div class='member-detail'>-->
+                <!--<span class='label'>CG Staff : </span>-->
+                    <!--<span class='detail member-cg_staff'><t t-esc="widget.pos.get_order().membercard.cg_staff" /></span>-->
+            <!--</div>-->
+            <div class='member-detail'>
+                <span class='label'>Redeem Rights : </span>
+                    <span class='detail member-redeem_rights'><t t-esc="widget.pos.get_order().membercard.redeem_rights" /></span>
+            </div>
+            <div class='member-detail'>
+                <span class='label'>Segment : </span>
+                    <span class='detail member-segment'><t t-esc="widget.pos.get_order().membercard.segment" /></span>
+            </div>
+            <!--<div class='member-detail'>-->
+                <!--<span class='label'>Staff BU : </span>-->
+                    <!--<span class='detail member-staff'><t t-esc="widget.pos.get_order().membercard.staff" /></span>-->
+            <!--</div>-->
+            <div class='member-detail'>
+                <span class='label'>Balance Points : </span>
+                    <span class='detail member-balance_points'><t t-esc="widget.pos.get_order().membercard.balance_points" /></span>
+            </div>
+            <div class='member-detail'>
+                <span class='label'>Exp This Yr : </span>
+                    <span class='detail member-expire_this_year'><t t-esc="widget.pos.get_order().membercard.expire_this_year" /></span>
+            </div>
+        </div>
+        <div class="member_search">
+            Search T1C
+        </div>
+
+    </t>
+
+    <t t-name="CardListScreenWidget">
+        <div class="cardlist-screen screen">
+            <div class="screen-content">
+                <section class="top-content">
+                    <span class='button back'>
+                        <i class='fa fa-angle-double-left'></i>
+                        Back
+                    </span>
+                    <span class='button next highlight oe_hidden'>
+                        Select Member
+                    </span>
+                </section>
+                <section class="full-content">
+                    <div class='window'>
+                        <div class='cardsearch'>
+                            <input type="text" maxlength="16" class='the_one_card_no the_one_card_input only_number' placeholder='The One Card No.' />
+                            <input type="text" maxlength="10" class='telephone the_one_card_input only_number' placeholder='Tel.' />
+                            <input type="text" maxlength="13" class='tax_id the_one_card_input only_number' placeholder='Tax ID.' />
+
+                            <div class="button button-search">Search</div>
+                        </div>
+                        <div class='cardcontent'>
+                            <div class='subwindow-container-fix card-details-contents'>
+                            </div>
+
+                        </div>
+                        <!-- <section class='subwindow collapsed'>
+                            <div class='subwindow-container collapsed'>
+                                <div class='subwindow-container-fix card-details-contents'>
+                                </div>
+                            </div>
+                        </section> -->
+                        <section class='subwindow'>
+                            <div class='subwindow-container'>
+                                <div class='subwindow-container-fix touch-scrollable scrollable-y'>
+                                    <table class='card-list'>
+                                        <thead>
+                                            <tr>
+                                                <th>The One Card No.</th>
+                                                <th>Name</th>
+                                                <th>Card Type</th>
+                                                <th>Phone</th>
+                                                <th>Points</th>
+                                                <th>Exp This Yr.</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class='card-list-contents'>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </t>
+
+    <t t-name="CardDetails">
+        <section class='card-details'>
+            <div class='card-details-box clearfix'>
+                <div class="card-details-center">
+
+                    <div class='card-detail'>
+                        <t t-if='membercard.member_name'>
+                            <span class='detail member-name'><i class="fa fa-user"></i><t t-esc="membercard.member_name" /></span>
+                        </t>
+                        <t t-if='!membercard.member_name'>
+                            <span class='detail member-name'>N/A</span>
+                        </t>
+                    </div>
+                    <div class='card-detail'>
+                        <span class='label card-number'>The One Card No.</span>
+                        <t t-if='membercard.the_one_card_no'>
+                            <span class='detail member-card-no'><t t-esc="membercard.the_one_card_no" /></span>
+                        </t>
+                        <t t-if='!membercard.the_one_card_no'>
+                            <span class='detail member-card-no'>N/A</span>
+                        </t>
+                    </div>
+                    <div class='card-detail'>
+                        <span class='label'>กลุ่ม/บริษัท : </span>
+                        <t t-if='membercard.company'>
+                            <span class='detail member-company'><t t-esc="membercard.company" /></span>
+                        </t>
+                        <t t-if='!membercard.company'>
+                            <span class='detail member-company'>N/A</span>
+                        </t>
+                    </div>
+                    <div class='card-detail'>
+                        <span class='label'>Card Type : </span>
+                        <t t-if='membercard.card_type'>
+                            <span class='detail member-card_type'><t t-esc="membercard.card_type" /></span>
+                        </t>
+                        <t t-if='!membercard.card_type'>
+                            <span class='detail member-card_type'>N/A</span>
+                        </t>
+                    </div>
+                    <div class='card-detail'>
+                        <span class='label'>Customer Group/Customer Segment : </span>
+                        <t t-if='membercard.customer_group_segment'>
+                            <span class='detail member-customer_group_segment'><t t-esc="membercard.customer_group_segment" /></span>
+                        </t>
+                        <t t-if='!membercard.customer_group_segment'>
+                            <span class='detail member-customer_group_segment'>N/A</span>
+                        </t>
+                    </div>
+                </div>
+                <div class='card-details-left'>
+                    
+                    <div class='card-detail'>
+                        <span class='label'>Status : </span>
+                        <t t-if='membercard.status != ""'>
+                            <span class='detail member-status'><t t-esc="membercard.status" /></span>
+                        </t>
+                        <t t-if='membercard.status == ""'>
+                            <span class='detail member-status'>N/A</span>
+                        </t>
+                    </div>
+                    <div class='card-detail'>
+                        <span class='label'>Tier : </span>
+                        <t t-if='membercard.tier != ""'>
+                            <span class='detail member-tier'><t t-esc="membercard.tier" /></span>
+                        </t>
+                        <t t-if='membercard.tier == ""'>
+                            <span class='detail member-tier'>N/A</span>
+                        </t>
+                    </div>
+                    <!--<div class='card-detail'>-->
+                        <!--<span class='label'>CG Staff : </span>-->
+                        <!--<t t-if='membercard.cg_staff != ""'>-->
+                            <!--<span class='detail member-cg_staff'><t t-esc="membercard.cg_staff" /></span>-->
+                        <!--</t>-->
+                        <!--<t t-if='membercard.cg_staff == ""'>-->
+                            <!--<span class='detail member-cg_staff'>N/A</span>-->
+                        <!--</t>-->
+                    <!--</div>-->
+                    <div class='card-detail'>
+                        <span class='label'>Bal Points : </span>
+                        <t t-if='membercard.balance_points != ""'>
+                            <span class='detail member-balance_points'><t t-esc="membercard.balance_points" /></span>
+                        </t>
+                        <t t-if='membercard.balance_points == ""'>
+                            <span class='detail member-balance_points'>N/A</span>
+                        </t>
+                    </div>
+                </div>
+                <div class='card-details-right'>
+                    <div class='card-detail'>
+                        <span class='label'>Redeem Rights : </span>
+                        <t t-if='membercard.redeem_rights != ""'>
+                            <span class='detail member-redeem_rights'><t t-esc="membercard.redeem_rights" /></span>
+                        </t>
+                        <t t-if='membercard.redeem_rights == ""'>
+                            <span class='detail member-redeem_rights'>N/A</span>
+                        </t>
+                    </div>
+                    <div class='card-detail'>
+                        <span class='label'>Segment : </span>
+                        <t t-if='membercard.segment != ""'>
+                            <span class='detail member-segment'><t t-esc="membercard.segment" /></span>
+                        </t>
+                        <t t-if='membercard.segment == ""'>
+                            <span class='detail member-segment'>N/A</span>
+                        </t>
+                    </div>
+                    <!--<div class='card-detail'>-->
+                        <!--<span class='label'>Staff BU : </span>-->
+                        <!--<t t-if='membercard.staff != ""'>-->
+                            <!--<span class='detail member-staff'><t t-esc="membercard.staff" /></span>-->
+                        <!--</t>-->
+                        <!--<t t-if='membercard.staff == ""'>-->
+                            <!--<span class='detail member-staff'>N/A</span>-->
+                        <!--</t>-->
+                    <!--</div>-->
+                    <div class='card-detail'>
+                        <span class='label'>Exp This Yr : </span>
+                        <t t-if='membercard.expire_this_year != ""'>
+                            <span class='detail member-expire_this_year'><t t-esc="membercard.expire_this_year" /></span>
+                        </t>
+                        <t t-if='membercard.expire_this_year == ""'>
+                            <span class='detail member-expire_this_year'>N/A</span>
+                        </t>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </t>
+
+    <t t-name="CancelRedeemTenderFailPopupWidget">
+        <div class="modal-dialog">
+            <div class="popup popup-textinput" style="height: 500px;">
+                <p class="title"><t t-esc="widget.options.title || ''" /></p>
+                <p><t t-esc="widget.options.body || '' " /></p>
+                <div class="footer">
+                    <div class="button confirm">
+                        Retry
+                    </div>
+                    <div class="button cancel">
+                        Cancel
+                    </div>
+                </div>
+            </div>
+        </div>
+    </t>
+
+    <t t-name="E_CashCouponPopupWidget">
+        <div class="modal-dialog">
+            <div class="popup popup-textinput" style="height: 300px;">
+                <p class="title"><t t-esc=" widget.options.title || '' " /></p>
+                <!-- <div>
+                    <video autoplay="true" id="videoElement"></video>
+                </div> -->
+                <input type='text' name="barcode" placeholder="barcode no." id="e-cash-coupon-barcode"/>
+                <p id="alert"></p>
+                <div class="footer">
+                    <!-- <div class="button" id="web_scanner">
+                        Scanner
+                    </div> -->
+                    <div class="button confirm">
+                        Ok
+                    </div>
+                    <div class="button cancel">
+                        Cancel
+                    </div>
+                </div>
+            </div>
+        </div>
+    </t>
+
+    <!-- <t t-name="VoucherPopupWidget">
+        <div class="modal-dialog">
+            <div class="popup return_popup_style">
+                <div class="title" style="margin-bottom: 0px;">
+                    <span>
+                        <t t-esc="widget.options.title"/>
+                    </span>
+                </div>
+                <div class="body">
+                    <div class='container_div'>
+                        <table border="1" frame="void" rules="rows" class="return_popup_table">
+                            <tr class="return_popup_tr">
+                                <th class="table_data_cells"><p>Points</p></th>
+                                <th class="table_data_cells"><p>Exchange Rate</p></th>
+                                <th class="table_data_cells"><p>THB</p></th>
+                                <th class="table_data_cells"></th>
+                            </tr>
+
+                            <t t-foreach="widget.options.lines || []" t-as="line">
+                                <tr class="return_popup_tr" 
+                                    t-att-line-id="line.businessDate"
+                                    t-att-points="line.points"
+                                    t-att-amount="line.amount">
+                                    <td class="table_data_cells">
+                                        <t t-esc="line.points"/>
+                                    </td>
+                                    <td class="table_data_cells">
+                                        <t t-esc="line.exchange_rate"/>
+                                    </td>
+                                    <td class="table_data_cells">
+                                        <t t-esc="line.amount"/>
+                                    </td>
+                                    <td >
+                                        <input type="checkbox" class="custom_checkbox"/>
+                                    </td>
+                                </tr>
+                            </t>
+                        </table>
+                    </div>
+                </div>
+                <div class="footer" style="background: #f0eeee;">
+                    <div class="button confirm">
+                        Redeem
+                    </div>
+                    <div class="button cancel">
+                        Cancel
+                    </div>
+                </div>
+            </div>
+        </div>
+    </t> -->
+
+</templates>

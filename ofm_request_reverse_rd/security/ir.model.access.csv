@@ -1,0 +1,6 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+ofm_request_reverse_group_user,ofm.request.reverse group_user,model_ofm_request_reverse,base.group_user,1,1,1,0
+ofm_request_reverse_reject_group_user,ofm.request.reverse.reject group_user,model_ofm_request_reverse_reject,base.group_user,1,1,1,0
+
+
+

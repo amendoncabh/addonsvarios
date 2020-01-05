@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+
+        <record model="ir.ui.view" id="invoice_supplier_purchase_form_inherit">
+            <field name="name">account.invoice.supplier.form</field>
+            <field name="model">account.invoice</field>
+            <field name="inherit_id" ref="ofm_custom_tr_account_v10.invoice_supplier_purchase_form_inherit"/>
+            <field name="arch" type="xml">
+                <xpath expr="//button[@name='action_invoice_open']" position="after">
+                    <button
+                            name="interface_invoice_ofin"
+                            type="object"
+                            string="OFIN INTERFACE"
+                            class="oe_highlight"
+                            groups="base.group_system"
+                            attrs="{
+                                'invisible': [
+                                    ('state', 'in', ['paid', 'draft', 'proforma2']),
+                                ]
+                            }"
+                    />
+                    <button
+                            name="interface_invoice_ap_ofin_to_file"
+                            type="object"
+                            string="OFIN INTERFACE TO FILE"
+                            class="oe_highlight"
+                            groups="base.group_system"
+                            attrs="{
+                                'invisible': [
+                                    ('state', 'not in', ['paid']),
+                                ]
+                            }"
+                    />
+                </xpath>
+            </field>
+        </record>
+
+
+    </data>
+</openerp>

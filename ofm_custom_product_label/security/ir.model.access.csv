@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+
+printed_product_group_user,printed_product group_user,model_printed_product,base.group_user,1,1,1,1
+product_label_reprint_group_user,product_label_reprint group_user,model_product_label_reprint,base.group_user,1,1,1,1

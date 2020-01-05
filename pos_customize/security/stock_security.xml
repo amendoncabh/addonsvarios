@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+<data noupdate="0">
+
+    <!--<record id="rule_stock_warehouse_of_branch_user" model="ir.rule">-->
+        <!--<field name="name">Warehouse Of Branch User</field>-->
+        <!--<field name="model_id" ref="stock.model_stock_picking_type" />-->
+	    <!--<field name="groups" eval="[(4, ref('stock.group_stock_user'))]"/>-->
+        <!--<field name="domain_force">['|',('warehouse_id', '=', user.pos_config.branch_id.warehouse_id.id),('warehouse_id', '=', False)]</field>-->
+    <!--</record>-->
+
+    <record id="rule_stock_warehouse_of_branch_manger" model="ir.rule">
+        <field name="name">Warehouse Of Branch Manager</field>
+        <field name="model_id" ref="stock.model_stock_picking_type" />
+	    <field name="groups" eval="[(4, ref('stock.group_stock_manager'))]"/>
+        <field name="domain_force">[]</field>
+    </record>
+
+    <!--<record id="rule_stock_move_of_branch_user" model="ir.rule">-->
+        <!--<field name="name">Stock Move Of Branch User</field>-->
+        <!--<field name="model_id" ref="stock.model_stock_move" />-->
+	    <!--<field name="groups" eval="[(4, ref('stock.group_stock_user'))]"/>-->
+        <!--<field name="domain_force">['|','|','|',-->
+            <!--('location_id', '=', user.pos_config.branch_id.warehouse_id.wh_shelf_stock_loc_id.id),-->
+            <!--('location_dest_id', '=', user.pos_config.branch_id.warehouse_id.wh_shelf_stock_loc_id.id),-->
+            <!--('location_id', '=', user.pos_config.stock_location_id.id),-->
+            <!--('location_dest_id', '=', user.pos_config.stock_location_id.id),]-->
+        <!--</field>-->
+    <!--</record>-->
+    <record id="rule_stock_move_of_branch_manager" model="ir.rule">
+        <field name="name">Stock Move Of Branch Manager</field>
+        <field name="model_id" ref="stock.model_stock_move" />
+	    <field name="groups" eval="[(4, ref('stock.group_stock_manager'))]"/>
+        <field name="domain_force">[]</field>
+    </record>
+
+    <!--<record id="rule_stock_quant_of_branch_user" model="ir.rule">-->
+        <!--<field name="name">Stock Quant Of Branch Manager</field>-->
+        <!--<field name="model_id" ref="stock.model_stock_quant" />-->
+	    <!--<field name="groups" eval="[(4, ref('stock.group_stock_user'))]"/>-->
+        <!--<field name="domain_force">['|',-->
+            <!--('location_id', '=', user.pos_config.branch_id.warehouse_id.wh_shelf_stock_loc_id.id),-->
+            <!--('location_id', '=', user.pos_config.stock_location_id.id)]-->
+        <!--</field>-->
+    <!--</record>-->
+
+    <!--<record id="rule_stock_quant_of_branch_manager" model="ir.rule">-->
+        <!--<field name="name">Stock Quant Of Branch Manager</field>-->
+        <!--<field name="model_id" ref="stock.model_stock_quant" />-->
+	    <!--<field name="groups" eval="[(4, ref('stock.group_stock_manager'))]"/>-->
+        <!--<field name="domain_force">[]</field>-->
+    <!--</record>-->
+
+    <!--<record id="rule_stock_inventory_pos_user" model="ir.rule">-->
+        <!--<field name="name">Stock Inventory User</field>-->
+        <!--<field name="model_id" ref="stock.model_stock_inventory" />-->
+	    <!--<field name="groups" eval="[(4, ref('stock.group_stock_user'))]"/>-->
+        <!--<field name="domain_force">[('location_id', 'in', (-->
+            <!--user.pos_config.branch_id.warehouse_id.wh_shelf_stock_loc_id.id,-->
+            <!--user.pos_config.stock_location_id.id,-->
+            <!--user.pos_config.stock_location_id.location_id.id,-->
+            <!--user.pos_config.stock_location_id.location_id.location_id.id,-->
+            <!--))]-->
+        <!--</field>-->
+    <!--</record>-->
+
+    <record id="rule_stock_location_admin_setting" model="ir.rule">
+        <field name="name">Stock Location Admin Setting</field>
+        <field name="model_id" ref="stock.model_stock_inventory" />
+	    <field name="groups" eval="[(4, ref('base.group_system'))]"/>
+        <field name="domain_force">[]</field>
+    </record>
+
+</data>
+</openerp>

@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="pos_order_form" language="groovy" pageWidth="180" pageHeight="400" whenNoDataType="AllSectionsNoDetail" columnWidth="140" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="IDS" class="java.lang.Object"/>
+	<queryString>
+		<![CDATA[select * from pos_order]]>
+	</queryString>
+	<field name="id" class="java.lang.Integer"/>
+	<field name="create_date" class="java.sql.Timestamp">
+		<fieldDescription><![CDATA[Created on]]></fieldDescription>
+	</field>
+	<field name="sale_journal" class="java.lang.Integer">
+		<fieldDescription><![CDATA[Sale Journal]]></fieldDescription>
+	</field>
+	<field name="pos_reference" class="java.lang.String">
+		<fieldDescription><![CDATA[Receipt Ref]]></fieldDescription>
+	</field>
+	<field name="write_uid" class="java.lang.Integer">
+		<fieldDescription><![CDATA[Last Updated by]]></fieldDescription>
+	</field>
+	<field name="account_move" class="java.lang.Integer">
+		<fieldDescription><![CDATA[Journal Entry]]></fieldDescription>
+	</field>
+	<field name="date_order" class="java.sql.Timestamp">
+		<fieldDescription><![CDATA[Order Date]]></fieldDescription>
+	</field>
+	<field name="partner_id" class="java.lang.Integer">
+		<fieldDescription><![CDATA[Customer]]></fieldDescription>
+	</field>
+	<field name="nb_print" class="java.lang.Integer">
+		<fieldDescription><![CDATA[Number of Print]]></fieldDescription>
+	</field>
+	<field name="create_uid" class="java.lang.Integer">
+		<fieldDescription><![CDATA[Created by]]></fieldDescription>
+	</field>
+	<field name="user_id" class="java.lang.Integer">
+		<fieldDescription><![CDATA[User]]></fieldDescription>
+	</field>
+	<field name="location_id" class="java.lang.Integer">
+		<fieldDescription><![CDATA[Location]]></fieldDescription>
+	</field>
+	<field name="company_id" class="java.lang.Integer">
+		<fieldDescription><![CDATA[Company]]></fieldDescription>
+	</field>
+	<field name="state" class="java.lang.String"/>
+	<field name="pricelist_id" class="java.lang.Integer">
+		<fieldDescription><![CDATA[Pricelist]]></fieldDescription>
+	</field>
+	<field name="write_date" class="java.sql.Timestamp">
+		<fieldDescription><![CDATA[Last Updated on]]></fieldDescription>
+	</field>
+	<field name="fiscal_position_id" class="java.lang.Integer">
+		<fieldDescription><![CDATA[Fiscal Position]]></fieldDescription>
+	</field>
+	<field name="name" class="java.lang.String"/>
+	<field name="invoice_id" class="java.lang.Integer">
+		<fieldDescription><![CDATA[Invoice Reference]]></fieldDescription>
+	</field>
+	<field name="session_id" class="java.lang.Integer">
+		<fieldDescription><![CDATA[Session]]></fieldDescription>
+	</field>
+	<field name="note" class="java.lang.String">
+		<fieldDescription><![CDATA[Internal Notes]]></fieldDescription>
+	</field>
+	<field name="picking_id" class="java.lang.Integer">
+		<fieldDescription><![CDATA[Picking]]></fieldDescription>
+	</field>
+	<field name="sequence_number" class="java.lang.Integer">
+		<fieldDescription><![CDATA[Sequence Number]]></fieldDescription>
+	</field>
+	<field name="loyalty_points" class="java.lang.Double">
+		<fieldDescription><![CDATA[Loyalty Points]]></fieldDescription>
+	</field>
+	<pageHeader>
+		<band height="35" splitType="Stretch">
+			<staticText>
+				<reportElement x="24" y="0" width="100" height="20"/>
+				<textElement lineSpacing="Single">
+					<font size="15"/>
+				</textElement>
+				<text><![CDATA[Static text]]></text>
+			</staticText>
+		</band>
+	</pageHeader>
+	<columnHeader>
+		<band height="37" splitType="Stretch">
+			<textField>
+				<reportElement x="49" y="9" width="100" height="20"/>
+				<textElement lineSpacing="Single"/>
+				<textFieldExpression class="java.lang.String"><![CDATA[""+$P{IDS}]]></textFieldExpression>
+			</textField>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="90" splitType="Stretch"/>
+	</detail>
+	<columnFooter>
+		<band height="29" splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band height="54" splitType="Stretch"/>
+	</pageFooter>
+</jasperReport>

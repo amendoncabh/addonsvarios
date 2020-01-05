@@ -1,0 +1,7 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+
+tr_monthly_sequence.ir_sequence_line_group,ir.sequence.line user,tr_monthly_sequence.model_ir_sequence_line,base.group_user,1,1,1,0
+
+
+
+

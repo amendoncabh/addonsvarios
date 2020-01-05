@@ -1,0 +1,92 @@
+<?xml version="1.0"?>
+<openerp>
+    <data>
+
+        <record id="product_balance_report_excel_jasper" model="ir.actions.report.xml">
+            <field name="string">รายงานสินค้าคงเหลือปลายงวด</field>
+            <field name="auto">True</field>
+            <field name="model">product.balance.report.wizard</field>
+            <field name="jasper_model_id" ref="base.model_res_users"/>
+            <field name="name">รายงานสินค้าคงเหลือปลายงวด</field>
+            <field name="report_name">product.balance.report.excel.jasper</field>
+            <field name="rml">ofm_inventory_ext/report/product_balance_report_excel.jrxml</field>
+            <field name="report_rml">ofm_inventory_ext/report/product_balance_report_excel.jrxml</field>
+            <field name="menu">False</field>
+            <field name="header">False</field>
+            <field name="jasper_report">True</field>
+            <field name="jasper_output">xls</field>
+        </record>
+
+        <record id="product_balance_report_pdf_jasper" model="ir.actions.report.xml">
+            <field name="string">รายงานสินค้าคงเหลือปลายงวด</field>
+            <field name="auto">True</field>
+            <field name="model">product.balance.report.wizard</field>
+            <field name="jasper_model_id" ref="base.model_res_users"/>
+            <field name="name">รายงานสินค้าคงเหลือปลายงวด</field>
+            <field name="report_name">product.balance.report.pdf.jasper</field>
+            <field name="rml">ofm_inventory_ext/report/product_balance_report_pdf.jrxml</field>
+            <field name="report_rml">ofm_inventory_ext/report/product_balance_report_pdf.jrxml</field>
+            <field name="menu">False</field>
+            <field name="header">False</field>
+            <field name="jasper_report">True</field>
+            <field name="jasper_output">pdf</field>
+        </record>
+
+        <act_window id="action_product_balance_report_wizard"
+                    name="รายงานสินค้าคงเหลือปลายงวด"
+                    res_model="product.balance.report.wizard"
+                    view_mode="form"
+                    target="new"/>
+
+        <menuitem id="menu_product_balance_report_wizard"
+                  parent="stock.menu_warehouse_report"
+                  action="action_product_balance_report_wizard"
+                  sequence="5"/>
+
+        <record id="view_product_balance_report_wizard" model="ir.ui.view">
+
+            <field name="name">product.balance.report.form</field>
+            <field name="model">product.balance.report.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Approve Licensing Application">
+                    <group>
+                        <group>
+                            <field name="month" required="1"/>
+                            <field name="year" required="1"/>
+                        </group>
+                        <group>
+                            <field name="company_id"
+                                   options="{'no_quick_create': True, 'no_create_edit': True}"/>
+                            <field name="branch_id"
+                                   options="{'no_quick_create': True, 'no_create_edit': True}"
+                                   domain="[('pos_company_id', '=',company_id)]" />
+                        </group>
+                        <group>
+                            <field name="product_cate_ids" widget="many2many_tags"
+                                   options="{'no_quick_create': True, 'no_create_edit': True}"/>
+                            <field name="product_filter_ids" widget="many2many_tags"
+                                   options="{'no_quick_create': True, 'no_create_edit': True}"
+                                   domain="[('categ_id', 'in', product_cate_ids[0][2])]"
+                                   attrs="{'invisible': [('product_cate_ids', '=', [])]}"/>
+                            <field name="product_all_ids" widget="many2many_tags"
+                                   options="{'no_quick_create': True, 'no_create_edit': True}"
+                                   attrs="{'invisible': [('product_cate_ids', '!=', [])]}"/>
+                        </group>
+                        <group>
+                          <field name="jasper_output" widget="radio" required="1"/>
+                        </group>
+                    </group>
+                    <footer>
+                        <button name="action_print_report"
+                                string="Print Report" type="object"
+                                class="oe_highlight"/>
+                        or
+                        <button string="Cancel" class="oe_link"
+                                special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+    </data>
+</openerp>

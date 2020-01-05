@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="receive_payment_jasper" model="ir.actions.report.xml">
+            <field name="string">Receive Payment</field>
+            <field name="name">Receive Payment</field>
+            <field name="model">account.payment</field>
+            <field name="auto">True</field>
+            <field name="report_name">receive.payment.jasper</field>
+            <field name="rml">ofm_custom_tr_account_v10/report/receive_payment.jrxml</field>
+            <field name="report_rml">ofm_custom_tr_account_v10/report/receive_payment.jrxml</field>
+            <field name="jasper_model_id" ref="base.model_res_users"/>
+            <field name="menu">True</field>
+            <field name="header">False</field>
+            <field name="jasper_report">True</field>
+            <field name="jasper_output">pdf</field>
+        </record>
+
+        <record id="inherited_view_account_payment_form_rd_invisible" model="ir.ui.view">
+            <field name="name">account.payment</field>
+            <field name="model">account.payment</field>
+            <field name="inherit_id" ref="account.view_account_payment_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//button[@name='print_receive_payment_form']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//button[@name='print_journal_form']" position="before">
+                    <button class="oe_inline oe_stat_button"
+                            name="print_form_receive_payment_report"
+                            type="object"
+                            string="Receive Form"
+                            icon="fa-print"
+                            attrs="{'invisible': [
+                                '|',
+                                ('state','in', ['draft', 'cancel']),
+                                ('type_payment_to_customer', '=', 'outbound')
+                            ]}"/>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="inherit_view_account_payment_form" model="ir.ui.view">
+            <field name="name">account.payment</field>
+            <field name="model">account.payment</field>
+            <field name="inherit_id"
+                   ref="account_payment_method_multi.inherit_view_account_payment_form_inherit_payment"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='partner_id']" position="attributes">
+                    <attribute name="options">{
+                        'no_quick_create': True,
+                        'no_create_edit': True,
+                        'no_open': True
+                        }
+                    </attribute>
+                </xpath>
+
+                <xpath expr="//field[@name='payment_type']" position="before">
+                    <field name="type_payment_to_customer" invisible="1"/>
+                </xpath>
+
+                <xpath expr="//button[@name='post'][1]" position="replace">
+                    <button name="prepost" class="oe_highlight" states="draft" string="Confirm" type="object"/>
+                </xpath>
+
+                <xpath expr="//field[@name='journal_id'][1]" position="replace">
+                    <!--<attribute name="context">{'company_id': company_id}</attribute>-->
+                </xpath>
+                <xpath expr="//field[@name='journal_id'][1]" position="replace">
+                    <field
+                            name="company_id"
+                            options="{
+                            'no_quick_create': True,
+                            'no_create_edit': True,
+                            'no_open': True
+                        }"
+                    />
+                    <field
+                            name="branch_id"
+                            options="{
+                            'no_quick_create': True,
+                            'no_create_edit': True,
+                            'no_open': True
+                        }"
+                    />
+                    <field
+                            name="journal_id"
+                            options="{'no_quick_create': True, 'no_create_edit': True}"
+                            attrs="{'readonly': [('state','!=','draft')]}"
+                            context="{'company_id': company_id}"
+                            widget=""
+                            string="Journal"/>
+
+                </xpath>
+
+                <xpath expr="//field[@name='payment_line']/../.." position="replace">
+                    <group class="oe_subtotal_footer oe_right">
+                        <field name="invoice_total" options="{'always_reload': True,}"/>
+                        <field name="wht_total" options="{'always_reload': True,}"/>
+                        <br/>
+                        <br/>
+                        <field name="total_payment" invisible="1" options="{'always_reload': True,}"/>
+                        <field name="total_payment_show" options="{'always_reload': True,}"/>
+                        <field name="write_off" invisible="True" options="{'always_reload': True,}"/>
+                        <field name="write_off_show" options="{'always_reload': True,}"/>
+                        <field name="amount" invisible="True" options="{'always_reload': True,}"/>
+                        <field name="amount_show" options="{'always_reload': True,}"/>
+                    </group>
+                    <div style="width: 60%">
+                        <field name="payment_line"
+                               attrs="{
+                                    'readonly': [
+                                        ('state','!=','draft')
+                                    ]
+                                }"
+                               nolabel="1"
+                               context="{
+                                    'default_paid_total': invoice_total - amount,
+                                    'default_is_domain_payment_method': True
+                                }"
+                        >
+                            <tree editable="bottom">
+                                <field name="payment_method_id"
+                                       context="{
+                                        'company_id': parent.company_id,
+                                        'invoice_line': parent.invoice_line,
+                                        'type_payment_to_customer': parent.type_payment_to_customer,
+                                        'include_model': 'account.invoice.payment.line'
+                                    }"
+                                       options="{
+                                        'no_quick_create': True,
+                                        'no_create_edit': True,
+                                        'no_open': True
+                                    }"
+                                />
+                                <field name="tender"/>
+                                <field
+                                        name="bank_id"
+                                        options="{
+                                        'no_quick_create': True,
+                                        'no_create_edit': True,
+                                        'no_open': True
+                                    }"
+                                />
+                                <field name="cheque_number"/>
+                                <field name="cheque_date"/>
+                                <field name="paid_total" sum="All"/>
+                                <field name="wht_id" invisible="1"/>
+                                <field name="cheque_id" invisible="1"/>
+                                <field name="is_domain_payment_method" invisible="1"/>
+                                <button name="create_cheque"
+                                        string="Create Cheque"
+                                        type="object"
+                                        icon="fa-pencil-square text-success"
+                                        context="{'cheque_number': cheque_number}"
+                                        attrs="{'invisible': [('cheque_number','=',False)]}"/>
+                            </tree>
+                        </field>
+                    </div>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="view_account_payment_form_form_inherit" model="ir.ui.view">
+            <field name="name">view.account.payment.form.form.inherit</field>
+            <field name="model">account.payment</field>
+            <field name="inherit_id" ref="account_payment_by_invoice.view_account_payment_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='invoice_line']" position="replace">
+                    <field name="invoice_line" attrs="{'readonly': [('state','!=','draft')]}">
+                        <tree editable="bottom">
+                            <field name="payment_id" invisible="True"/>
+                            <field
+                                    name="invoice_id"
+                                    domain="[
+                                        ('state', '=', 'open'),
+                                        ('partner_id','=', parent.partner_id)
+                                        ]"
+                                    options="{
+                                        'no_quick_create': True,
+                                        'no_create_edit': True,
+                                        'no_open': True
+                                    }"
+                            />
+                            <field name="dute_date" readonly="1"/>
+                            <field name="amount" readonly="1"/>
+                            <field name="credit_amt"/>
+                            <field name="wht_total" readonly="1"/>
+                            <field name="balance" readonly="1"/>
+                            <!--<field name="currency_id"/>-->
+                            <field name="paid_amount" sum="All" invisible="1"/>
+                            <field name="paid_amount_show" sum="All"/>
+                            <field name="is_check_full" widget="toggle_button_check"/>
+                        </tree>
+                    </field>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="account.action_account_payments" model="ir.actions.act_window">
+            <field name="context">{
+                'default_payment_type': 'inbound',
+                'default_partner_type': 'customer',
+                'default_type_payment_to_customer': 'inbound',
+                }
+            </field>
+            <field name="domain">[
+                ('payment_type', '=', 'inbound'),
+                ('partner_type', '=', 'customer'),
+                ('type_payment_to_customer', '=', 'inbound'),
+                ]
+            </field>
+        </record>
+
+        <record id="action_account_payments_customer" model="ir.actions.act_window">
+            <field name="name">Customer Payments</field>
+            <field name="res_model">account.payment</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form,graph</field>
+            <field name="context">{
+                'default_payment_type': 'inbound',
+                'default_partner_type': 'customer',
+                'default_type_payment_to_customer': 'outbound',
+                }
+            </field>
+            <field name="domain">[
+                ('payment_type', '=', 'inbound'),
+                ('partner_type', '=', 'customer'),
+                ('type_payment_to_customer', '=', 'outbound'),
+                ]
+            </field>
+            <field name="view_id" ref="account.view_account_payment_tree"/>
+            <field name="help" type="html">
+                <p class="oe_view_nocontent_create">
+                    Click to register a customer payment
+                </p>
+                <p>
+                    Payments are used to register liquidity movements (send, collect or transfer money).
+                    You can then process those payments by your own means or by using installed facilities.
+                </p>
+            </field>
+        </record>
+
+        <menuitem
+                action="action_account_payments_customer"
+                id="menu_action_account_payments_customer"
+                name="Customer Payments"
+                parent="account.menu_finance_receivables"
+                sequence="20"
+                groups="account.group_account_user"
+        />
+    </data>
+</odoo>

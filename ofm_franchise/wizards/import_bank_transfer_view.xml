@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+<odoo>
+   <data>
+       <record id="view_import_bank_transfer_wizard" model="ir.ui.view">
+           <field name="name">Import Bank Transfer</field>
+           <field name="model">import.bank.transfer.wizard</field>
+           <field name="arch" type="xml">
+               <form string="Import Bank Transfer">
+                   <group>
+                       <field name="binary_data" filename="filename"/>
+                       <field name="filename" invisible="1"/>
+                   </group>
+                   <footer>
+                       <button name="action_import_bank_transfer"
+                               string="Confirm" type="object"
+                               class="oe_highlight"/>
+                       or
+                       <button string="Cancel" class="oe_link"
+                               special="cancel"/>
+                   </footer>
+               </form>
+           </field>
+       </record>
+
+       <record id="action_open_import_bank_transfer_wizard" model="ir.actions.act_window">
+            <field name="name">Import Bank Transfer</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">import.bank.transfer.wizard</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+        </record>
+
+        <menuitem id="menu_import_bank_transfer_wizard"
+                  parent="ofm_franchise.menu_daily_summary_franchise_main_franchise"
+                  action="ofm_franchise.action_open_import_bank_transfer_wizard"
+                  sequence="4"
+                  groups="ofm_access_right_center.group_ofm_hq"/>
+   </data>
+</odoo>

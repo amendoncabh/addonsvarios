@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="ir_config_parameter_prs_amount_product_per_so" model="ir.config_parameter">
+            <field name="key">prs_amount_product_per_so</field>
+            <field name="value">15</field>
+        </record>
+        <record id="ir_config_parameter_prs_default_vendor" model="ir.config_parameter">
+            <field name="key">prs_default_vendor</field>
+            <field name="value">0107551000134</field>
+        </record>
+        <record id="ir_config_parameter_prs_product_status" model="ir.config_parameter">
+            <field name="key">prs_product_status</field>
+            <field name="value">New,Stock,ByOrder,Clearance,Control,Limited,PreOrder,Special,OutOfStock,Internal[BU],NonStock</field>
+        </record>
+    </data>
+</odoo>

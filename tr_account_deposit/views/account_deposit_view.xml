@@ -1,0 +1,361 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="tr_account_deposit_view_form" model="ir.ui.view">
+            <field name="name">Account Deposit</field>
+            <field name="model">account.deposit</field>
+            <field name="arch" type="xml">
+                <form string="Account Deposit">
+                    <header>
+                        <field name="is_hide_reset_to_draft" invisible="1"/>
+                        <field name="is_hide_deposit_return" invisible="1"/>
+                         <field name="hide_cancel_button" invisible="1"/>
+                        <button
+                                name="action_cancel_draft"
+                                string="Reset to Draft"
+                                type="object"
+                                attrs="{
+                                    'invisible': [
+                                        ('is_hide_reset_to_draft', '=', True)
+                                    ]
+                                }"
+                        />
+
+                        <button name="deposit_open" states="draft" string="Validate" class="oe_highlight" type="object"  />
+                        <button name="deposit_cancel"
+                                states="draft,open,paid"
+                                string="Cancel"
+                                class="oe_highlight"
+                                type="object"
+                                attrs="{
+                                    'invisible': [
+                                        '|',
+                                        ('hide_cancel_button', '=', True)
+                                    ]
+                                }"
+                                groups="account.group_account_manager,base.group_sale_manager" />
+                        <button
+                                name="deposit_return"
+                                string="Deposit Return"
+                                class="oe_highlight"
+                                type="object"
+                                attrs="{
+                                    'invisible': [
+                                        '|',
+                                        ('is_hide_deposit_return', '=', True),
+                                        ('state', '!=', 'open')
+                                    ]
+                                }"
+                                groups="account.group_account_manager,base.group_sale_manager"
+                        />
+
+                        <field name="state" widget="statusbar" statusbar_visible="draft,open,paid,cancel"/>
+                    </header>
+                    <sheet>
+                        <field name="type" invisible="1"/>
+                        <group>
+                            <group>
+                                <field name="name"/>
+                                <field name="partner_id"/>
+                                <field name="validate_partner_id"/>
+                            </group>
+                            <group>
+                                <field name="date"/>
+                                <field name="journal_id"/>
+                                <field name="account_id"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="Information">
+                                <field name="deposit_line">
+                                    <tree editable="bottom">
+                                        <field name="product_id" invisible="1"/>
+                                        <field name="name"/>
+                                        <field name="deposit_line_tax_id"
+                                               widget="many2many_tags"
+                                               context="{'type':parent.type}"
+                                               domain="[
+                                                    ('company_id', '=', parent.company_id)
+                                                ]"
+                                        />
+                                        <field name="total"/>
+                                        <field name="price_subtotal"/>
+                                    </tree>
+                                </field>
+                                <group class="oe_subtotal_footer oe_right">
+
+                                    <field name="change_rounding" widget="monetary"
+                                           options="{'currency_field': 'currency_id'}"/>
+                                    <field name="amount_untaxed" widget="monetary"
+                                           options="{'currency_field': 'currency_id'}"/>
+                                    <field name="amount_tax" widget="monetary"
+                                           options="{'currency_field': 'currency_id'}"/>
+                                    <field name="paid_total" widget="monetary"
+                                           options="{'currency_field': 'currency_id'}"/>
+                                    <button name="button_reset_taxes" states="draft"
+                                            string="Update" class="oe_link oe_edit_only"
+                                            type="object" help="Recompute taxes and total"/>
+                                </group>
+                                <div style="width: 70%%">
+                                    <field name="payment_line">
+                                        <tree editable="bottom" string="Payment">
+                                            <field name="payment_method_id"
+                                                   domain="[('account_payment_method_id', '=', False)]"/>
+                                            <field name="journal_id"/>
+                                            <field name="tender"/>
+                                            <field name="credit_card_no_encrypt"/>
+                                            <field name="paid_total"/>
+                                            <field name="approve_code" invisible="1"/>
+                                            <field name="is_credit_card" invisible="1"/>
+                                        </tree>
+                                    </field>
+                                </div>
+                                <div class="oe_clear">
+                                    <label for="note"/>
+                                </div>
+                                <field name="note"/>
+                            </page>
+                            <page string="Other/Tax">
+                                <group>
+                                    <group>
+                                        <field name="sale_id" attrs="{'invisible': [('type', '=', 'in_deposit')]}"/>
+                                        <field name="purchase_id"
+                                               attrs="{'invisible': [('type', '=', 'out_deposit')]}"/>
+                                        <field name="invoice_id"/>
+                                        <field name="move_id"/>
+                                    </group>
+                                    <group>
+                                        <field name="currency_id"/>
+                                        <field name="company_id"/>
+                                        <field name="branch_id"/>
+                                        <field name="account_refund_id"/>
+                                    </group>
+                                </group>
+                                <field name="tax_line">
+                                    <tree editable="bottom" string="Taxes">
+                                        <field name="name"/>
+                                        <field name="account_id" groups="account.group_account_user"/>
+                                        <field name="base"
+                                               on_change="base_change(base,parent.currency_id,parent.company_id,parent.date)"
+                                               readonly="1"/>
+                                        <field name="amount"
+                                               on_change="amount_change(amount,parent.currency_id,parent.company_id,parent.date)"/>
+                                        <field invisible="True" name="base_amount"/>
+                                        <field invisible="True" name="tax_amount"/>
+                                        <field name="factor_base" invisible="True"/>
+                                        <field name="factor_tax" invisible="True"/>
+                                    </tree>
+
+                                </field>
+                            </page>
+                        </notebook>
+                    </sheet>
+                    <div class="oe_chatter">
+                        <field name="message_ids" widget="mail_thread"/>
+                    </div>
+                </form>
+            </field>
+        </record>
+
+        <record id="tr_account_deposit_view_form_no_create" model="ir.ui.view">
+            <field name="name">Account Deposit</field>
+            <field name="model">account.deposit</field>
+            <field name="inherit_id" ref="tr_account_deposit.tr_account_deposit_view_form"/>
+            <field name="mode">primary</field>
+            <field name="priority">99</field>
+            <field name="arch" type="xml">
+                <xpath expr="//form" position="attributes">
+                    <attribute name="create">false</attribute>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="tr_account_view_tree" model="ir.ui.view">
+            <field name="name">Account Deposit</field>
+            <field name="model">account.deposit</field>
+            <field name="arch" type="xml">
+                <tree string="Account Deposit">
+                    <field name="name"/>
+                    <field name="partner_id"/>
+                    <field name="date"/>
+                    <field name="amount_untaxed"/>
+                    <field name="amount_tax"/>
+                    <field name="paid_total"/>
+                    <field name="state"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="tr_account_view_tree_no_create" model="ir.ui.view">
+            <field name="name">Account Deposit</field>
+            <field name="model">account.deposit</field>
+            <field name="inherit_id" ref="tr_account_deposit.tr_account_view_tree"/>
+            <field name="mode">primary</field>
+            <field name="priority">99</field>
+            <field name="arch" type="xml">
+                <xpath expr="//tree" position="attributes">
+                    <attribute name="create">false</attribute>
+                </xpath>
+            </field>
+        </record>
+
+        <!-- Action -->
+        <record id="tr_action_account_deposit_out" model="ir.actions.act_window">
+            <field name="name">Customer Deposit</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">account.deposit</field>
+            <field name="view_mode">tree,form</field>
+            <field name="domain">[
+                ('type_sale_ofm','=',True),
+                ('type','=','out_deposit'),
+                ]
+            </field>
+            <field name="context">{
+                'default_type_sale_ofm': True,
+                'default_type':'out_deposit',
+                'type':'out_deposit',
+                'journal_type': 'sale'
+                }
+            </field>
+            <field name="help" type="html">
+                <p class="oe_view_nocontent_create">
+                    Create New Deposit
+                </p>
+                <p>
+                    <!-- More details about what a user can do with this object will be OK -->
+                </p>
+            </field>
+        </record>
+
+        <record id="tr_action_account_deposit_out_no_create" model="ir.actions.act_window">
+            <field name="name">Customer Deposit</field>
+            <field name="res_model">account.deposit</field>
+            <field name="view_ids" eval="[(5, 0, 0),
+                (0, 0, {'view_mode': 'tree', 'view_id': ref('tr_account_view_tree_no_create')}),
+                (0, 0, {'view_mode': 'form', 'view_id': ref('tr_account_deposit_view_form_no_create')}),
+            ]"/>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="domain">[
+                ('type_sale_ofm','=',True),
+                ('type','=','out_deposit'),
+                ]
+            </field>
+            <field name="context">{
+                'default_type_sale_ofm': True,
+                'default_type':'out_deposit',
+                'type':'out_deposit',
+                'journal_type': 'sale'
+                }
+            </field>
+        </record>
+
+        <record id="tr_action_account_cash_credit_out" model="ir.actions.act_window">
+            <field name="name">Customer Cash/ Credit</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">account.deposit</field>
+            <field name="view_mode">tree,form</field>
+            <field name="domain">[
+                ('type_sale_ofm','=',False),
+                ('type','=','out_deposit'),
+                ]
+            </field>
+            <field name="context">{
+                'default_type_sale_ofm': False,
+                'default_type':'out_deposit',
+                'type':'out_deposit',
+                'journal_type': 'sale'
+                }
+            </field>
+            <field name="help" type="html">
+                <p class="oe_view_nocontent_create">
+                    Create New Deposit
+                </p>
+                <p>
+                    <!-- More details about what a user can do with this object will be OK -->
+                </p>
+            </field>
+        </record>
+
+        <record id="tr_action_account_cash_credit_out_no_create" model="ir.actions.act_window">
+            <field name="name">Customer Cash/ Credit</field>
+            <field name="res_model">account.deposit</field>
+            <field name="view_ids" eval="[(5, 0, 0),
+                (0, 0, {'view_mode': 'tree', 'view_id': ref('tr_account_view_tree_no_create')}),
+                (0, 0, {'view_mode': 'form', 'view_id': ref('tr_account_deposit_view_form_no_create')}),
+            ]"/>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="domain">[
+                ('type_sale_ofm','=',False),
+                ('type','=','out_deposit'),
+                ]
+            </field>
+            <field name="context">{
+                'default_type_sale_ofm': False,
+                'default_type':'out_deposit',
+                'type':'out_deposit',
+                'journal_type': 'sale'
+                }
+            </field>
+        </record>
+
+        <record id="tr_action_account_deposit_in" model="ir.actions.act_window">
+            <field name="name">Supplier Deposit</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">account.deposit</field>
+            <field name="view_mode">tree,form</field>
+            <field name="domain">[('type','=','in_deposit')]</field>
+            <field name="context">{'default_type':'in_deposit', 'type':'in_deposit', 'journal_type': 'purchase'}</field>
+            <field name="help" type="html">
+                <p class="oe_view_nocontent_create">
+                    Create New Deposit
+                </p>
+                <p>
+                    <!-- More details about what a user can do with this object will be OK -->
+                </p>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="account_deposit_payment_line_form_view">
+            <field name="name">account.deposit.payment.line.form.view</field>
+            <field name="model">account.deposit.payment.line</field>
+            <field name="arch" type="xml">
+                <form string="Deposit Payment Line">
+                    <group>
+                        <group>
+                            <field name="payment_id"/>
+                            <field name="payment_method_id"/>
+                            <field name="journal_id"/>
+                        </group>
+                        <group>
+                            <field name="tender"/>
+                            <field name="credit_card_no_encrypt"/>
+                            <field name="paid_total"/>
+                        </group>
+                    </group>
+                </form>
+            </field>
+        </record>
+
+        <!-- This Menu Item must have a parent and an action -->
+        <menuitem id="tr_menu_account_customer_deposit"
+                  name="Customer Deposit"
+                  parent="account.menu_finance_receivables"
+                  action="tr_action_account_deposit_out"
+                  sequence="1"
+        />
+        <menuitem id="tr_menu_account_customer_cash_credit"
+                  name="Customer Cash/ Credit"
+                  parent="account.menu_finance_receivables"
+                  action="tr_action_account_cash_credit_out"
+                  sequence="1"
+        />
+        <menuitem id="tr_menu_account_supplier_deposit"
+                  name="Supplier Deposit"
+                  parent="account.menu_finance_payables"
+                  action="tr_action_account_deposit_in"
+                  sequence="1"
+        />
+    </data>
+</odoo>

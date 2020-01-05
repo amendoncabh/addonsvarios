@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record model='ir.ui.menu' id='stock.stock_move_menu'>
+            <field name="groups_id" eval="[(6,0,[ref('base.group_system')])]"/>
+        </record>
+    </data>
+</odoo>

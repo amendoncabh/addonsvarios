@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <template id="assets_backend" name="widget_editable_top" inherit_id="web.assets_backend">
+            <xpath expr="." position="inside">
+                <script type="text/javascript" src="/widget_editable_top/static/src/js/widget_editable_top.js"></script>
+            </xpath>
+        </template>
+
+    </data>
+</odoo>
+

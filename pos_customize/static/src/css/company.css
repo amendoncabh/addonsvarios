@@ -1,0 +1,13 @@
+.pos-branding img.pos-logo{
+    width: 238px !important;
+    height: 35px !important;
+    float: left;
+    margin-right: 7px;
+    margin-top: 7px;
+}
+.pos-branding img.pos-logo-text{
+    width: 90px !important;
+    height: 21px !important;
+    margin-top: 13px;
+    float: left;
+}

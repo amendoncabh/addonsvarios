@@ -1,0 +1,83 @@
+<?xml version="1.0"?>
+<odoo>
+    <record id="view_cycle_count_by_dept_report_wizard" model="ir.ui.view">
+        <field name="name">รายงานสรุปการตรวจนับสินค้า</field>
+        <field name="model">cycle.count.by.dept.report.wizard</field>
+        <field name="arch" type="xml">
+            <form string="รายงานสรุปการตรวจนับสินค้า">
+                <group>
+                    <field name="company_id" string="Company"/>
+                    <field name="branch_id" string="Branch"/>
+                    <field name="parent_dept_ofm" string="Dept" invisible="True"/>
+                    <field name="sub_dept_ids" string="Sub Dept" 
+                                widget="many2many_tags" 
+                                options="{
+                                    'no_quick_create': True,
+                                    'no_create_edit': True,
+                                    'no_open': True
+                                }"
+                                context="{
+                                    'tree_view_ref': 'ofm_product_ext.view_ofm_product_sub_dept_tree_search_mode',
+                                }"/>
+                    <field name="start_date"/>
+                    <field name="end_date"/>
+                    <field name="jasper_output" widget="radio"/>
+                </group>
+                <footer>
+                    <button name="action_print"
+                            string="Print" type="object"
+                            class="oe_highlight"/>
+                    or
+                    <button string="Cancel" class="oe_link"
+                            special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="cycle_count_by_dept_pdf_jasper" model="ir.actions.report.xml">
+        <field name="string">รายงานสรุปการตรวจนับสินค้า</field>
+        <field name="auto">True</field>
+        <field name="model">cycle.count.by.dept.report.wizard</field>
+        <field name="jasper_model_id" ref="base.model_res_users"/>
+        <field name="name">Cycle Count by Dept Report</field>
+        <field name="report_name">cycle.count.by.dept.pdf.jasper</field>
+        <field name="rml">ofm_inventory_cycle_count/reports/cycle_count_report_by_dept.jrxml</field>
+        <field name="report_rml">ofm_inventory_cycle_count/reports/cycle_count_report_by_dept.jrxml</field>
+        <field name="menu">False</field>
+        <field name="header">False</field>
+        <field name="jasper_report">True</field>
+        <field name="jasper_output">pdf</field>
+    </record>
+
+    <record id="cycle_count_by_dept_xls_jasper" model="ir.actions.report.xml">
+        <field name="string">รายงานสรุปการตรวจนับสินค้า</field>
+        <field name="auto">True</field>
+        <field name="model">cycle.count.by.dept.report.wizard</field>
+        <field name="jasper_model_id" ref="base.model_res_users"/>
+        <field name="name">Cycle Count by Dept Report</field>
+        <field name="report_name">cycle.count.by.dept.xls.jasper</field>
+        <field name="rml">ofm_inventory_cycle_count/reports/cycle_count_report_by_dept.jrxml</field>
+        <field name="report_rml">ofm_inventory_cycle_count/reports/cycle_count_report_by_dept.jrxml</field>
+        <field name="menu">False</field>
+        <field name="header">False</field>
+        <field name="jasper_report">True</field>
+        <field name="jasper_output">xls</field>
+    </record>
+
+    <record id="action_open_cycle_count_by_dept_report_wizard" model="ir.actions.act_window">
+        <field name="name">รายงานสรุปการตรวจนับสินค้า</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">cycle.count.by.dept.report.wizard</field>
+        <field name="view_type">form</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="view_cycle_count_by_dept_report_wizard" />
+        <field name="target">new</field>
+    </record>
+
+    <menuitem id="menu_cycle_count_by_dept_report_wizard"
+                  parent="stock.menu_warehouse_report"
+                  action="action_open_cycle_count_by_dept_report_wizard"
+                  string="รายงานสรุปการตรวจนับสินค้า"
+                  sequence="5"/>
+</odoo>

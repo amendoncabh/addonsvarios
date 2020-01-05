@@ -1,0 +1,2272 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="volume_and_net_sales_product_lines_by_categories_report" language="groovy" pageWidth="842" pageHeight="595" orientation="Landscape" whenNoDataType="NoDataSection" columnWidth="802" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="21">
+	<property name="ireport.zoom" value="1.5"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="80"/>
+	<property name="net.sf.jasperreports.export.xls.white.page.background" value="false"/>
+	<style name="table" lineSpacing="Single">
+		<box>
+			<topPen lineWidth="1.0" lineColor="#000000"/>
+			<bottomPen lineWidth="1.0" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table_TH" mode="Opaque" backcolor="#FFFFFF" lineSpacing="Single">
+		<box>
+			<topPen lineWidth="0.5" lineColor="#000000"/>
+			<bottomPen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table_CH" mode="Opaque" backcolor="#FFBFBF" lineSpacing="Single">
+		<box>
+			<topPen lineWidth="0.5" lineColor="#000000"/>
+			<bottomPen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table_TD" mode="Opaque" backcolor="#FFFFFF" lineSpacing="Single">
+		<box>
+			<topPen lineWidth="0.5" lineColor="#000000"/>
+			<bottomPen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<subDataset name="deposit_amount">
+		<parameter name="start_date" class="java.lang.String"/>
+		<parameter name="end_date" class="java.lang.String"/>
+		<parameter name="start_branch" class="java.lang.String"/>
+		<parameter name="end_branch" class="java.lang.String"/>
+		<queryString>
+			<![CDATA[select
+*,
+(now()+interval '7 hour')::date as print_date,
+(now()+interval '7 hour')::time as print_time,
+to_char(($P{start_date}::date), 'DD/MM/YYYY') as date_start,
+to_char(($P{end_date}::date), 'DD/MM/YYYY') as date_end
+from(
+	select
+	pb.branch_name,
+	pb.branch_id as branch_id,
+	pb.sequence as branch_sequence,
+	pb.id as pb_id,
+	pc.company_name,
+	pc.street,
+	pc.street2,
+	pc.city,
+	pc.zip,
+	pc.phone,
+	rcs.name as province ,
+	rp.name as sale_name,
+	pcg.id as id_cate,
+	pcg.sequence as sequence_cate,
+	pcg.name as cate_name,
+	pt.name as product,
+	pp.default_code as default_code,
+	pol.price_unit as price_unit,
+	sum(pol.qty) as sum_qty,
+	sum(pol.price_unit*pol.qty) as sum_total,
+	sum(pol.discount_amount * pol.qty) as discount_amount,
+	sum((pol.price_unit*pol.qty)-(pol.discount_amount * pol.qty)) as net_price,
+	sum(COALESCE(((pol.price_unit*pol.qty)/(1+(atx.amount/100))),(pol.price_unit*pol.qty))) as before_vat,
+	sum(COALESCE((((pol.price_unit*pol.qty)-(pol.discount_amount * pol.qty))/(1+(atx.amount/100))),(pol.price_unit*pol.qty))) as before_vat_net,
+	sum((pol.discount_amount * pol.qty)/(1+(atx.amount/100))) as before_vat_discount,
+          (
+		select sum(sum_qty)
+		from
+		(
+			select  sum(case when pol1.price_unit < 0 then 0 else pol1.qty end) as sum_qty
+			from pos_order po1
+			left join pos_order_line pol1 on po1.id=pol1.order_id
+			LEFT JOIN pos_session ps1 ON po1.session_id = ps1.id
+			LEFT JOIN pos_config pf1 ON ps1.config_id = pf1.id
+			LEFT JOIN pos_branch pb1 ON pf1.branch_id = pb1.id
+			left JOIN product_product pp1 ON pol1.product_id = pp1.id
+			left JOIN product_template pt1 ON pp1.product_tmpl_id = pt1.id
+			left JOIN product_category pcg1 ON pt1.categ_id = pcg1.id
+			where DATE(ps1.start_at+interval '7 hours') BETWEEN
+			$P{start_date}::date AND  $P{end_date}::date
+			and pb1.id = pb.id
+			and pol1.qty>0
+			and pcg1.id = pcg.id
+			and po1.is_return_order<>true
+			group by pcg1.id,pcg1.name
+		) as temp
+	) as qty_all,
+          (
+		select sum(total_price)
+		from(
+			select sum(pol1.price_unit*pol1.qty) as total_price
+			from pos_order po1
+			left join pos_order_line pol1 on po1.id=pol1.order_id
+			LEFT JOIN pos_session ps1 ON po1.session_id = ps1.id
+			LEFT JOIN pos_config pf1 ON ps1.config_id = pf1.id
+			LEFT JOIN pos_branch pb1 ON pf1.branch_id = pb1.id
+			left JOIN product_product pp1 ON pol1.product_id = pp1.id
+			left JOIN product_template pt1 ON pp1.product_tmpl_id = pt1.id
+			left JOIN product_category pcg1 ON pt1.categ_id = pcg1.id
+			where DATE(ps1.start_at+interval '7 hours') BETWEEN
+                               $P{start_date}::date AND  $P{end_date}::date
+			and pb1.id = pb.id
+			and pol1.qty>0
+			and pcg1.id = pcg.id
+			and po1.is_return_order<>true
+			group by pcg1.id,pcg1.name
+
+
+		)as temp
+
+	)as price_all,
+(
+		select sum(total_price)
+		from(
+			select sum((pol1.price_unit*pol1.qty)-(pol1.discount_amount * pol1.qty)) as total_price
+			from pos_order po1
+			left join pos_order_line pol1 on po1.id=pol1.order_id
+			LEFT JOIN pos_session ps1 ON po1.session_id = ps1.id
+			LEFT JOIN pos_config pf1 ON ps1.config_id = pf1.id
+			LEFT JOIN pos_branch pb1 ON pf1.branch_id = pb1.id
+			left JOIN product_product pp1 ON pol1.product_id = pp1.id
+			left JOIN product_template pt1 ON pp1.product_tmpl_id = pt1.id
+			left JOIN product_category pcg1 ON pt1.categ_id = pcg1.id
+			where DATE(ps1.start_at+interval '7 hours') BETWEEN
+                               $P{start_date}::date AND  $P{end_date}::date
+			and pb1.id = pb.id
+			and pol1.qty>0
+			and po1.is_return_order<>true
+			and pcg1.id = pcg.id
+			group by pcg1.id,pcg1.name
+
+
+		)as temp
+
+	)as total_price_all,
+(
+		select branch_name
+		from
+		(
+			select pb1.branch_name as branch_name
+			from  pos_branch pb1
+			where pb1.sequence = $P{start_branch}::integer
+		) as temp
+	) as start_branch_name,
+	(
+		select branch_name
+		from
+		(
+			select pb1.branch_name as branch_name
+			from  pos_branch pb1
+			where pb1.sequence = $P{end_branch}::integer
+		) as temp
+	) as end_branch_name,
+	(
+		select branch_id
+		from
+		(
+			select pb1.branch_id as branch_id
+			from  pos_branch pb1
+			where pb1.sequence = $P{start_branch}::integer
+		) as temp
+	) as start_branch_id,
+	(
+		select branch_id
+		from
+		(
+			select pb1.branch_id as branch_id
+			from  pos_branch pb1
+			where pb1.sequence = $P{end_branch}::integer
+		) as temp
+	) as end_branch_id,
+	COALESCE((
+	select count(poss1.id)
+	from pos_order pos1
+	LEFT JOIN pos_session poss1 ON pos1.session_id = poss1.id
+	LEFT JOIN pos_config posc1 ON posc1.id = poss1.config_id
+	LEFT JOIN pos_branch posb1 ON posb1.id = posc1.branch_id
+	where DATE(poss1.start_at+interval '7 hours') BETWEEN $P{start_date}::date AND  $P{end_date}::date
+	and posb1.sequence BETWEEN $P{start_branch}::integer and $P{end_branch}::integer
+	),0) as count_deposit_amount
+
+
+
+	from pos_order po
+	LEFT JOIN pos_session ps ON po.session_id = ps.id
+	LEFT JOIN pos_config pf ON ps.config_id = pf.id
+	LEFT JOIN pos_branch pb ON pf.branch_id = pb.id
+	LEFT JOIN pos_company pc ON pb.pos_company_id = pc.id
+	left join pos_order_line pol on po.id=pol.order_id
+	left join res_users ru on ru.id=po.company_id
+	left join res_country_state rcs on pc.state_id=rcs.id
+	left join res_partner rp on rp.id=pc.id
+	left JOIN product_product pp ON pol.product_id = pp.id
+	left JOIN product_template pt ON pp.product_tmpl_id = pt.id
+	left JOIN product_category pcg ON pt.categ_id = pcg.id
+          left join account_tax_pos_order_line_rel atp on atp.pos_order_line_id = pol.id
+	left join account_tax atx on atp.account_tax_id=atx.id
+	 where DATE(ps.start_at+interval '7 hours') BETWEEN $P{start_date}::date AND  $P{end_date}::date
+	and pb.sequence BETWEEN $P{start_branch}::integer and $P{end_branch}::integer
+and po.is_return_order<>True
+and pcg.id is not null
+and pt.exempt_pos_calculate = True
+group by pb.id,
+pc.id,
+rcs.id,
+rp.id,
+pcg.id,
+pt.id,
+pp.id,
+pol.price_unit
+	order by pcg.sequence,pp.default_code
+
+) as p
+order by  branch_sequence,id_cate,default_code,price_unit desc]]>
+		</queryString>
+		<field name="branch_name" class="java.lang.String">
+			<fieldDescription><![CDATA[Branch Name]]></fieldDescription>
+		</field>
+		<field name="branch_id" class="java.lang.String">
+			<fieldDescription><![CDATA[Branch]]></fieldDescription>
+		</field>
+		<field name="branch_sequence" class="java.lang.Integer"/>
+		<field name="pb_id" class="java.lang.Integer"/>
+		<field name="company_name" class="java.lang.String">
+			<fieldDescription><![CDATA[Company Name]]></fieldDescription>
+		</field>
+		<field name="street" class="java.lang.String">
+			<fieldDescription><![CDATA[Street]]></fieldDescription>
+		</field>
+		<field name="street2" class="java.lang.String">
+			<fieldDescription><![CDATA[Street2]]></fieldDescription>
+		</field>
+		<field name="city" class="java.lang.String">
+			<fieldDescription><![CDATA[City]]></fieldDescription>
+		</field>
+		<field name="zip" class="java.lang.String">
+			<fieldDescription><![CDATA[Zip]]></fieldDescription>
+		</field>
+		<field name="phone" class="java.lang.String">
+			<fieldDescription><![CDATA[Phone]]></fieldDescription>
+		</field>
+		<field name="province" class="java.lang.String"/>
+		<field name="sale_name" class="java.lang.String"/>
+		<field name="id_cate" class="java.lang.Integer"/>
+		<field name="sequence_cate" class="java.lang.Integer"/>
+		<field name="cate_name" class="java.lang.String"/>
+		<field name="product" class="java.lang.String"/>
+		<field name="default_code" class="java.lang.String">
+			<fieldDescription><![CDATA[Internal Reference]]></fieldDescription>
+		</field>
+		<field name="price_unit" class="java.math.BigDecimal">
+			<fieldDescription><![CDATA[Unit Price]]></fieldDescription>
+		</field>
+		<field name="sum_qty" class="java.math.BigDecimal"/>
+		<field name="sum_total" class="java.math.BigDecimal"/>
+		<field name="discount_amount" class="java.math.BigDecimal">
+			<fieldDescription><![CDATA[Discount]]></fieldDescription>
+		</field>
+		<field name="net_price" class="java.math.BigDecimal"/>
+		<field name="before_vat" class="java.math.BigDecimal"/>
+		<field name="before_vat_net" class="java.math.BigDecimal"/>
+		<field name="before_vat_discount" class="java.math.BigDecimal"/>
+		<field name="qty_all" class="java.math.BigDecimal"/>
+		<field name="price_all" class="java.math.BigDecimal"/>
+		<field name="total_price_all" class="java.math.BigDecimal"/>
+		<field name="start_branch_name" class="java.lang.String"/>
+		<field name="end_branch_name" class="java.lang.String"/>
+		<field name="start_branch_id" class="java.lang.String"/>
+		<field name="end_branch_id" class="java.lang.String"/>
+		<field name="count_deposit_amount" class="java.lang.Long"/>
+		<field name="print_date" class="java.sql.Date"/>
+		<field name="print_time" class="java.sql.Time"/>
+		<field name="date_start" class="java.lang.String">
+			<fieldDescription><![CDATA[Date Start]]></fieldDescription>
+		</field>
+		<field name="date_end" class="java.lang.String">
+			<fieldDescription><![CDATA[Date End]]></fieldDescription>
+		</field>
+		<variable name="จำนวนทั้งหมด" class="java.math.BigDecimal" calculation="Sum">
+			<variableExpression><![CDATA[($F{price_unit} == 1 || $F{price_unit} < 0 ) ? 0.0 : $F{sum_qty}]]></variableExpression>
+		</variable>
+		<variable name="sum_qty%" class="java.math.BigDecimal" calculation="Sum">
+			<variableExpression><![CDATA[$V{qty%}]]></variableExpression>
+		</variable>
+		<variable name="qty%" class="java.math.BigDecimal">
+			<variableExpression><![CDATA[($F{price_unit} == 1 || $F{price_unit} < 0 ) ? 0.0 : (100*$F{sum_qty})/$F{qty_all}]]></variableExpression>
+		</variable>
+		<variable name="price%" class="java.math.BigDecimal">
+			<variableExpression><![CDATA[(100*$F{sum_total})/$F{price_all}]]></variableExpression>
+		</variable>
+		<variable name="total%" class="java.math.BigDecimal">
+			<variableExpression><![CDATA[(100*$F{net_price})/$F{total_price_all}]]></variableExpression>
+		</variable>
+		<variable name="มูลค่ารวมทั้งหมด" class="java.math.BigDecimal" resetType="Group" resetGroup="category" calculation="Sum">
+			<variableExpression><![CDATA[$F{sum_total}]]></variableExpression>
+		</variable>
+		<variable name="sum_price%" class="java.math.BigDecimal" resetType="Group" resetGroup="category" calculation="Sum">
+			<variableExpression><![CDATA[$V{price%}]]></variableExpression>
+		</variable>
+		<variable name="sum_beforevat_net" class="java.math.BigDecimal" resetType="Group" resetGroup="category" calculation="Sum">
+			<variableExpression><![CDATA[$F{before_vat_net}]]></variableExpression>
+		</variable>
+		<variable name="sum_beforevat_sale" class="java.math.BigDecimal" resetType="Group" resetGroup="category" calculation="Sum">
+			<variableExpression><![CDATA[$F{before_vat}]]></variableExpression>
+		</variable>
+		<variable name="total_vat_sale" class="java.math.BigDecimal" calculation="Sum">
+			<variableExpression><![CDATA[$F{sum_total}-$F{before_vat}]]></variableExpression>
+		</variable>
+		<variable name="ส่วนลด" class="java.math.BigDecimal" calculation="Sum">
+			<variableExpression><![CDATA[$F{discount_amount}]]></variableExpression>
+		</variable>
+		<variable name="total_beforevat_discount" class="java.math.BigDecimal" calculation="Sum">
+			<variableExpression><![CDATA[$F{before_vat_discount}]]></variableExpression>
+		</variable>
+		<variable name="total_vat_discount" class="java.math.BigDecimal" calculation="Sum">
+			<variableExpression><![CDATA[$F{discount_amount}-$F{before_vat_discount}]]></variableExpression>
+		</variable>
+		<variable name="ยอดขายสุทธิทั้งหมด" class="java.math.BigDecimal" resetType="Group" resetGroup="category" calculation="Sum">
+			<variableExpression><![CDATA[$F{net_price}]]></variableExpression>
+		</variable>
+		<variable name="ยอดขายสุทธิ" class="java.math.BigDecimal" calculation="Sum">
+			<variableExpression><![CDATA[$F{net_price}]]></variableExpression>
+		</variable>
+		<variable name="total_beforevat_net" class="java.math.BigDecimal" calculation="Sum">
+			<variableExpression><![CDATA[$F{before_vat_net}]]></variableExpression>
+		</variable>
+		<variable name="total_vat_net" class="java.math.BigDecimal" calculation="Sum">
+			<variableExpression><![CDATA[$F{net_price}-$F{before_vat_net}]]></variableExpression>
+		</variable>
+		<variable name="total_total_price%_1" class="java.math.BigDecimal" calculation="Sum">
+			<variableExpression><![CDATA[$V{total%}]]></variableExpression>
+		</variable>
+		<variable name="มูลค่ารวม" class="java.math.BigDecimal" calculation="Sum">
+			<variableExpression><![CDATA[$F{sum_total}]]></variableExpression>
+		</variable>
+		<variable name="total_price%_1" class="java.math.BigDecimal" calculation="Sum">
+			<variableExpression><![CDATA[$V{price%}]]></variableExpression>
+		</variable>
+		<variable name="total_beforevat_sale" class="java.math.BigDecimal" calculation="Sum">
+			<variableExpression><![CDATA[$F{before_vat}]]></variableExpression>
+		</variable>
+		<variable name="sum_vat_sale" class="java.math.BigDecimal" resetType="Group" resetGroup="category" calculation="Sum">
+			<variableExpression><![CDATA[$F{sum_total}-$F{before_vat}]]></variableExpression>
+		</variable>
+		<variable name="ส่วนลดทั้งหมด" class="java.math.BigDecimal" resetType="Group" resetGroup="category" calculation="Sum">
+			<variableExpression><![CDATA[$F{discount_amount}]]></variableExpression>
+		</variable>
+		<variable name="sum_vat_discount" class="java.math.BigDecimal" resetType="Group" resetGroup="category" calculation="Sum">
+			<variableExpression><![CDATA[$F{discount_amount}-$F{before_vat_discount}]]></variableExpression>
+		</variable>
+		<variable name="sum_total_price%" class="java.math.BigDecimal" resetType="Group" resetGroup="category" calculation="Sum">
+			<variableExpression><![CDATA[$V{total%}]]></variableExpression>
+		</variable>
+		<variable name="sum_vat_net" class="java.math.BigDecimal" resetType="Group" resetGroup="category" calculation="Sum">
+			<variableExpression><![CDATA[$F{net_price}-$F{before_vat_net}]]></variableExpression>
+		</variable>
+		<group name="category">
+			<groupExpression><![CDATA[$F{cate_name}]]></groupExpression>
+		</group>
+	</subDataset>
+	<subDataset name="none_deposit_amount">
+		<parameter name="start_date" class="java.lang.String"/>
+		<parameter name="end_date" class="java.lang.String"/>
+		<parameter name="start_branch" class="java.lang.String"/>
+		<parameter name="end_branch" class="java.lang.String"/>
+		<queryString>
+			<![CDATA[select
+*,
+net_price-before_vat_net as vat_net_sale,
+before_vat_net AS before_vat_net_round,
+sum_total-before_vat as vat_sale,
+before_vat AS before_vat_round,
+((100*sum_total)/price_all) as sale_price_percent,
+((100*net_price)/total_price_all) as net_price_percent,
+((sum_qty*100)/qty_all) as qty_percent,
+(now()+interval '7 hour')::date as print_date,
+(now()+interval '7 hour')::time as print_time,
+to_char(($P{start_date}::date), 'DD/MM/YYYY') as date_start,
+to_char(($P{end_date}::date), 'DD/MM/YYYY') as date_end
+from(
+	select
+	pb.branch_name,
+	pb.branch_id as branch_id,
+	pb.sequence as branch_sequence,
+	COALESCE(pt.exempt_pos_calculate,False) as exempt_pos_calculate,
+	pb.id as pb_id,
+	pc.company_name,
+	pc.street,
+	pc.street2,
+	pc.city,
+	pc.zip,
+	pc.phone,
+	rcs.name as province ,
+	rp.name as sale_name,
+	pcg.id as id_cate,
+	pcg.sequence as sequence_cate,
+	pcg.name as cate_name,
+	pt.name as product,
+	pp.default_code as default_code,
+	pol.price_unit as price_unit,
+	sum(pol.qty) as sum_qty,
+	sum(pol.price_unit*pol.qty) as sum_total,
+	sum(pol.discount_amount * pol.qty) as discount_amount,
+	sum((pol.price_unit*pol.qty)-(pol.discount_amount * pol.qty)) as net_price,
+	sum(COALESCE(((pol.price_unit*pol.qty)/(1+(atx.amount/100))),(pol.price_unit*pol.qty))) as before_vat,
+	sum(COALESCE((((pol.price_unit*pol.qty)-(pol.discount_amount * pol.qty))/(1+(atx.amount/100))),(pol.price_unit*pol.qty))) as before_vat_net,
+	sum((pol.discount_amount * pol.qty)/(1+(atx.amount/100))) as before_vat_discount,
+          (
+		select sum(sum_qty)
+		from
+		(
+			select  sum(case when pol1.price_unit < 0 then 0 else pol1.qty end) as sum_qty
+			from pos_order po1
+			left join pos_order_line pol1 on po1.id=pol1.order_id
+			LEFT JOIN pos_session ps1 ON po1.session_id = ps1.id
+			LEFT JOIN pos_config pf1 ON ps1.config_id = pf1.id
+			LEFT JOIN pos_branch pb1 ON pf1.branch_id = pb1.id
+			left JOIN product_product pp1 ON pol1.product_id = pp1.id
+			left JOIN product_template pt1 ON pp1.product_tmpl_id = pt1.id
+			left JOIN product_category pcg1 ON pt1.categ_id = pcg1.id
+			where DATE(ps1.start_at+interval '7 hours') BETWEEN
+			$P{start_date}::date AND  $P{end_date}::date
+			and pb1.id = pb.id
+			and (pt1.exempt_pos_calculate = False or pt1.exempt_pos_calculate is null)
+			and pol1.qty>0
+			and po1.is_return_order<>true
+			group by pcg1.id,pcg1.name
+		) as temp
+	) as qty_all,
+          (
+		select sum(total_price)
+		from(
+			select sum(pol1.price_unit*pol1.qty) as total_price
+			from pos_order po1
+			left join pos_order_line pol1 on po1.id=pol1.order_id
+			LEFT JOIN pos_session ps1 ON po1.session_id = ps1.id
+			LEFT JOIN pos_config pf1 ON ps1.config_id = pf1.id
+			LEFT JOIN pos_branch pb1 ON pf1.branch_id = pb1.id
+			left JOIN product_product pp1 ON pol1.product_id = pp1.id
+			left JOIN product_template pt1 ON pp1.product_tmpl_id = pt1.id
+			left JOIN product_category pcg1 ON pt1.categ_id = pcg1.id
+			where DATE(ps1.start_at+interval '7 hours') BETWEEN
+                               $P{start_date}::date AND  $P{end_date}::date
+			and pb1.id = pb.id
+			and (pt1.exempt_pos_calculate = False or pt1.exempt_pos_calculate is null)
+			and pol1.qty>0
+				and po1.is_return_order<>true
+			group by pcg1.id,pcg1.name
+
+
+		)as temp
+
+	)as price_all,
+(
+		select sum(total_price)
+		from(
+			select sum((pol1.price_unit*pol1.qty)-(pol1.discount_amount * pol1.qty)) as total_price
+			from pos_order po1
+			left join pos_order_line pol1 on po1.id=pol1.order_id
+			LEFT JOIN pos_session ps1 ON po1.session_id = ps1.id
+			LEFT JOIN pos_config pf1 ON ps1.config_id = pf1.id
+			LEFT JOIN pos_branch pb1 ON pf1.branch_id = pb1.id
+			left JOIN product_product pp1 ON pol1.product_id = pp1.id
+			left JOIN product_template pt1 ON pp1.product_tmpl_id = pt1.id
+			left JOIN product_category pcg1 ON pt1.categ_id = pcg1.id
+			where DATE(ps1.start_at+interval '7 hours') BETWEEN
+                               $P{start_date}::date AND  $P{end_date}::date
+			and pb1.id = pb.id
+			and (pt1.exempt_pos_calculate = False or pt1.exempt_pos_calculate is null)
+			and pol1.qty>0
+			and po1.is_return_order<>true
+			group by pcg1.id,pcg1.name
+
+
+		)as temp
+
+	)as total_price_all,
+(
+		select branch_name
+		from
+		(
+			select pb1.branch_name as branch_name
+			from  pos_branch pb1
+			where pb1.sequence = $P{start_branch}::integer
+		) as temp
+	) as start_branch_name,
+	(
+		select branch_name
+		from
+		(
+			select pb1.branch_name as branch_name
+			from  pos_branch pb1
+			where pb1.sequence = $P{end_branch}::integer
+		) as temp
+	) as end_branch_name,
+	(
+		select branch_id
+		from
+		(
+			select pb1.branch_id as branch_id
+			from  pos_branch pb1
+			where pb1.sequence = $P{start_branch}::integer
+		) as temp
+	) as start_branch_id,
+	(
+		select branch_id
+		from
+		(
+			select pb1.branch_id as branch_id
+			from  pos_branch pb1
+			where pb1.sequence = $P{end_branch}::integer
+		) as temp
+	) as end_branch_id,
+	COALESCE((
+	select count(poss1.id)
+	from pos_order pos1
+	LEFT JOIN pos_session poss1 ON pos1.session_id = poss1.id
+	LEFT JOIN pos_config posc1 ON posc1.id = poss1.config_id
+	LEFT JOIN pos_branch posb1 ON posb1.id = posc1.branch_id
+	where DATE(poss1.start_at+interval '7 hours') BETWEEN $P{start_date}::date AND  $P{end_date}::date
+	and posb1.sequence BETWEEN $P{start_branch}::integer and $P{end_branch}::integer
+	),0) as count_deposit_amount
+
+
+
+	from pos_order po
+	LEFT JOIN pos_session ps ON po.session_id = ps.id
+	LEFT JOIN pos_config pf ON ps.config_id = pf.id
+	LEFT JOIN pos_branch pb ON pf.branch_id = pb.id
+	LEFT JOIN pos_company pc ON pb.pos_company_id = pc.id
+	left join pos_order_line pol on po.id=pol.order_id
+	left join res_users ru on ru.id=po.company_id
+	left join res_country_state rcs on pc.state_id=rcs.id
+	left join res_partner rp on rp.id=pc.id
+	left JOIN product_product pp ON pol.product_id = pp.id
+	left JOIN product_template pt ON pp.product_tmpl_id = pt.id
+	left JOIN product_category pcg ON pt.categ_id = pcg.id
+          left join account_tax_pos_order_line_rel atp on atp.pos_order_line_id = pol.id
+	left join account_tax atx on atp.account_tax_id=atx.id
+	 where DATE(ps.start_at+interval '7 hours') BETWEEN $P{start_date}::date AND  $P{end_date}::date
+	and pb.sequence BETWEEN $P{start_branch}::integer and $P{end_branch}::integer
+and po.is_return_order<>True
+and pcg.id is not null
+and (pt.exempt_pos_calculate = False or pt.exempt_pos_calculate is null)
+group by pb.id,
+pc.id,
+rcs.id,
+rp.id,
+pcg.id,
+pt.id,
+pp.id,
+pol.price_unit
+	order by pcg.sequence,pp.default_code
+
+) as p
+order by  branch_sequence,id_cate,default_code,price_unit desc]]>
+		</queryString>
+		<field name="branch_name" class="java.lang.String">
+			<fieldDescription><![CDATA[Branch Name]]></fieldDescription>
+		</field>
+		<field name="branch_id" class="java.lang.String">
+			<fieldDescription><![CDATA[Branch]]></fieldDescription>
+		</field>
+		<field name="branch_sequence" class="java.lang.Integer"/>
+		<field name="exempt_pos_calculate" class="java.lang.Boolean">
+			<fieldDescription><![CDATA[Exempt POS Calculate]]></fieldDescription>
+		</field>
+		<field name="pb_id" class="java.lang.Integer"/>
+		<field name="company_name" class="java.lang.String">
+			<fieldDescription><![CDATA[Company Name]]></fieldDescription>
+		</field>
+		<field name="street" class="java.lang.String">
+			<fieldDescription><![CDATA[Street]]></fieldDescription>
+		</field>
+		<field name="street2" class="java.lang.String">
+			<fieldDescription><![CDATA[Street2]]></fieldDescription>
+		</field>
+		<field name="city" class="java.lang.String">
+			<fieldDescription><![CDATA[City]]></fieldDescription>
+		</field>
+		<field name="zip" class="java.lang.String">
+			<fieldDescription><![CDATA[Zip]]></fieldDescription>
+		</field>
+		<field name="phone" class="java.lang.String">
+			<fieldDescription><![CDATA[Phone]]></fieldDescription>
+		</field>
+		<field name="province" class="java.lang.String"/>
+		<field name="sale_name" class="java.lang.String"/>
+		<field name="id_cate" class="java.lang.Integer"/>
+		<field name="sequence_cate" class="java.lang.Integer"/>
+		<field name="cate_name" class="java.lang.String"/>
+		<field name="product" class="java.lang.String"/>
+		<field name="default_code" class="java.lang.String">
+			<fieldDescription><![CDATA[Internal Reference]]></fieldDescription>
+		</field>
+		<field name="price_unit" class="java.math.BigDecimal">
+			<fieldDescription><![CDATA[Unit Price]]></fieldDescription>
+		</field>
+		<field name="sum_qty" class="java.math.BigDecimal"/>
+		<field name="sum_total" class="java.math.BigDecimal"/>
+		<field name="discount_amount" class="java.math.BigDecimal">
+			<fieldDescription><![CDATA[Discount]]></fieldDescription>
+		</field>
+		<field name="net_price" class="java.math.BigDecimal"/>
+		<field name="before_vat" class="java.math.BigDecimal"/>
+		<field name="before_vat_net" class="java.math.BigDecimal"/>
+		<field name="before_vat_discount" class="java.math.BigDecimal"/>
+		<field name="qty_all" class="java.math.BigDecimal"/>
+		<field name="price_all" class="java.math.BigDecimal"/>
+		<field name="total_price_all" class="java.math.BigDecimal"/>
+		<field name="start_branch_name" class="java.lang.String"/>
+		<field name="end_branch_name" class="java.lang.String"/>
+		<field name="start_branch_id" class="java.lang.String"/>
+		<field name="end_branch_id" class="java.lang.String"/>
+		<field name="count_deposit_amount" class="java.lang.Long"/>
+		<field name="vat_net_sale" class="java.math.BigDecimal"/>
+		<field name="before_vat_net_round" class="java.math.BigDecimal"/>
+		<field name="vat_sale" class="java.math.BigDecimal"/>
+		<field name="before_vat_round" class="java.math.BigDecimal"/>
+		<field name="sale_price_percent" class="java.math.BigDecimal"/>
+		<field name="net_price_percent" class="java.math.BigDecimal"/>
+		<field name="qty_percent" class="java.math.BigDecimal"/>
+		<field name="print_date" class="java.sql.Date"/>
+		<field name="print_time" class="java.sql.Time"/>
+		<field name="date_start" class="java.lang.String">
+			<fieldDescription><![CDATA[Date Start]]></fieldDescription>
+		</field>
+		<field name="date_end" class="java.lang.String">
+			<fieldDescription><![CDATA[Date End]]></fieldDescription>
+		</field>
+		<variable name="จำนวนทั้งหมด" class="java.math.BigDecimal" calculation="Sum">
+			<variableExpression><![CDATA[($F{exempt_pos_calculate} != false  || $F{price_unit} < 0 ) ? 0.0 : $F{sum_qty}]]></variableExpression>
+		</variable>
+		<variable name="sum_qty%" class="java.math.BigDecimal" calculation="Sum">
+			<variableExpression><![CDATA[$V{qty%}]]></variableExpression>
+		</variable>
+		<variable name="qty%" class="java.math.BigDecimal" calculation="Sum">
+			<variableExpression><![CDATA[($F{price_unit} < 0 ) ? 0.0 : $F{qty_percent}]]></variableExpression>
+		</variable>
+		<variable name="price%" class="java.math.BigDecimal">
+			<variableExpression><![CDATA[(100*$F{sum_total})/$F{price_all}]]></variableExpression>
+		</variable>
+		<variable name="total%" class="java.math.BigDecimal">
+			<variableExpression><![CDATA[(100*$F{net_price})/$F{total_price_all}]]></variableExpression>
+		</variable>
+		<variable name="มูลค่ารวมทั้งหมด" class="java.math.BigDecimal" calculation="Sum">
+			<variableExpression><![CDATA[$F{sum_total}]]></variableExpression>
+		</variable>
+		<variable name="sum_price%" class="java.math.BigDecimal" calculation="Sum">
+			<variableExpression><![CDATA[$V{price%}]]></variableExpression>
+		</variable>
+		<variable name="sum_beforevat_net" class="java.math.BigDecimal" calculation="Sum">
+			<variableExpression><![CDATA[$F{before_vat_net}]]></variableExpression>
+		</variable>
+		<variable name="sum_beforevat_sale" class="java.math.BigDecimal" calculation="Sum">
+			<variableExpression><![CDATA[$F{before_vat}]]></variableExpression>
+		</variable>
+		<variable name="total_vat_sale" class="java.math.BigDecimal" calculation="Sum">
+			<variableExpression><![CDATA[$F{sum_total}-$F{before_vat}]]></variableExpression>
+		</variable>
+		<variable name="ส่วนลด" class="java.math.BigDecimal" calculation="Sum">
+			<variableExpression><![CDATA[$F{discount_amount}]]></variableExpression>
+		</variable>
+		<variable name="total_beforevat_discount" class="java.math.BigDecimal" calculation="Sum">
+			<variableExpression><![CDATA[$F{before_vat_discount}]]></variableExpression>
+		</variable>
+		<variable name="total_vat_discount" class="java.math.BigDecimal" calculation="Sum">
+			<variableExpression><![CDATA[$F{discount_amount}-$F{before_vat_discount}]]></variableExpression>
+		</variable>
+		<variable name="ยอดขายสุทธิทั้งหมด" class="java.math.BigDecimal" calculation="Sum">
+			<variableExpression><![CDATA[$F{net_price}]]></variableExpression>
+		</variable>
+		<variable name="ยอดขายสุทธิ" class="java.math.BigDecimal" calculation="Sum">
+			<variableExpression><![CDATA[$F{net_price}]]></variableExpression>
+		</variable>
+		<variable name="total_beforevat_net" class="java.math.BigDecimal" calculation="Sum">
+			<variableExpression><![CDATA[$F{before_vat_net}]]></variableExpression>
+		</variable>
+		<variable name="total_vat_net" class="java.math.BigDecimal" calculation="Sum">
+			<variableExpression><![CDATA[$F{net_price}-$F{before_vat_net}]]></variableExpression>
+		</variable>
+		<variable name="total_total_price%_1" class="java.math.BigDecimal" calculation="Sum">
+			<variableExpression><![CDATA[$V{total%}]]></variableExpression>
+		</variable>
+	</subDataset>
+	<parameter name="start_date" class="java.lang.String"/>
+	<parameter name="end_date" class="java.lang.String"/>
+	<parameter name="branch_id" class="java.lang.String"/>
+	<parameter name="start_branch" class="java.lang.String"/>
+	<parameter name="end_branch" class="java.lang.String"/>
+	<queryString>
+		<![CDATA[select
+*,
+net_price-before_vat_net as vat_net_sale,
+before_vat_net AS before_vat_net_round,
+sum_total-before_vat as vat_sale,
+before_vat AS before_vat_round,
+((100*sum_total)/price_all) as sale_price_percent,
+((100*net_price)/total_price_all) as net_price_percent,
+((sum_qty*100)/qty_all) as qty_percent,
+(now()+interval '7 hour')::date as print_date,
+(now()+interval '7 hour')::time as print_time,
+to_char(($P{start_date}::date), 'DD/MM/YYYY') as date_start,
+to_char(($P{end_date}::date), 'DD/MM/YYYY') as date_end
+from(
+	select
+	pb.branch_name,
+	pb.branch_id as branch_id,
+	pb.sequence as branch_sequence,
+	pb.id as pb_id,
+	rpc.name as company_name,
+	rpc.street,
+	rpc.street2,
+	rpc.city,
+	rpc.zip,
+	rpc.phone,
+	rcs.name as province ,
+	rp.name as sale_name,
+	pcg.id as id_cate,
+	COALESCE(pt.exempt_pos_calculate,False) as exempt_pos_calculate,
+	pcg.sequence as sequence_cate,
+	pcg.name as cate_name,
+	pt.name as product,
+	pp.default_code as default_code,
+	pol.price_unit as price_unit,
+	sum(pol.qty) as sum_qty,
+	sum(pol.price_unit*pol.qty) as sum_total,
+	sum(pol.discount_amount * pol.qty) as discount_amount,
+	sum((pol.price_unit*pol.qty)-(pol.discount_amount * pol.qty)) as net_price,
+	sum(COALESCE(((pol.price_unit*pol.qty)/(1+(atx.amount/100))),(pol.price_unit*pol.qty))) as before_vat,
+	sum(COALESCE((((pol.price_unit*pol.qty)-(pol.discount_amount * pol.qty))/(1+(atx.amount/100))),(pol.price_unit*pol.qty))) as before_vat_net,
+	sum((pol.discount_amount * pol.qty)/(1+(atx.amount/100))) as before_vat_discount,
+	(
+		select sum(sum_qty)
+		from
+		(
+			select  sum(case when pol1.price_unit < 0 then 0 else pol1.qty end) as sum_qty
+			from pos_order po1
+			left join pos_order_line pol1 on po1.id=pol1.order_id
+			LEFT JOIN pos_session ps1 ON po1.session_id = ps1.id
+			LEFT JOIN pos_config pf1 ON ps1.config_id = pf1.id
+			LEFT JOIN pos_branch pb1 ON pf1.branch_id = pb1.id
+			left JOIN product_product pp1 ON pol1.product_id = pp1.id
+			left JOIN product_template pt1 ON pp1.product_tmpl_id = pt1.id
+			left JOIN product_category pcg1 ON pt1.categ_id = pcg1.id
+			where DATE(ps1.start_at+interval '7 hours') BETWEEN
+			$P{start_date}::date AND  $P{end_date}::date
+			and pb1.id = pb.id
+			and pol1.qty>0
+			and po1.is_return_order<>true
+			and (pt1.exempt_pos_calculate = False or pt1.exempt_pos_calculate is null)
+			group by pcg1.id,pcg1.name
+			) as temp
+		) as qty_all,
+	(
+		select sum(total_price)
+		from(
+			select sum(pol1.price_unit*pol1.qty) as total_price
+			from pos_order po1
+			left join pos_order_line pol1 on po1.id=pol1.order_id
+			LEFT JOIN pos_session ps1 ON po1.session_id = ps1.id
+			LEFT JOIN pos_config pf1 ON ps1.config_id = pf1.id
+			LEFT JOIN pos_branch pb1 ON pf1.branch_id = pb1.id
+			left JOIN product_product pp1 ON pol1.product_id = pp1.id
+			left JOIN product_template pt1 ON pp1.product_tmpl_id = pt1.id
+			left JOIN product_category pcg1 ON pt1.categ_id = pcg1.id
+			where DATE(ps1.start_at+interval '7 hours') BETWEEN
+			$P{start_date}::date AND  $P{end_date}::date
+			and pb1.id = pb.id
+			and (pt1.exempt_pos_calculate = False or pt1.exempt_pos_calculate is null)
+			and pol1.qty>0
+			and po1.is_return_order<>true
+			group by pcg1.id,pcg1.name
+
+
+			)as temp
+
+		)as price_all,
+	(
+		select sum(total_price)
+		from(
+			select sum((pol1.price_unit*pol1.qty)-(pol1.discount_amount * pol1.qty)) as total_price
+			from pos_order po1
+			left join pos_order_line pol1 on po1.id=pol1.order_id
+			LEFT JOIN pos_session ps1 ON po1.session_id = ps1.id
+			LEFT JOIN pos_config pf1 ON ps1.config_id = pf1.id
+			LEFT JOIN pos_branch pb1 ON pf1.branch_id = pb1.id
+			left JOIN product_product pp1 ON pol1.product_id = pp1.id
+			left JOIN product_template pt1 ON pp1.product_tmpl_id = pt1.id
+			left JOIN product_category pcg1 ON pt1.categ_id = pcg1.id
+			where DATE(ps1.start_at+interval '7 hours') BETWEEN
+			$P{start_date}::date AND  $P{end_date}::date
+			and (pt1.exempt_pos_calculate = False or pt1.exempt_pos_calculate is null)
+			and pb1.id = pb.id
+			and pol1.qty>0
+			and po1.is_return_order<>true
+			group by pcg1.id,pcg1.name
+
+
+			)as temp
+
+		)as total_price_all,
+	(
+		select branch_name
+		from
+		(
+			select pb1.branch_name as branch_name
+			from  pos_branch pb1
+			where pb1.sequence = $P{start_branch}::integer
+			) as temp
+		) as start_branch_name,
+	(
+		select branch_name
+		from
+		(
+			select pb1.branch_name as branch_name
+			from  pos_branch pb1
+			where pb1.sequence = $P{end_branch}::integer
+			) as temp
+		) as end_branch_name,
+	(
+		select branch_id
+		from
+		(
+			select pb1.branch_id as branch_id
+			from  pos_branch pb1
+			where pb1.sequence = $P{start_branch}::integer
+			) as temp
+		) as start_branch_id,
+	(
+		select branch_id
+		from
+		(
+			select pb1.branch_id as branch_id
+			from  pos_branch pb1
+			where pb1.sequence = $P{end_branch}::integer
+			) as temp
+		) as end_branch_id,
+	COALESCE((
+		select count(poss1.id)
+		from pos_order pos1
+		LEFT JOIN pos_session poss1 ON pos1.session_id = poss1.id
+		LEFT JOIN pos_config posc1 ON posc1.id = poss1.config_id
+		LEFT JOIN pos_branch posb1 ON posb1.id = posc1.branch_id
+		where DATE(poss1.start_at+interval '7 hours') BETWEEN $P{start_date}::date AND  $P{end_date}::date
+		and posb1.sequence BETWEEN $P{start_branch}::integer and $P{end_branch}::integer
+		),0) as count_deposit_amount
+
+	from pos_order po
+	LEFT JOIN pos_session ps ON po.session_id = ps.id
+	LEFT JOIN pos_config pf ON ps.config_id = pf.id
+	LEFT JOIN pos_branch pb ON pf.branch_id = pb.id
+	LEFT JOIN res_company pc ON pb.pos_company_id = pc.id
+	LEFT JOIN res_partner rpc ON pc.partner_id = rpc.id
+	left join pos_order_line pol on po.id=pol.order_id
+	left join res_users ru on ru.id=po.company_id
+	left join res_country_state rcs on rpc.state_id=rcs.id
+	left join res_partner rp on rp.id=rpc.id
+	left JOIN product_product pp ON pol.product_id = pp.id
+	left JOIN product_template pt ON pp.product_tmpl_id = pt.id
+	left JOIN product_category pcg ON pt.categ_id = pcg.id
+	left join account_tax_pos_order_line_rel atp on atp.pos_order_line_id = pol.id
+	left join account_tax atx on atp.account_tax_id=atx.id
+	where DATE(ps.start_at+interval '7 hours') BETWEEN $P{start_date}::date AND  $P{end_date}::date
+	and pb.sequence BETWEEN $P{start_branch}::integer and $P{end_branch}::integer
+	and po.is_return_order<>True
+	and pcg.id is not null
+	group by
+	COALESCE(pt.exempt_pos_calculate,False),
+	pb.id,
+	rpc.id,
+	rcs.id,
+	rp.id,
+	pcg.id,
+	pt.id,
+	pp.id,
+	pol.price_unit
+	order by pcg.sequence,pp.default_code
+
+	) as p
+order by  branch_sequence,id_cate,default_code,price_unit desc]]>
+	</queryString>
+	<field name="branch_name" class="java.lang.String">
+		<fieldDescription><![CDATA[Branch Name]]></fieldDescription>
+	</field>
+	<field name="branch_id" class="java.lang.String">
+		<fieldDescription><![CDATA[Branch]]></fieldDescription>
+	</field>
+	<field name="branch_sequence" class="java.lang.Integer"/>
+	<field name="pb_id" class="java.lang.Integer"/>
+	<field name="company_name" class="java.lang.String">
+		<fieldDescription><![CDATA[Company Name]]></fieldDescription>
+	</field>
+	<field name="street" class="java.lang.String">
+		<fieldDescription><![CDATA[Street]]></fieldDescription>
+	</field>
+	<field name="street2" class="java.lang.String">
+		<fieldDescription><![CDATA[Street2]]></fieldDescription>
+	</field>
+	<field name="city" class="java.lang.String">
+		<fieldDescription><![CDATA[City]]></fieldDescription>
+	</field>
+	<field name="zip" class="java.lang.String">
+		<fieldDescription><![CDATA[Zip]]></fieldDescription>
+	</field>
+	<field name="phone" class="java.lang.String">
+		<fieldDescription><![CDATA[Phone]]></fieldDescription>
+	</field>
+	<field name="province" class="java.lang.String"/>
+	<field name="sale_name" class="java.lang.String"/>
+	<field name="id_cate" class="java.lang.Integer"/>
+	<field name="exempt_pos_calculate" class="java.lang.Boolean">
+		<fieldDescription><![CDATA[Exempt POS Calculate]]></fieldDescription>
+	</field>
+	<field name="sequence_cate" class="java.lang.Integer"/>
+	<field name="cate_name" class="java.lang.String"/>
+	<field name="product" class="java.lang.String"/>
+	<field name="default_code" class="java.lang.String">
+		<fieldDescription><![CDATA[Internal Reference]]></fieldDescription>
+	</field>
+	<field name="price_unit" class="java.math.BigDecimal">
+		<fieldDescription><![CDATA[Unit Price]]></fieldDescription>
+	</field>
+	<field name="sum_qty" class="java.math.BigDecimal"/>
+	<field name="sum_total" class="java.math.BigDecimal"/>
+	<field name="discount_amount" class="java.math.BigDecimal">
+		<fieldDescription><![CDATA[Discount]]></fieldDescription>
+	</field>
+	<field name="net_price" class="java.math.BigDecimal"/>
+	<field name="before_vat" class="java.math.BigDecimal"/>
+	<field name="before_vat_net" class="java.math.BigDecimal"/>
+	<field name="before_vat_discount" class="java.math.BigDecimal"/>
+	<field name="qty_all" class="java.math.BigDecimal"/>
+	<field name="price_all" class="java.math.BigDecimal"/>
+	<field name="total_price_all" class="java.math.BigDecimal"/>
+	<field name="start_branch_name" class="java.lang.String"/>
+	<field name="end_branch_name" class="java.lang.String"/>
+	<field name="start_branch_id" class="java.lang.String"/>
+	<field name="end_branch_id" class="java.lang.String"/>
+	<field name="count_deposit_amount" class="java.lang.Long"/>
+	<field name="vat_net_sale" class="java.math.BigDecimal"/>
+	<field name="before_vat_net_round" class="java.math.BigDecimal"/>
+	<field name="vat_sale" class="java.math.BigDecimal"/>
+	<field name="before_vat_round" class="java.math.BigDecimal"/>
+	<field name="sale_price_percent" class="java.math.BigDecimal"/>
+	<field name="net_price_percent" class="java.math.BigDecimal"/>
+	<field name="qty_percent" class="java.math.BigDecimal"/>
+	<field name="print_date" class="java.sql.Date"/>
+	<field name="print_time" class="java.sql.Time"/>
+	<field name="date_start" class="java.lang.String">
+		<fieldDescription><![CDATA[Date From]]></fieldDescription>
+	</field>
+	<field name="date_end" class="java.lang.String">
+		<fieldDescription><![CDATA[Date To]]></fieldDescription>
+	</field>
+	<variable name="date_start" class="java.util.Date" resetType="Page">
+		<initialValueExpression><![CDATA[new SimpleDateFormat("yyyy-MM-dd").parse($P{start_date})]]></initialValueExpression>
+	</variable>
+	<variable name="date_end" class="java.util.Date" resetType="Page">
+		<initialValueExpression><![CDATA[new SimpleDateFormat("yyyy-MM-dd").parse($P{end_date})]]></initialValueExpression>
+	</variable>
+	<variable name="จำนวน" class="java.math.BigDecimal" resetType="Group" resetGroup="branch" calculation="Sum">
+		<variableExpression><![CDATA[($F{exempt_pos_calculate} != false || $F{price_unit} < 0 ) ? 0.0 : $F{sum_qty}]]></variableExpression>
+	</variable>
+	<variable name="ราคา" class="java.math.BigDecimal" resetType="Group" resetGroup="branch" calculation="Sum">
+		<variableExpression><![CDATA[$F{price_unit}]]></variableExpression>
+	</variable>
+	<variable name="มูลค่ารวม" class="java.math.BigDecimal" resetType="Group" resetGroup="branch" calculation="Sum">
+		<variableExpression><![CDATA[$F{sum_total}]]></variableExpression>
+	</variable>
+	<variable name="ส่วนลด" class="java.math.BigDecimal" resetType="Group" resetGroup="branch" calculation="Sum">
+		<variableExpression><![CDATA[$F{discount_amount}]]></variableExpression>
+	</variable>
+	<variable name="ยอดขายสุทธิ" class="java.math.BigDecimal" resetType="Group" resetGroup="branch" calculation="Sum">
+		<variableExpression><![CDATA[$F{net_price}]]></variableExpression>
+	</variable>
+	<variable name="จำนวนทั้งหมด" class="java.math.BigDecimal" resetType="Group" resetGroup="category" calculation="Sum">
+		<variableExpression><![CDATA[($F{exempt_pos_calculate} != false || $F{price_unit} < 0 ) ? 0.0 : $F{sum_qty}]]></variableExpression>
+	</variable>
+	<variable name="ราคาทั้งหมด" class="java.math.BigDecimal" resetType="Group" resetGroup="category" calculation="Sum">
+		<variableExpression><![CDATA[$F{price_unit}]]></variableExpression>
+	</variable>
+	<variable name="มูลค่ารวมทั้งหมด" class="java.math.BigDecimal" resetType="Group" resetGroup="category" calculation="Sum">
+		<variableExpression><![CDATA[$F{sum_total}]]></variableExpression>
+	</variable>
+	<variable name="ส่วนลดทั้งหมด" class="java.math.BigDecimal" resetType="Group" resetGroup="category" calculation="Sum">
+		<variableExpression><![CDATA[$F{discount_amount}]]></variableExpression>
+	</variable>
+	<variable name="ยอดขายสุทธิทั้งหมด" class="java.math.BigDecimal" resetType="Group" resetGroup="category" calculation="Sum">
+		<variableExpression><![CDATA[$F{net_price}]]></variableExpression>
+	</variable>
+	<variable name="sum_beforevat_sale" class="java.lang.Float" resetType="Group" resetGroup="category" calculation="Sum">
+		<variableExpression><![CDATA[((int)($F{before_vat_round}*10000))/10000]]></variableExpression>
+	</variable>
+	<variable name="total_beforevat_sale" class="java.math.BigDecimal" resetType="Group" resetGroup="branch" calculation="Sum">
+		<variableExpression><![CDATA[$F{before_vat}]]></variableExpression>
+	</variable>
+	<variable name="sum_vat_sale" class="java.math.BigDecimal" resetType="Group" resetGroup="category" calculation="Sum">
+		<variableExpression><![CDATA[$F{vat_sale}]]></variableExpression>
+	</variable>
+	<variable name="total_vat_sale" class="java.math.BigDecimal" resetType="Group" resetGroup="branch" calculation="Sum">
+		<variableExpression><![CDATA[$F{sum_total}-$F{before_vat}]]></variableExpression>
+	</variable>
+	<variable name="sum_beforevat_discount" class="java.math.BigDecimal" resetType="Group" resetGroup="category" calculation="Sum">
+		<variableExpression><![CDATA[$F{before_vat_discount}]]></variableExpression>
+	</variable>
+	<variable name="total_beforevat_discount" class="java.math.BigDecimal" resetType="Group" resetGroup="branch" calculation="Sum">
+		<variableExpression><![CDATA[$F{before_vat_discount}]]></variableExpression>
+	</variable>
+	<variable name="sum_vat_discount" class="java.math.BigDecimal" resetType="Group" resetGroup="category" calculation="Sum">
+		<variableExpression><![CDATA[$F{discount_amount}-$F{before_vat_discount}]]></variableExpression>
+	</variable>
+	<variable name="total_vat_discount" class="java.math.BigDecimal" resetType="Group" resetGroup="branch" calculation="Sum">
+		<variableExpression><![CDATA[$F{discount_amount}-$F{before_vat_discount}]]></variableExpression>
+	</variable>
+	<variable name="sum_beforevat_net" class="java.math.BigDecimal" resetType="Group" resetGroup="category" calculation="Sum">
+		<variableExpression><![CDATA[$F{before_vat_net_round}]]></variableExpression>
+	</variable>
+	<variable name="total_beforevat_net" class="java.math.BigDecimal" resetType="Group" resetGroup="branch" calculation="Sum">
+		<variableExpression><![CDATA[$F{before_vat_net}]]></variableExpression>
+	</variable>
+	<variable name="sum_vat_net" class="java.math.BigDecimal" resetType="Group" resetGroup="category" calculation="Sum">
+		<variableExpression><![CDATA[$F{vat_net_sale}]]></variableExpression>
+	</variable>
+	<variable name="total_vat_net" class="java.math.BigDecimal" resetType="Group" resetGroup="branch" calculation="Sum">
+		<variableExpression><![CDATA[$F{net_price}-$F{before_vat_net}]]></variableExpression>
+	</variable>
+	<variable name="qty%" class="java.math.BigDecimal" resetType="Group" resetGroup="branch">
+		<variableExpression><![CDATA[($F{price_unit} < 0.0 || $F{exempt_pos_calculate} != false ) ? 0.0 : $F{qty_percent}]]></variableExpression>
+	</variable>
+	<variable name="price%" class="java.math.BigDecimal" resetType="Group" resetGroup="branch">
+		<variableExpression><![CDATA[(100*$F{sum_total})/$F{price_all}]]></variableExpression>
+	</variable>
+	<variable name="total%" class="java.math.BigDecimal" resetType="Group" resetGroup="branch">
+		<variableExpression><![CDATA[$F{net_price_percent}]]></variableExpression>
+	</variable>
+	<variable name="sum_qty%" class="java.math.BigDecimal" resetType="Group" resetGroup="category" calculation="Sum">
+		<variableExpression><![CDATA[$V{qty%}]]></variableExpression>
+	</variable>
+	<variable name="sum_price%" class="java.lang.Float" resetType="Group" resetGroup="category" calculation="Sum">
+		<variableExpression><![CDATA[$F{sale_price_percent}]]></variableExpression>
+	</variable>
+	<variable name="sum_total_price%" class="java.math.BigDecimal" resetType="Group" resetGroup="category" calculation="Sum">
+		<variableExpression><![CDATA[$V{total%}]]></variableExpression>
+	</variable>
+	<variable name="total_qty%_1" class="java.math.BigDecimal" resetType="Group" resetGroup="branch" calculation="Sum">
+		<variableExpression><![CDATA[$V{qty%}]]></variableExpression>
+	</variable>
+	<variable name="total_price%_1" class="java.math.BigDecimal" resetType="Group" resetGroup="branch" calculation="Sum">
+		<variableExpression><![CDATA[$F{sale_price_percent}]]></variableExpression>
+	</variable>
+	<variable name="total_total_price%_1" class="java.math.BigDecimal" resetType="Group" resetGroup="branch" calculation="Sum">
+		<variableExpression><![CDATA[$V{total%}]]></variableExpression>
+	</variable>
+	<group name="branch" isStartNewPage="true">
+		<groupExpression><![CDATA[$F{branch_name}]]></groupExpression>
+		<groupFooter>
+			<band height="20">
+				<textField pattern="#,##0.00;-#,##0.00">
+					<reportElement positionType="Float" mode="Transparent" x="603" y="3" width="60" height="15" printWhenGroupChanges="branch" forecolor="#000000" backcolor="#FFFFFF"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+						<font fontName="TH SarabunPSK" size="11" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+					</textElement>
+					<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{ยอดขายสุทธิ}]]></textFieldExpression>
+				</textField>
+				<textField pattern="#,##0.00;-#,##0.00">
+					<reportElement positionType="Float" mode="Transparent" x="413" y="3" width="40" height="15" printWhenGroupChanges="branch" forecolor="#000000" backcolor="#FFFFFF"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+						<font fontName="TH SarabunPSK" size="11" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+					</textElement>
+					<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{total_vat_sale}]]></textFieldExpression>
+				</textField>
+				<textField pattern="#,##0.00;-#,##0.00">
+					<reportElement positionType="Float" mode="Transparent" x="563" y="3" width="40" height="15" printWhenGroupChanges="branch" forecolor="#000000" backcolor="#FFFFFF"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+						<font fontName="TH SarabunPSK" size="11" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+					</textElement>
+					<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{total_vat_discount}]]></textFieldExpression>
+				</textField>
+				<textField pattern="#,##0.00;-#,##0.00">
+					<reportElement positionType="Float" mode="Transparent" x="509" y="3" width="54" height="15" printWhenGroupChanges="branch" forecolor="#000000" backcolor="#FFFFFF"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+						<font fontName="TH SarabunPSK" size="11" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+					</textElement>
+					<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{total_beforevat_discount}]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement positionType="Float" mode="Transparent" x="53" y="3" width="117" height="15" forecolor="#000000" backcolor="#FFFFFF"/>
+					<textElement verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+						<font fontName="TH SarabunPSK" size="11" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+					</textElement>
+					<text><![CDATA[ยอดรวมทั้งสิ้น (Grand Total)]]></text>
+				</staticText>
+				<line>
+					<reportElement positionType="Float" x="1" y="19" width="802" height="1"/>
+					<graphicElement>
+						<pen lineWidth="2.0" lineStyle="Double"/>
+					</graphicElement>
+				</line>
+				<textField pattern="#,##0.00;-#,##0.00">
+					<reportElement positionType="Float" mode="Transparent" x="706" y="3" width="58" height="15" printWhenGroupChanges="branch" forecolor="#000000" backcolor="#FFFFFF"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+						<font fontName="TH SarabunPSK" size="11" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+					</textElement>
+					<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{total_beforevat_net}]]></textFieldExpression>
+				</textField>
+				<textField pattern="#,##0.00;-#,##0.00">
+					<reportElement positionType="Float" mode="Transparent" x="253" y="3" width="65" height="15" printWhenGroupChanges="branch" forecolor="#000000" backcolor="#FFFFFF"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+						<font fontName="TH SarabunPSK" size="11" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+					</textElement>
+					<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{มูลค่ารวม}]]></textFieldExpression>
+				</textField>
+				<textField pattern="#,##0;-#,##0">
+					<reportElement positionType="Float" mode="Transparent" x="170" y="3" width="43" height="15" printWhenGroupChanges="branch" forecolor="#000000" backcolor="#FFFFFF"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+						<font fontName="TH SarabunPSK" size="11" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+					</textElement>
+					<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{จำนวน}]]></textFieldExpression>
+				</textField>
+				<textField pattern="#,##0.00;-#,##0.00">
+					<reportElement positionType="Float" mode="Transparent" x="353" y="3" width="60" height="15" printWhenGroupChanges="branch" forecolor="#000000" backcolor="#FFFFFF"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+						<font fontName="TH SarabunPSK" size="11" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+					</textElement>
+					<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{total_beforevat_sale}]]></textFieldExpression>
+				</textField>
+				<textField pattern="#,##0.00;-#,##0.00">
+					<reportElement positionType="Float" mode="Transparent" x="453" y="3" width="56" height="15" printWhenGroupChanges="branch" forecolor="#000000" backcolor="#FFFFFF"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+						<font fontName="TH SarabunPSK" size="11" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+					</textElement>
+					<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{ส่วนลด}]]></textFieldExpression>
+				</textField>
+				<textField pattern="#,##0.00;-#,##0.00">
+					<reportElement positionType="Float" mode="Transparent" x="764" y="3" width="38" height="15" printWhenGroupChanges="branch" forecolor="#000000" backcolor="#FFFFFF"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+						<font fontName="TH SarabunPSK" size="11" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+					</textElement>
+					<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{total_vat_net}]]></textFieldExpression>
+				</textField>
+				<textField pattern="#,##0.00;-#,##0.00" isBlankWhenNull="false">
+					<reportElement positionType="Float" mode="Transparent" x="213" y="3" width="40" height="15" printWhenGroupChanges="branch" forecolor="#000000" backcolor="#FFFFFF"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+						<font fontName="TH SarabunPSK" size="11" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+					</textElement>
+					<textFieldExpression class="java.lang.String"><![CDATA[new DecimalFormat( "#0.00" ).format($V{total_qty%_1})+"%"]]></textFieldExpression>
+				</textField>
+				<textField pattern="#,##0.00;-#,##0.00" isBlankWhenNull="false">
+					<reportElement positionType="Float" mode="Transparent" x="663" y="3" width="43" height="15" printWhenGroupChanges="category" forecolor="#000000" backcolor="#FFFFFF"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+						<font fontName="TH SarabunPSK" size="11" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+					</textElement>
+					<textFieldExpression class="java.lang.String"><![CDATA[//new DecimalFormat( "#0.00" ).format($V{total_total_price%_1})+"%"
+new DecimalFormat( "#0.00" ).format(100.00)+"%"]]></textFieldExpression>
+				</textField>
+				<textField pattern="#,##0.00;-#,##0.00" isBlankWhenNull="false">
+					<reportElement positionType="Float" mode="Transparent" x="318" y="3" width="35" height="15" printWhenGroupChanges="category" forecolor="#000000" backcolor="#FFFFFF"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+						<font fontName="TH SarabunPSK" size="11" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+					</textElement>
+					<textFieldExpression class="java.lang.String"><![CDATA[//new DecimalFormat( "#0.00" ).format($V{total_price%_1})+"%"
+new DecimalFormat( "#0.00" ).format(100)+"%"]]></textFieldExpression>
+				</textField>
+				<componentElement>
+					<reportElement key="table" style="table" positionType="Float" mode="Transparent" x="0" y="2" width="802" height="1" printWhenGroupChanges="branch"/>
+					<jr:table xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd">
+						<datasetRun subDataset="deposit_amount">
+							<datasetParameter name="start_date">
+								<datasetParameterExpression><![CDATA[$P{start_date}]]></datasetParameterExpression>
+							</datasetParameter>
+							<datasetParameter name="end_date">
+								<datasetParameterExpression><![CDATA[$P{end_date}]]></datasetParameterExpression>
+							</datasetParameter>
+							<datasetParameter name="start_branch">
+								<datasetParameterExpression><![CDATA[$F{branch_sequence}]]></datasetParameterExpression>
+							</datasetParameter>
+							<datasetParameter name="end_branch">
+								<datasetParameterExpression><![CDATA[$F{branch_sequence}]]></datasetParameterExpression>
+							</datasetParameter>
+							<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+						</datasetRun>
+						<jr:columnGroup width="169">
+							<jr:groupHeader groupName="category">
+								<jr:cell height="20" rowSpan="1">
+									<textField pattern="#,##0.00;-#,##0.00" isBlankWhenNull="false">
+										<reportElement mode="Transparent" x="0" y="0" width="169" height="20" printWhenGroupChanges="category" forecolor="#000000" backcolor="#FFFFFF"/>
+										<textElement verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+											<font fontName="TH SarabunPSK" size="11" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+										</textElement>
+										<textFieldExpression class="java.lang.String"><![CDATA["ประเภทสินค้า: "+$F{cate_name}]]></textFieldExpression>
+									</textField>
+								</jr:cell>
+							</jr:groupHeader>
+							<jr:groupFooter groupName="category">
+								<jr:cell height="15" rowSpan="1">
+									<box>
+										<topPen lineWidth="0.5"/>
+										<bottomPen lineWidth="0.5"/>
+									</box>
+									<staticText>
+										<reportElement positionType="Float" mode="Transparent" x="52" y="0" width="117" height="15" forecolor="#000000" backcolor="#FFFFFF"/>
+										<textElement verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+											<font fontName="TH SarabunPSK" size="11" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+										</textElement>
+										<text><![CDATA[ยอดรวม (Total)]]></text>
+									</staticText>
+								</jr:cell>
+							</jr:groupFooter>
+							<jr:column width="52">
+								<jr:detailCell height="15" rowSpan="1">
+									<textField pattern="#,##0.00;-#,##0.00" isBlankWhenNull="false">
+										<reportElement mode="Transparent" x="0" y="0" width="52" height="15" forecolor="#000000" backcolor="#FFFFFF"/>
+										<textElement verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+											<font fontName="TH SarabunPSK" size="11" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+										</textElement>
+										<textFieldExpression class="java.lang.String"><![CDATA[$F{default_code}==null?"-":$F{default_code}]]></textFieldExpression>
+									</textField>
+								</jr:detailCell>
+							</jr:column>
+							<jr:column width="77">
+								<jr:detailCell height="15" rowSpan="1">
+									<textField isStretchWithOverflow="true" pattern="#,##0.00;-#,##0.00" isBlankWhenNull="false">
+										<reportElement mode="Transparent" x="0" y="0" width="77" height="15" isPrintWhenDetailOverflows="true" forecolor="#000000" backcolor="#FFFFFF"/>
+										<textElement verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+											<font fontName="TH SarabunPSK" size="11" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+										</textElement>
+										<textFieldExpression class="java.lang.String"><![CDATA[$F{product}]]></textFieldExpression>
+									</textField>
+								</jr:detailCell>
+							</jr:column>
+							<jr:column width="40">
+								<jr:detailCell height="15" rowSpan="1"/>
+							</jr:column>
+						</jr:columnGroup>
+						<jr:column width="43">
+							<jr:groupFooter groupName="category">
+								<jr:cell height="15" rowSpan="1">
+									<box>
+										<topPen lineWidth="0.5"/>
+										<bottomPen lineWidth="0.5"/>
+									</box>
+								</jr:cell>
+							</jr:groupFooter>
+							<jr:detailCell height="15" rowSpan="1"/>
+						</jr:column>
+						<jr:column width="40">
+							<jr:groupFooter groupName="category">
+								<jr:cell height="15" rowSpan="1">
+									<box>
+										<topPen lineWidth="0.5"/>
+										<bottomPen lineWidth="0.5"/>
+									</box>
+								</jr:cell>
+							</jr:groupFooter>
+							<jr:detailCell height="15" rowSpan="1"/>
+						</jr:column>
+						<jr:column width="65">
+							<jr:groupFooter groupName="category">
+								<jr:cell height="15" rowSpan="1">
+									<box>
+										<topPen lineWidth="0.5"/>
+										<bottomPen lineWidth="0.5"/>
+									</box>
+									<textField pattern="#,##0.00;-#,##0.00">
+										<reportElement positionType="Float" mode="Transparent" x="0" y="0" width="65" height="15" forecolor="#000000" backcolor="#FFFFFF"/>
+										<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+											<font fontName="TH SarabunPSK" size="11" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+										</textElement>
+										<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{มูลค่ารวมทั้งหมด}]]></textFieldExpression>
+									</textField>
+								</jr:cell>
+							</jr:groupFooter>
+							<jr:detailCell height="15" rowSpan="1">
+								<textField pattern="#,##0.00;-#,##0.00">
+									<reportElement mode="Transparent" x="0" y="0" width="65" height="15" printWhenGroupChanges="category" forecolor="#000000" backcolor="#FFFFFF"/>
+									<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+										<font fontName="TH SarabunPSK" size="11" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+									</textElement>
+									<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{sum_total}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="35">
+							<jr:groupFooter groupName="category">
+								<jr:cell height="15" rowSpan="1">
+									<box>
+										<topPen lineWidth="0.5"/>
+										<bottomPen lineWidth="0.5"/>
+									</box>
+									<textField pattern="#,##0.00;-#,##0.00" isBlankWhenNull="false">
+										<reportElement mode="Transparent" x="0" y="0" width="35" height="15" printWhenGroupChanges="category" forecolor="#000000" backcolor="#FFFFFF"/>
+										<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+											<font fontName="TH SarabunPSK" size="11" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+										</textElement>
+										<textFieldExpression class="java.lang.String"><![CDATA[new DecimalFormat( "#0.00" ).format($V{sum_price%})+"%"]]></textFieldExpression>
+									</textField>
+								</jr:cell>
+							</jr:groupFooter>
+							<jr:detailCell height="15" rowSpan="1">
+								<textField pattern="#,##0.00;-#,##0.00" isBlankWhenNull="false">
+									<reportElement mode="Transparent" x="0" y="0" width="35" height="15" forecolor="#000000" backcolor="#FFFFFF"/>
+									<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+										<font fontName="TH SarabunPSK" size="11" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+									</textElement>
+									<textFieldExpression class="java.lang.String"><![CDATA[new DecimalFormat( "#0.00" ).format($V{price%})+"%"]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="60">
+							<jr:groupFooter groupName="category">
+								<jr:cell height="15" rowSpan="1">
+									<box>
+										<topPen lineWidth="0.5"/>
+										<bottomPen lineWidth="0.5"/>
+									</box>
+									<textField pattern="#,##0.00;-#,##0.00">
+										<reportElement mode="Transparent" x="0" y="0" width="60" height="15" printWhenGroupChanges="category" forecolor="#000000" backcolor="#FFFFFF"/>
+										<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+											<font fontName="TH SarabunPSK" size="11" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+										</textElement>
+										<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{sum_beforevat_sale}]]></textFieldExpression>
+									</textField>
+								</jr:cell>
+							</jr:groupFooter>
+							<jr:detailCell height="15" rowSpan="1">
+								<textField pattern="#,##0.00;-#,##0.00">
+									<reportElement mode="Transparent" x="0" y="0" width="60" height="15" forecolor="#000000" backcolor="#FFFFFF"/>
+									<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+										<font fontName="TH SarabunPSK" size="11" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+									</textElement>
+									<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{before_vat}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="40">
+							<jr:groupFooter groupName="category">
+								<jr:cell height="15" rowSpan="1">
+									<box>
+										<topPen lineWidth="0.5"/>
+										<bottomPen lineWidth="0.5"/>
+									</box>
+									<textField pattern="#,##0.00;-#,##0.00">
+										<reportElement positionType="Float" mode="Transparent" x="0" y="0" width="40" height="15" forecolor="#000000" backcolor="#FFFFFF"/>
+										<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+											<font fontName="TH SarabunPSK" size="11" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+										</textElement>
+										<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{sum_vat_sale}]]></textFieldExpression>
+									</textField>
+								</jr:cell>
+							</jr:groupFooter>
+							<jr:detailCell height="15" rowSpan="1">
+								<textField pattern="#,##0.00;-#,##0.00">
+									<reportElement mode="Transparent" x="0" y="0" width="40" height="15" forecolor="#000000" backcolor="#FFFFFF"/>
+									<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+										<font fontName="TH SarabunPSK" size="11" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+									</textElement>
+									<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{sum_total}-$F{before_vat}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="56">
+							<jr:groupFooter groupName="category">
+								<jr:cell height="15" rowSpan="1">
+									<box>
+										<topPen lineWidth="0.5"/>
+										<bottomPen lineWidth="0.5"/>
+									</box>
+									<textField pattern="#,##0.00;-#,##0.00">
+										<reportElement positionType="Float" mode="Transparent" x="0" y="0" width="56" height="15" printWhenGroupChanges="category" forecolor="#000000" backcolor="#FFFFFF"/>
+										<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+											<font fontName="TH SarabunPSK" size="11" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+										</textElement>
+										<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{ส่วนลดทั้งหมด}]]></textFieldExpression>
+									</textField>
+								</jr:cell>
+							</jr:groupFooter>
+							<jr:detailCell height="15" rowSpan="1">
+								<textField pattern="#,##0.00;-#,##0.00">
+									<reportElement mode="Transparent" x="0" y="0" width="56" height="15" forecolor="#000000" backcolor="#FFFFFF"/>
+									<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+										<font fontName="TH SarabunPSK" size="11" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+									</textElement>
+									<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{discount_amount}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="54">
+							<jr:groupFooter groupName="category">
+								<jr:cell height="15" rowSpan="1">
+									<box>
+										<topPen lineWidth="0.5"/>
+										<bottomPen lineWidth="0.5"/>
+									</box>
+									<textField pattern="#,##0.00;-#,##0.00">
+										<reportElement positionType="Float" mode="Transparent" x="0" y="0" width="54" height="15" forecolor="#000000" backcolor="#FFFFFF"/>
+										<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+											<font fontName="TH SarabunPSK" size="11" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+										</textElement>
+										<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{total_beforevat_discount}]]></textFieldExpression>
+									</textField>
+								</jr:cell>
+							</jr:groupFooter>
+							<jr:detailCell height="15" rowSpan="1">
+								<textField pattern="#,##0.00;-#,##0.00">
+									<reportElement mode="Transparent" x="0" y="0" width="54" height="15" forecolor="#000000" backcolor="#FFFFFF"/>
+									<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+										<font fontName="TH SarabunPSK" size="11" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+									</textElement>
+									<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{before_vat_discount}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="40">
+							<jr:groupFooter groupName="category">
+								<jr:cell height="15" rowSpan="1">
+									<box>
+										<topPen lineWidth="0.5"/>
+										<bottomPen lineWidth="0.5"/>
+									</box>
+									<textField pattern="#,##0.00;-#,##0.00">
+										<reportElement positionType="Float" mode="Transparent" x="0" y="0" width="40" height="15" forecolor="#000000" backcolor="#FFFFFF"/>
+										<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+											<font fontName="TH SarabunPSK" size="11" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+										</textElement>
+										<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{sum_vat_discount}]]></textFieldExpression>
+									</textField>
+								</jr:cell>
+							</jr:groupFooter>
+							<jr:detailCell height="15" rowSpan="1">
+								<textField pattern="#,##0.00;-#,##0.00">
+									<reportElement mode="Transparent" x="0" y="0" width="40" height="15" forecolor="#000000" backcolor="#FFFFFF"/>
+									<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+										<font fontName="TH SarabunPSK" size="11" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+									</textElement>
+									<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{discount_amount}-$F{before_vat_discount}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="60">
+							<jr:groupFooter groupName="category">
+								<jr:cell height="15" rowSpan="1">
+									<box>
+										<topPen lineWidth="0.5"/>
+										<bottomPen lineWidth="0.5"/>
+									</box>
+									<textField pattern="#,##0.00;-#,##0.00">
+										<reportElement positionType="Float" mode="Transparent" x="0" y="0" width="60" height="15" forecolor="#000000" backcolor="#FFFFFF"/>
+										<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+											<font fontName="TH SarabunPSK" size="11" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+										</textElement>
+										<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{ยอดขายสุทธิทั้งหมด}]]></textFieldExpression>
+									</textField>
+								</jr:cell>
+							</jr:groupFooter>
+							<jr:detailCell height="15" rowSpan="1">
+								<textField pattern="#,##0.00;-#,##0.00">
+									<reportElement mode="Transparent" x="0" y="0" width="60" height="15" forecolor="#000000" backcolor="#FFFFFF"/>
+									<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+										<font fontName="TH SarabunPSK" size="11" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+									</textElement>
+									<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{net_price}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="43">
+							<jr:groupFooter groupName="category">
+								<jr:cell height="15" rowSpan="1">
+									<box>
+										<topPen lineWidth="0.5"/>
+										<bottomPen lineWidth="0.5"/>
+									</box>
+									<textField pattern="#,##0.00;-#,##0.00" isBlankWhenNull="false">
+										<reportElement positionType="Float" mode="Transparent" x="0" y="0" width="43" height="15" forecolor="#000000" backcolor="#FFFFFF"/>
+										<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+											<font fontName="TH SarabunPSK" size="11" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+										</textElement>
+										<textFieldExpression class="java.lang.String"><![CDATA[new DecimalFormat( "#0.00" ).format($V{sum_total_price%})+"%"]]></textFieldExpression>
+									</textField>
+								</jr:cell>
+							</jr:groupFooter>
+							<jr:detailCell height="15" rowSpan="1">
+								<textField pattern="#,##0.00;-#,##0.00" isBlankWhenNull="false">
+									<reportElement mode="Transparent" x="0" y="0" width="43" height="15" forecolor="#000000" backcolor="#FFFFFF"/>
+									<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+										<font fontName="TH SarabunPSK" size="11" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+									</textElement>
+									<textFieldExpression class="java.lang.String"><![CDATA[new DecimalFormat( "#0.00" ).format($V{total%})+"%"]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="58">
+							<jr:groupFooter groupName="category">
+								<jr:cell height="15" rowSpan="1">
+									<box>
+										<topPen lineWidth="0.5"/>
+										<bottomPen lineWidth="0.5"/>
+									</box>
+									<textField pattern="#,##0.00;-#,##0.00">
+										<reportElement positionType="Float" mode="Transparent" x="0" y="0" width="58" height="15" forecolor="#000000" backcolor="#FFFFFF"/>
+										<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+											<font fontName="TH SarabunPSK" size="11" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+										</textElement>
+										<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{sum_beforevat_net}]]></textFieldExpression>
+									</textField>
+								</jr:cell>
+							</jr:groupFooter>
+							<jr:detailCell height="15" rowSpan="1">
+								<textField pattern="#,##0.00;-#,##0.00">
+									<reportElement mode="Transparent" x="0" y="0" width="58" height="15" forecolor="#000000" backcolor="#FFFFFF"/>
+									<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+										<font fontName="TH SarabunPSK" size="11" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+									</textElement>
+									<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{before_vat_net}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="38">
+							<jr:groupFooter groupName="category">
+								<jr:cell height="15" rowSpan="1">
+									<box>
+										<topPen lineWidth="0.5"/>
+										<bottomPen lineWidth="0.5"/>
+									</box>
+									<textField pattern="#,##0.00;-#,##0.00">
+										<reportElement positionType="Float" mode="Transparent" x="0" y="0" width="38" height="15" forecolor="#000000" backcolor="#FFFFFF"/>
+										<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+											<font fontName="TH SarabunPSK" size="11" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+										</textElement>
+										<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{sum_vat_net}]]></textFieldExpression>
+									</textField>
+								</jr:cell>
+							</jr:groupFooter>
+							<jr:detailCell height="15" rowSpan="1">
+								<textField pattern="#,##0.00;-#,##0.00">
+									<reportElement mode="Transparent" x="0" y="0" width="38" height="15" forecolor="#000000" backcolor="#FFFFFF"/>
+									<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+										<font fontName="TH SarabunPSK" size="11" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+									</textElement>
+									<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{net_price}-$F{before_vat_net}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+					</jr:table>
+				</componentElement>
+				<componentElement>
+					<reportElement key="table" style="table" positionType="Float" mode="Transparent" x="0" y="0" width="802" height="1" printWhenGroupChanges="branch"/>
+					<jr:table xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd">
+						<datasetRun subDataset="none_deposit_amount">
+							<datasetParameter name="start_date">
+								<datasetParameterExpression><![CDATA[$P{start_date}]]></datasetParameterExpression>
+							</datasetParameter>
+							<datasetParameter name="end_date">
+								<datasetParameterExpression><![CDATA[$P{end_date}]]></datasetParameterExpression>
+							</datasetParameter>
+							<datasetParameter name="start_branch">
+								<datasetParameterExpression><![CDATA[$F{branch_sequence}]]></datasetParameterExpression>
+							</datasetParameter>
+							<datasetParameter name="end_branch">
+								<datasetParameterExpression><![CDATA[$F{branch_sequence}]]></datasetParameterExpression>
+							</datasetParameter>
+							<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+						</datasetRun>
+						<jr:column width="52">
+							<jr:columnFooter height="15" rowSpan="1"/>
+							<jr:detailCell height="0" rowSpan="1"/>
+						</jr:column>
+						<jr:column width="117">
+							<jr:columnFooter height="15" rowSpan="1">
+								<staticText>
+									<reportElement positionType="Float" mode="Transparent" x="0" y="0" width="117" height="15" forecolor="#000000" backcolor="#FFFFFF"/>
+									<textElement verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+										<font fontName="TH SarabunPSK" size="11" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+									</textElement>
+									<text><![CDATA[รวมยอดขาย (Total Sales)]]></text>
+								</staticText>
+							</jr:columnFooter>
+							<jr:detailCell height="0" rowSpan="1"/>
+						</jr:column>
+						<jr:column width="43">
+							<jr:columnFooter height="15" rowSpan="1">
+								<textField pattern="#,##0;-#,##0">
+									<reportElement positionType="Float" mode="Transparent" x="0" y="0" width="43" height="15" forecolor="#000000" backcolor="#FFFFFF"/>
+									<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+										<font fontName="TH SarabunPSK" size="11" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+									</textElement>
+									<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{จำนวนทั้งหมด}]]></textFieldExpression>
+								</textField>
+							</jr:columnFooter>
+							<jr:detailCell height="0" rowSpan="1"/>
+						</jr:column>
+						<jr:column width="40">
+							<jr:columnFooter height="15" rowSpan="1">
+								<textField pattern="#,##0.00;-#,##0.00" isBlankWhenNull="false">
+									<reportElement mode="Transparent" x="0" y="0" width="40" height="15" forecolor="#000000" backcolor="#FFFFFF"/>
+									<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+										<font fontName="TH SarabunPSK" size="11" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+									</textElement>
+									<textFieldExpression class="java.lang.String"><![CDATA[new DecimalFormat( "#0.00" ).format($V{qty%})+"%"]]></textFieldExpression>
+								</textField>
+							</jr:columnFooter>
+							<jr:detailCell height="0" rowSpan="1"/>
+						</jr:column>
+						<jr:column width="65">
+							<jr:columnFooter height="15" rowSpan="1">
+								<textField pattern="#,##0.00;-#,##0.00">
+									<reportElement positionType="Float" mode="Transparent" x="0" y="0" width="65" height="15" forecolor="#000000" backcolor="#FFFFFF"/>
+									<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+										<font fontName="TH SarabunPSK" size="11" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+									</textElement>
+									<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{มูลค่ารวมทั้งหมด}]]></textFieldExpression>
+								</textField>
+							</jr:columnFooter>
+							<jr:detailCell height="0" rowSpan="1"/>
+						</jr:column>
+						<jr:column width="35">
+							<jr:columnFooter height="15" rowSpan="1">
+								<textField pattern="#,##0.00;-#,##0.00" isBlankWhenNull="false">
+									<reportElement mode="Transparent" x="0" y="0" width="35" height="15" forecolor="#000000" backcolor="#FFFFFF"/>
+									<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+										<font fontName="TH SarabunPSK" size="11" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+									</textElement>
+									<textFieldExpression class="java.lang.String"><![CDATA[new DecimalFormat( "#0.00" ).format($V{sum_price%})+"%"]]></textFieldExpression>
+								</textField>
+							</jr:columnFooter>
+							<jr:detailCell height="0" rowSpan="1"/>
+						</jr:column>
+						<jr:column width="60">
+							<jr:columnFooter height="15" rowSpan="1">
+								<textField pattern="#,##0.00;-#,##0.00">
+									<reportElement mode="Transparent" x="0" y="0" width="60" height="15" forecolor="#000000" backcolor="#FFFFFF"/>
+									<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+										<font fontName="TH SarabunPSK" size="11" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+									</textElement>
+									<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{sum_beforevat_sale}]]></textFieldExpression>
+								</textField>
+							</jr:columnFooter>
+							<jr:detailCell height="0" rowSpan="1"/>
+						</jr:column>
+						<jr:column width="40">
+							<jr:columnFooter height="15" rowSpan="1">
+								<textField pattern="#,##0.00;-#,##0.00">
+									<reportElement positionType="Float" mode="Transparent" x="0" y="0" width="40" height="15" forecolor="#000000" backcolor="#FFFFFF"/>
+									<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+										<font fontName="TH SarabunPSK" size="11" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+									</textElement>
+									<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{total_vat_sale}]]></textFieldExpression>
+								</textField>
+							</jr:columnFooter>
+							<jr:detailCell height="0" rowSpan="1"/>
+						</jr:column>
+						<jr:column width="56">
+							<jr:columnFooter height="15" rowSpan="1">
+								<textField pattern="#,##0.00;-#,##0.00">
+									<reportElement positionType="Float" mode="Transparent" x="0" y="0" width="56" height="15" forecolor="#000000" backcolor="#FFFFFF"/>
+									<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+										<font fontName="TH SarabunPSK" size="11" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+									</textElement>
+									<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{ส่วนลด}]]></textFieldExpression>
+								</textField>
+							</jr:columnFooter>
+							<jr:detailCell height="0" rowSpan="1"/>
+						</jr:column>
+						<jr:column width="54">
+							<jr:columnFooter height="15" rowSpan="1">
+								<textField pattern="#,##0.00;-#,##0.00">
+									<reportElement positionType="Float" mode="Transparent" x="0" y="0" width="54" height="15" forecolor="#000000" backcolor="#FFFFFF"/>
+									<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+										<font fontName="TH SarabunPSK" size="11" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+									</textElement>
+									<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{total_beforevat_discount}]]></textFieldExpression>
+								</textField>
+							</jr:columnFooter>
+							<jr:detailCell height="0" rowSpan="1"/>
+						</jr:column>
+						<jr:column width="40">
+							<jr:columnFooter height="15" rowSpan="1">
+								<textField pattern="#,##0.00;-#,##0.00">
+									<reportElement positionType="Float" mode="Transparent" x="0" y="0" width="40" height="15" forecolor="#000000" backcolor="#FFFFFF"/>
+									<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+										<font fontName="TH SarabunPSK" size="11" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+									</textElement>
+									<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{total_vat_discount}]]></textFieldExpression>
+								</textField>
+							</jr:columnFooter>
+							<jr:detailCell height="0" rowSpan="1"/>
+						</jr:column>
+						<jr:column width="60">
+							<jr:columnFooter height="15" rowSpan="1">
+								<textField pattern="#,##0.00;-#,##0.00">
+									<reportElement positionType="Float" mode="Transparent" x="0" y="0" width="60" height="15" forecolor="#000000" backcolor="#FFFFFF"/>
+									<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+										<font fontName="TH SarabunPSK" size="11" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+									</textElement>
+									<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{ยอดขายสุทธิ}]]></textFieldExpression>
+								</textField>
+							</jr:columnFooter>
+							<jr:detailCell height="0" rowSpan="1"/>
+						</jr:column>
+						<jr:column width="43">
+							<jr:columnFooter height="15" rowSpan="1">
+								<textField pattern="#,##0.00;-#,##0.00" isBlankWhenNull="false">
+									<reportElement positionType="Float" mode="Transparent" x="0" y="0" width="43" height="15" forecolor="#000000" backcolor="#FFFFFF"/>
+									<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+										<font fontName="TH SarabunPSK" size="11" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+									</textElement>
+									<textFieldExpression class="java.lang.String"><![CDATA[new DecimalFormat( "#0.00" ).format($V{total_total_price%_1})+"%"]]></textFieldExpression>
+								</textField>
+							</jr:columnFooter>
+							<jr:detailCell height="0" rowSpan="1"/>
+						</jr:column>
+						<jr:column width="58">
+							<jr:columnFooter height="15" rowSpan="1">
+								<textField pattern="#,##0.00;-#,##0.00">
+									<reportElement positionType="Float" mode="Transparent" x="0" y="0" width="58" height="15" forecolor="#000000" backcolor="#FFFFFF"/>
+									<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+										<font fontName="TH SarabunPSK" size="11" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+									</textElement>
+									<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{total_beforevat_net}]]></textFieldExpression>
+								</textField>
+							</jr:columnFooter>
+							<jr:detailCell height="0" rowSpan="1"/>
+						</jr:column>
+						<jr:column width="38">
+							<jr:columnFooter height="15" rowSpan="1">
+								<textField pattern="#,##0.00;-#,##0.00">
+									<reportElement positionType="Float" mode="Transparent" x="0" y="0" width="38" height="15" forecolor="#000000" backcolor="#FFFFFF"/>
+									<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+										<font fontName="TH SarabunPSK" size="11" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+									</textElement>
+									<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{total_vat_net}]]></textFieldExpression>
+								</textField>
+							</jr:columnFooter>
+							<jr:detailCell height="0" rowSpan="1"/>
+						</jr:column>
+					</jr:table>
+				</componentElement>
+			</band>
+		</groupFooter>
+	</group>
+	<group name="category" keepTogether="true">
+		<groupExpression><![CDATA[$F{id_cate}]]></groupExpression>
+		<groupHeader>
+			<band height="20">
+				<printWhenExpression><![CDATA[Math.abs($F{price_unit}) != 1]]></printWhenExpression>
+				<textField pattern="#,##0.00;-#,##0.00" isBlankWhenNull="false">
+					<reportElement mode="Transparent" x="1" y="0" width="169" height="20" printWhenGroupChanges="category" forecolor="#000000" backcolor="#FFFFFF"/>
+					<textElement verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+						<font fontName="TH SarabunPSK" size="11" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+					</textElement>
+					<textFieldExpression class="java.lang.String"><![CDATA["ประเภทสินค้า: "+$F{cate_name}]]></textFieldExpression>
+				</textField>
+			</band>
+		</groupHeader>
+		<groupFooter>
+			<band height="17">
+				<printWhenExpression><![CDATA[Math.abs($F{price_unit}) != 1]]></printWhenExpression>
+				<textField pattern="#,##0.00;-#,##0.00">
+					<reportElement mode="Transparent" x="706" y="1" width="58" height="15" printWhenGroupChanges="category" forecolor="#000000" backcolor="#FFFFFF"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+						<font fontName="TH SarabunPSK" size="11" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+					</textElement>
+					<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{sum_beforevat_net}]]></textFieldExpression>
+				</textField>
+				<textField pattern="#,##0;-#,##0">
+					<reportElement positionType="Float" mode="Transparent" x="170" y="1" width="43" height="15" printWhenGroupChanges="category" forecolor="#000000" backcolor="#FFFFFF"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+						<font fontName="TH SarabunPSK" size="11" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+					</textElement>
+					<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{จำนวนทั้งหมด}]]></textFieldExpression>
+				</textField>
+				<textField pattern="#,##0.00;-#,##0.00">
+					<reportElement mode="Transparent" x="563" y="1" width="40" height="15" printWhenGroupChanges="category" forecolor="#000000" backcolor="#FFFFFF"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+						<font fontName="TH SarabunPSK" size="11" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+					</textElement>
+					<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{sum_vat_discount}]]></textFieldExpression>
+				</textField>
+				<textField pattern="#,##0.00;-#,##0.00">
+					<reportElement mode="Transparent" x="413" y="1" width="40" height="15" printWhenGroupChanges="category" forecolor="#000000" backcolor="#FFFFFF"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+						<font fontName="TH SarabunPSK" size="11" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+					</textElement>
+					<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{sum_vat_sale}]]></textFieldExpression>
+				</textField>
+				<textField pattern="#,##0.00;-#,##0.00">
+					<reportElement mode="Transparent" x="764" y="1" width="38" height="15" printWhenGroupChanges="category" forecolor="#000000" backcolor="#FFFFFF"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+						<font fontName="TH SarabunPSK" size="11" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+					</textElement>
+					<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{sum_vat_net}]]></textFieldExpression>
+				</textField>
+				<textField pattern="#,##0.00;-#,##0.00">
+					<reportElement mode="Transparent" x="509" y="1" width="54" height="15" printWhenGroupChanges="category" forecolor="#000000" backcolor="#FFFFFF"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+						<font fontName="TH SarabunPSK" size="11" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+					</textElement>
+					<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{sum_beforevat_discount}]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement positionType="Float" mode="Transparent" x="53" y="1" width="117" height="15" forecolor="#000000" backcolor="#FFFFFF"/>
+					<textElement verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+						<font fontName="TH SarabunPSK" size="11" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+					</textElement>
+					<text><![CDATA[ยอดรวม (Total)]]></text>
+				</staticText>
+				<textField pattern="#,##0.00;-#,##0.00">
+					<reportElement mode="Transparent" x="353" y="1" width="60" height="15" printWhenGroupChanges="category" forecolor="#000000" backcolor="#FFFFFF"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+						<font fontName="TH SarabunPSK" size="11" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+					</textElement>
+					<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{sum_beforevat_sale}]]></textFieldExpression>
+				</textField>
+				<textField pattern="#,##0.00;-#,##0.00">
+					<reportElement positionType="Float" mode="Transparent" x="603" y="1" width="60" height="15" printWhenGroupChanges="category" forecolor="#000000" backcolor="#FFFFFF"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+						<font fontName="TH SarabunPSK" size="11" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+					</textElement>
+					<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{ยอดขายสุทธิทั้งหมด}]]></textFieldExpression>
+				</textField>
+				<textField pattern="#,##0.00;-#,##0.00">
+					<reportElement positionType="Float" mode="Transparent" x="453" y="1" width="56" height="15" printWhenGroupChanges="category" forecolor="#000000" backcolor="#FFFFFF"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+						<font fontName="TH SarabunPSK" size="11" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+					</textElement>
+					<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{ส่วนลดทั้งหมด}]]></textFieldExpression>
+				</textField>
+				<textField pattern="#,##0.00;-#,##0.00">
+					<reportElement positionType="Float" mode="Transparent" x="253" y="1" width="65" height="15" printWhenGroupChanges="category" forecolor="#000000" backcolor="#FFFFFF"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+						<font fontName="TH SarabunPSK" size="11" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+					</textElement>
+					<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{มูลค่ารวมทั้งหมด}]]></textFieldExpression>
+				</textField>
+				<line>
+					<reportElement positionType="Float" x="1" y="0" width="802" height="1"/>
+					<graphicElement>
+						<pen lineWidth="1.0" lineStyle="Solid"/>
+					</graphicElement>
+				</line>
+				<textField pattern="#,##0.00;-#,##0.00" isBlankWhenNull="false">
+					<reportElement mode="Transparent" x="213" y="1" width="40" height="15" printWhenGroupChanges="category" forecolor="#000000" backcolor="#FFFFFF"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+						<font fontName="TH SarabunPSK" size="11" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+					</textElement>
+					<textFieldExpression class="java.lang.String"><![CDATA[new DecimalFormat( "#0.00" ).format($V{sum_qty%})+"%"]]></textFieldExpression>
+				</textField>
+				<textField pattern="#,##0.00;-#,##0.00" isBlankWhenNull="false">
+					<reportElement mode="Transparent" x="318" y="1" width="35" height="15" printWhenGroupChanges="category" forecolor="#000000" backcolor="#FFFFFF"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+						<font fontName="TH SarabunPSK" size="11" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+					</textElement>
+					<textFieldExpression class="java.lang.String"><![CDATA[new DecimalFormat( "#0.00" ).format($V{sum_price%})+"%"]]></textFieldExpression>
+				</textField>
+				<textField pattern="#,##0.00;-#,##0.00" isBlankWhenNull="false">
+					<reportElement mode="Transparent" x="663" y="1" width="43" height="15" printWhenGroupChanges="category" forecolor="#000000" backcolor="#FFFFFF"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+						<font fontName="TH SarabunPSK" size="11" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+					</textElement>
+					<textFieldExpression class="java.lang.String"><![CDATA[new DecimalFormat( "#0.00" ).format($V{sum_total_price%})+"%"]]></textFieldExpression>
+				</textField>
+				<line>
+					<reportElement positionType="Float" x="0" y="16" width="802" height="1"/>
+					<graphicElement>
+						<pen lineWidth="1.0" lineStyle="Solid"/>
+					</graphicElement>
+				</line>
+			</band>
+		</groupFooter>
+	</group>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<pageHeader>
+		<band height="138" splitType="Stretch">
+			<textField pattern="" isBlankWhenNull="false">
+				<reportElement mode="Transparent" x="170" y="28" width="493" height="22" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Center" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="16" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{company_name}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement mode="Transparent" x="170" y="69" width="493" height="38" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Center" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="16" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<text><![CDATA[รายงานยอดขายสุทธิตามประเภทสินค้า (ละเอียด)
+Net Sales Product Lines By Categories Report]]></text>
+			</staticText>
+			<textField pattern="" isBlankWhenNull="false">
+				<reportElement mode="Transparent" x="170" y="107" width="493" height="20" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Center" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="14" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{date_start} + " - " +$F{date_end}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement mode="Transparent" x="663" y="0" width="43" height="14" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Left" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="12" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<text><![CDATA[วันที่พิมพ์:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="663" y="14" width="43" height="14" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Left" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="12" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<text><![CDATA[เวลาที่พิมพ์:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="663" y="28" width="43" height="22" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Left" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="12" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<text><![CDATA[หน้า:]]></text>
+			</staticText>
+			<textField pattern="dd/MM/yyyy">
+				<reportElement mode="Transparent" x="706" y="0" width="96" height="14" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Left" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="12" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<textFieldExpression class="java.util.Date"><![CDATA[$F{print_date}]]></textFieldExpression>
+			</textField>
+			<textField pattern="HH:mm:ss">
+				<reportElement mode="Transparent" x="706" y="14" width="96" height="14" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Left" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="12" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<textFieldExpression class="java.util.Date"><![CDATA[$F{print_time}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement mode="Transparent" x="706" y="28" width="10" height="22" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="12" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$V{PAGE_NUMBER}+"/"]]></textFieldExpression>
+			</textField>
+			<textField evaluationTime="Report">
+				<reportElement mode="Transparent" x="716" y="28" width="86" height="22" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Left" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="12" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$V{PAGE_NUMBER}]]></textFieldExpression>
+			</textField>
+			<textField pattern="" isBlankWhenNull="false">
+				<reportElement mode="Transparent" x="170" y="50" width="493" height="19" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Center" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="16" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[($P{start_branch} == $P{end_branch})? ("สาขาที่"+" "+String.format("%05d",Integer.parseInt($F{start_branch_id}))
++" "+$F{start_branch_name}):("สาขาที่"+" "+String.format("%05d",Integer.parseInt($F{start_branch_id}))
++" "+$F{start_branch_name}+" "
++" - "+"สาขาที่"+" "+String.format("%05d",Integer.parseInt($F{end_branch_id}))+" "+$F{end_branch_name}
+)]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageHeader>
+	<columnHeader>
+		<band height="65">
+			<line>
+				<reportElement mode="Transparent" x="0" y="64" width="802" height="1" forecolor="#000000" backcolor="#FFFFFF"/>
+				<graphicElement>
+					<pen lineWidth="2.0" lineStyle="Double"/>
+				</graphicElement>
+			</line>
+			<staticText>
+				<reportElement mode="Transparent" x="213" y="23" width="40" height="40" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="12" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<text><![CDATA[จำนวน%]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="170" y="23" width="43" height="40" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Right" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="12" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<text><![CDATA[จำนวน]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="130" y="23" width="40" height="40" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Center" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="12" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<text><![CDATA[ราคาต่อ
+หน่วย]]></text>
+			</staticText>
+			<line>
+				<reportElement mode="Transparent" x="0" y="20" width="802" height="1" forecolor="#000000" backcolor="#FFFFFF"/>
+				<graphicElement>
+					<pen lineWidth="2.0" lineStyle="Double"/>
+				</graphicElement>
+			</line>
+			<staticText>
+				<reportElement mode="Transparent" x="53" y="23" width="77" height="40" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Center" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="12" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<text><![CDATA[ชื่อสินค้า]]></text>
+			</staticText>
+			<textField>
+				<reportElement mode="Transparent" x="0" y="4" width="603" height="15" printWhenGroupChanges="branch" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="13" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA["สาขาที่"+" "+String.format("%05d",Integer.parseInt($F{branch_id}))+" "+$F{branch_name}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement mode="Transparent" x="453" y="43" width="56" height="20" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="12" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<text><![CDATA[Discount]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="253" y="43" width="60" height="20" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="12" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<text><![CDATA[Sale]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="453" y="23" width="150" height="20" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="12" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<text><![CDATA[ส่วนลด (Discount)]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="704" y="43" width="60" height="20" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="12" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<text><![CDATA[Before VAT]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="603" y="43" width="60" height="20" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="12" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<text><![CDATA[Net Sale]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="353" y="43" width="60" height="20" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="12" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<text><![CDATA[Before VAT]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="413" y="43" width="40" height="20" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="12" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<text><![CDATA[VAT]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="764" y="43" width="38" height="20" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="12" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<text><![CDATA[VAT]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="563" y="43" width="40" height="20" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="12" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<text><![CDATA[VAT]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="603" y="23" width="199" height="20" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="12" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<text><![CDATA[  ยอดขายสุทธิ (Net Sale)]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="313" y="43" width="40" height="20" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="12" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<text><![CDATA[%]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="509" y="43" width="54" height="20" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="12" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<text><![CDATA[Before VAT]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="663" y="43" width="41" height="20" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="12" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<text><![CDATA[%]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="253" y="23" width="200" height="20" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="12" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<text><![CDATA[         มูลค่าขาย (Sale)]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="0" y="23" width="53" height="40" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Center" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="12" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun Bold.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<text><![CDATA[ประเภทสินค้า
+รหัสสินค้า]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="15" splitType="Stretch">
+			<printWhenExpression><![CDATA[$F{exempt_pos_calculate} == false]]></printWhenExpression>
+			<textField pattern="#,##0.00;-#,##0.00" isBlankWhenNull="false">
+				<reportElement mode="Transparent" x="1" y="0" width="52" height="15" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="11" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{default_code}==null?"-":$F{default_code}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0.00;-#,##0.00" isBlankWhenNull="false">
+				<reportElement mode="Transparent" x="53" y="0" width="77" height="15" isPrintWhenDetailOverflows="true" printWhenGroupChanges="category" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="11" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{product}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00;-#,##0.00" isBlankWhenNull="false">
+				<reportElement mode="Transparent" x="130" y="0" width="40" height="15" printWhenGroupChanges="category" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="11" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{price_unit}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0;-#,##0" isBlankWhenNull="false">
+				<reportElement mode="Transparent" x="170" y="0" width="43" height="15" printWhenGroupChanges="category" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="11" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[($F{exempt_pos_calculate} != false || $F{price_unit} < 0 ) ? 0.0 : $F{sum_qty}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00;-#,##0.00">
+				<reportElement mode="Transparent" x="764" y="0" width="38" height="15" printWhenGroupChanges="category" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="11" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{net_price}-$F{before_vat_net}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00;-#,##0.00">
+				<reportElement mode="Transparent" x="509" y="0" width="54" height="15" printWhenGroupChanges="category" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="11" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{before_vat_discount}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00;-#,##0.00">
+				<reportElement mode="Transparent" x="353" y="0" width="60" height="15" printWhenGroupChanges="category" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="11" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{before_vat}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00;-#,##0.00">
+				<reportElement mode="Transparent" x="253" y="0" width="65" height="15" printWhenGroupChanges="category" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="11" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{sum_total}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00;-#,##0.00">
+				<reportElement mode="Transparent" x="563" y="0" width="40" height="15" printWhenGroupChanges="category" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="11" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{discount_amount}-$F{before_vat_discount}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00;-#,##0.00">
+				<reportElement mode="Transparent" x="453" y="0" width="56" height="15" printWhenGroupChanges="category" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="11" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{discount_amount}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00;-#,##0.00">
+				<reportElement mode="Transparent" x="603" y="0" width="60" height="15" printWhenGroupChanges="category" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="11" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{net_price}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00;-#,##0.00">
+				<reportElement mode="Transparent" x="413" y="0" width="40" height="15" printWhenGroupChanges="category" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="11" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{sum_total}-$F{before_vat}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00;-#,##0.00">
+				<reportElement mode="Transparent" x="706" y="0" width="58" height="15" printWhenGroupChanges="category" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="11" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{before_vat_net}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00;-#,##0.00" isBlankWhenNull="false">
+				<reportElement mode="Transparent" x="213" y="0" width="40" height="15" printWhenGroupChanges="category" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="11" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[new DecimalFormat( "#0.00" ).format($V{qty%})+"%"]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.000;-#,##0.000" isBlankWhenNull="false">
+				<reportElement mode="Transparent" x="318" y="0" width="35" height="15" printWhenGroupChanges="category" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="11" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[new DecimalFormat( "#0.00" ).format($F{sale_price_percent}.floatValue())+"%"]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0.00;-#,##0.00" isBlankWhenNull="false">
+				<reportElement mode="Transparent" x="663" y="0" width="43" height="15" printWhenGroupChanges="category" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="11" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[new DecimalFormat( "#0.00" ).format($F{net_price_percent})+"%"]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band/>
+	</columnFooter>
+	<summary>
+		<band height="50">
+			<staticText>
+				<reportElement mode="Transparent" x="0" y="1" width="212" height="29" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="11" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<text><![CDATA[ยอดขายสุทธิ = มูลค่าขาย - ส่วนลด
+มูลค่าขาย = จำนวน * ราคาขายต่อหน่วย ณ วันที่ทำรายการ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Transparent" x="212" y="30" width="391" height="20" forecolor="#000000" backcolor="#FFFFFF"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle" rotation="None" lineSpacing="Single" markup="none">
+					<font fontName="TH SarabunPSK" size="17" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="/usr/share/fonts/truetype/THSarabun.ttf" pdfEncoding="Identity-H" isPdfEmbedded="true"/>
+				</textElement>
+				<text><![CDATA[< สิ้นสุดรายงาน >]]></text>
+			</staticText>
+		</band>
+	</summary>
+	<noData>
+		<band height="20">
+			<staticText>
+				<reportElement x="0" y="0" width="802" height="20"/>
+				<textElement textAlignment="Center" lineSpacing="Single">
+					<font fontName="TH SarabunPSK" size="14" isBold="true"/>
+				</textElement>
+				<text><![CDATA[No Data]]></text>
+			</staticText>
+		</band>
+	</noData>
+</jasperReport>

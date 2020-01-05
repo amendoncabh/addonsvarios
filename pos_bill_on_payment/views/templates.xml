@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+
+        <template id="assets" inherit_id="point_of_sale.assets">
+            <xpath expr="." position="inside">
+                <script type="text/javascript" src="/pos_bill_on_payment/static/src/js/bill_on_payment.js"></script>
+                <link rel="stylesheet" href="/pos_bill_on_payment/static/src/css/bill_on_payment.css" />
+            </xpath>
+        </template>
+
+    </data>
+</openerp>

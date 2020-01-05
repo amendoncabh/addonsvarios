@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="ir_config_parameter_product_product_domain" model="ir.config_parameter">
+            <field name="key">product_product_domain</field>
+            <field name="value">[('active', '=', True)]</field>
+        </record>
+        <record id="ir_config_parameter_product_product_fields" model="ir.config_parameter">
+            <field name="key">product_product_fields</field>
+            <field name="value">["display_name","list_price","price","pos_categ_id","taxes_id","barcode","default_code","to_weight","uom_id","description_sale","description","product_tmpl_id","tracking","id","name","type","is_pack","product_pack_id","lst_price","brand_id","dept_ofm","categ_id","is_coupon","is_coupon_confirm","pricelist_type","pricelist_percent_price","hide_in_pos_product_list","exempt_pos_calculate","categ_id","all_categories","is_hold_sale","is_best_deal_promotion","not_returnable", "is_delivery_fee_ofm", "delivery_fee_ofm", "coupon_type", "prod_status"]</field>
+        </record>
+    </data>
+</odoo>

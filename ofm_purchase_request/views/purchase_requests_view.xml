@@ -1,0 +1,806 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="view_product_supplier_inherit" model="ir.ui.view">
+            <field name="name">product.template.supplier.form.inherit</field>
+            <field name="model">product.template</field>
+            <field name="inherit_id" ref="purchase.view_product_supplier_inherit"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='seller_ids']" position="replace">
+                    <field
+                            name="seller_ids"
+                            context="{'default_product_tmpl_id': context.get('product_tmpl_id', active_id)}"
+                    >
+                            <tree>
+                                <field name="sequence" widget="handle"/>
+                                <field name="company_id"/>
+                                <field name="branch_id"/>
+                                <field name="name"/>
+                                <field name="min_qty"/>
+                                <field name="price"/>
+                                <field name="date_start"/>
+                                <field name="date_end"/>
+                            </tree>
+                    </field>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="purchase_request_form" model="ir.ui.view">
+            <field name="name">purchase.request.form</field>
+            <field name="model">purchase.order</field>
+            <field name="inherit_id" ref="purchase.purchase_order_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//header/field[@name='state']" position="attributes">
+                    <attribute name="statusbar_visible">draft,sent,purchase</attribute>
+                </xpath>
+                <xpath expr="//page/group/group/div/field[@name='date_planned']/../../../.." position="after">
+                    <page string="Comment">
+                        <group string="Comment">
+                            <field name="comment_po"/>
+                        </group>
+                    </page>
+                </xpath>
+                <xpath expr="//header/button[@name='print_quotation'][1]" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//header/button[@name='print_quotation'][2]" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//header/button[@name='action_rfq_send'][1]" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//header/button[@name='action_rfq_send'][2]" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//header/button[@name='action_rfq_send'][3]" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//header/button[@name='button_cancel']" position="attributes">
+                    <attribute name="states">draft</attribute>
+                </xpath>
+                <xpath expr="//header/button[@name='button_confirm'][1]" position="attributes">
+                    <attribute name="invisible">0</attribute>
+                </xpath>
+                <xpath expr="//header/button[@name='button_confirm'][2]" position="attributes">
+                    <attribute name="states">sent</attribute>
+                </xpath>
+                <xpath expr="//header/button[@name='button_unlock']" position="after">
+                    <button name="action_create_picking"
+                            string="Auto Create RD"
+                            type="object"
+                            groups="base.group_user"
+                            attrs="{
+                                'invisible': [
+                                    '|',
+                                    ('state', '!=', 'purchase'),
+                                    ('picking_count', '!=', 0),
+                                ]
+                            }"
+                    />
+                    <button name="print_pr" string="Print PR" type="object" states="draft,sent,pending"  groups="base.group_user"/>
+                    <button name="print_po" string="Print PO" type="object" states="purchase" groups="base.group_user"/>
+                </xpath>
+                <xpath expr="//header/button[@name='action_rfq_send']" position="after">
+                    <button name="button_sent" states="draft" string="Send" invisible="1" type="object"/>
+                </xpath>
+                <xpath expr="//field[@name='company_id']" position="attributes">
+                    <attribute name="options">{
+                        'no_quick_create': True,
+                        'no_create_edit': True,
+                        'no_open': True
+                    }
+                    </attribute>
+                </xpath>
+                <xpath expr="//field[@name='company_id']" position="after">
+                    <field name="branch_id" options="{'no_quick_create': True, 'no_create_edit': True, 'no_open': True}"/>
+                    <field name="branch_code" invisible="1"/>
+                    <field name="type_purchase_ofm" invisible="0"/>
+                    <field name="credit_limit_pass" invisible="1"/>
+                    <field name="is_sent_ofm" invisible="1"/>
+                </xpath>
+                <xpath expr="//field[@name='picking_type_id']" position="attributes">
+                    <attribute name="options">{
+                        'no_quick_create': True,
+                        'no_create_edit': True,
+                        'no_open': True
+                    }
+                    </attribute>
+                    <attribute name="context">{
+                        'branch_id': branch_id
+                    }
+                    </attribute>
+                </xpath>
+                <xpath expr="//field[@name='product_id']" position="attributes">
+                    <attribute name="options">{
+                        'no_quick_create': True,
+                        'no_create_edit': True,
+                        'no_open': True
+                    }
+                    </attribute>
+                    <attribute name="context">{
+                        'partner_id':parent.partner_id,
+                        'quantity':product_qty,
+                        'uom':product_uom,
+                        'company_id': parent.company_id,
+                        'exclude_order_line': parent.order_line,
+                        'exclude_model': 'purchase.order.line'
+                    }
+                    </attribute>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="ofm_purchase_request_form" model="ir.ui.view">
+            <field name="name">ofm.purchase.request.form</field>
+            <field name="model">purchase.order</field>
+            <field name="inherit_id" ref="purchase.purchase_order_form"/>
+            <field name="mode">primary</field>
+            <field name="priority">99</field>
+            <field name="arch" type="xml">
+                <xpath expr="//button[@name='button_cancel']" position="after">
+                    <button
+                            name="action_cancel_pr_sent"
+                            type="object"
+                            states="sent"
+                            string="Cancel"
+                            groups="purchase.group_purchase_manager,ofm_access_right_center.group_ofm_hq"
+                    />
+                </xpath>
+                <div position="inside">
+                    <button string="Check Quantity"
+                            type="object"
+                            name= "call_api_check_qty_from_ofm"
+                            class="oe_stat_button"
+                            icon="fa-arrows-h"
+                            attrs="{'invisible':[('state', '!=', 'draft')]}"
+                    />
+                </div>
+                <xpath expr="//header/field[@name='state']" position="attributes">
+                    <attribute name="statusbar_visible">draft,sent,pending,completed,purchase</attribute>
+                </xpath>
+                <xpath expr="//header/button[@name='button_confirm'][1]" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//header/button[@name='button_confirm'][2]" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//header/button[@name='button_sent']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//header/button[@name='button_sent']" position="after">
+                    <field name="is_hide_product_incorrect" invisible="1"/>
+                    <button
+                            name="button_product_incorrect"
+                            string="Manage Product Incorrect"
+                            type="object"
+                            attrs="{
+                                'invisible': [
+                                    '|',
+                                    ('state', '!=', 'draft'),
+                                    ('is_hide_product_incorrect', '=', True),
+                                ]
+                            }"
+                    />
+                    <button
+                            name="button_sent_ofm"
+                            string="Send"
+                            type="object"
+                            attrs="{
+                                'invisible': [
+                                    '|',
+                                    ('state', '!=', 'draft'),
+                                    ('is_hide_product_incorrect', '=', False),
+                                ]
+                            }"
+                    />
+                </xpath>
+                <xpath expr="//header/button[@name='button_draft']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//header/button[@name='button_draft']" position="before">
+                    <button
+                            name="action_get_invoice_from_staging"
+                            string="Get Invoice"
+                            type="object"
+                            attrs="{
+                                'invisible': [
+                                    '|',
+                                    ('type_to_ofm', '=', 'customer'),
+                                    ('state', '!=', 'completed'),
+                                ]
+                            }"
+                    />
+                </xpath>
+                <xpath expr="//header/button[@name='button_done']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//header/button[@name='button_unlock']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//header/button[@name='button_cancel']" position="replace">
+                    <button name="button_cancel" states="draft" string="Cancel" type="object"/>
+                </xpath>
+                <xpath expr="//sheet/div/button[@name='action_view_picking']" position="replace">
+                    <button type="object"
+                        name="action_view_picking"
+                        class="oe_stat_button"
+                        icon="fa-truck" attrs="{'invisible':[('state', '!=', 'purchase'),('picking_ids','=',[])]}">
+                        <field name="picking_count_all" widget="statinfo" string="Shipment" help="Incoming Shipments"/>
+                        <field name="picking_count" widget="statinfo" string="Shipment" help="Incoming Shipments" invisible="1"/>
+                        <field name="picking_ids" invisible="1"/>
+                    </button>
+                </xpath>
+                <xpath expr="//sheet/div/button[@name='action_view_invoice']" position="replace">
+                    <button type="object"  name="action_view_invoice"
+                        class="oe_stat_button"
+                        icon="fa-pencil-square-o" attrs="{'invisible':[('state', '!=', 'purchase'),('invoice_ids','=',[])]}">
+                        <field name="invoice_count" widget="statinfo" string="Vendor Bills"/>
+                        <field name='invoice_ids' invisible="1"/>
+                    </button>
+                </xpath>
+                <xpath expr="//field[@name='partner_ref']" position="after">
+                    <field name="purchase_request_no"/>
+                </xpath>
+                <xpath expr="//field[@name='partner_ref']" position="attributes">
+                    <attribute name="attrs">{
+                            'readonly':[('state', 'not in', ('draft'))]
+                        }
+                    </attribute>
+                </xpath>
+                <xpath expr="//field[@name='date_order']" position="attributes">
+                    <attribute name="attrs">{
+                            'readonly':[('state', 'not in', ('draft'))]
+                        }
+                    </attribute>
+                </xpath>
+                <xpath expr="//field[@name='company_id']" position="attributes">
+                    <attribute name="attrs">{
+                            'readonly':[('state', 'not in', ('draft'))]
+                        }
+                    </attribute>
+                </xpath>
+                <xpath expr="//field[@name='branch_id']" position="attributes">
+                    <attribute name="attrs">{
+                            'readonly':[('state', 'not in', ('draft'))]
+                        }
+                    </attribute>
+                </xpath>
+                <xpath expr="//field[@name='picking_type_id']" position="attributes">
+                    <attribute name="attrs">{
+                            'readonly':[('state', 'not in', ('draft'))]
+                        }
+                    </attribute>
+                </xpath>
+                <xpath expr="//field[@name='incoterm_id']" position="attributes">
+                    <attribute name="attrs">{
+                            'readonly':[('state', 'not in', ('draft'))]
+                        }
+                    </attribute>
+                </xpath>
+                <xpath expr="//field[@name='payment_term_id']" position="attributes">
+                    <attribute name="attrs">{
+                            'readonly':[('state', 'not in', ('draft'))]
+                        }
+                    </attribute>
+                </xpath>
+                <xpath expr="//field[@name='fiscal_position_id']" position="attributes">
+                    <attribute name="attrs">{
+                            'readonly':[('state', 'not in', ('draft'))]
+                        }
+                    </attribute>
+                </xpath>
+                <xpath expr="//field[@name='comment_po']" position="attributes">
+                    <attribute name="attrs">{
+                            'readonly':[('state', 'not in', ('draft'))]
+                        }
+                    </attribute>
+                </xpath>
+                <xpath expr="//div[@class='oe_title']" position="replace">
+                    <label string="Purchase Request" attrs="{'invisible': [('state', '=', 'purchase')]}"/>
+                    <label string="Purchase Order" attrs="{'invisible': [('state', '!=', 'purchase')]}"/>
+                    <h1>
+                        <field name="name" readonly="1"/>
+                    </h1>
+                </xpath>
+                <xpath expr="//group/field[@name='partner_id']/../.." position="before">
+                    <group>
+                        <field name="vendor_so_no"/>
+                    </group>
+                    <group col="4">
+                        <field name="vendor_invoice_no"/>
+                        <field name="vendor_invoice_date"/>
+                    </group>
+                </xpath>
+                <xpath expr="//field[@name='partner_id']" position="before">
+                    <field name="type_to_ofm" required="1"/>
+                </xpath>
+                <xpath expr="//field[@name='partner_id']" position="attributes">
+                    <attribute name="attrs">{
+                            'readonly':[('type_purchase_ofm', '=', True)]
+                        }
+                    </attribute>
+                </xpath>
+                <xpath expr="//field[@name='order_line']" position="attributes">
+                    <attribute name="attrs">{'readonly': [('type_purchase_ofm', '=', True)]}</attribute>
+                </xpath>
+                <xpath expr="//field[@name='order_line']/.." position="attributes">
+                    <attribute name="attrs">{'invisible': [('type_purchase_ofm', '=', True)]}</attribute>
+                </xpath>
+                <xpath expr="//field[@name='order_line']/tree/field[@name='name']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//field[@name='order_line']/tree/field[@name='name']" position="after">
+                    <field name="move_ids" invisible="1"/>
+                    <field name="invoice_lines" invisible="1"/>
+                </xpath>
+                <xpath expr="//field[@name='order_line']/.." position="after">
+                    <page string="OFM" attrs="{'invisible': [('type_purchase_ofm', '=', False)]}">
+                        <field name="ofm_purchase_order_line_ids"
+                               attrs="{'readonly': [('state', 'not in', ('draft'))]}"
+                               context="{'is_sent_ofm': is_sent_ofm}"
+                        >
+                            <tree string="Purchase Order Line"
+                                  editable="bottom"
+                                  decoration-danger="is_danger == True"
+                            >
+                                <field name="currency_id" invisible="1"/>
+                                <field name="state" invisible="1"/>
+                                <field name="sequence" widget="handle"/>
+                                <field name="product_id"
+                                       attrs="{
+                                            'readonly': [
+                                                ('state', 'in', ('completed', 'purchase', 'to approve', 'done', 'cancel'))
+                                            ]
+                                        }"
+                                       options="{
+                                            'no_quick_create': True,
+                                            'no_create_edit': True,
+                                            'no_open': True
+                                       }"
+                                       context="{
+                                            'partner_id':parent.partner_id,
+                                            'quantity':product_qty,
+                                            'uom':product_uom,
+                                            'company_id': parent.company_id,
+                                            'branch_id': parent.branch_id,
+                                            'exclude_order_line': parent.ofm_purchase_order_line_ids,
+                                            'exclude_model': 'ofm.purchase.order.line',
+                                            'search_model': 'ofm.purchase.order.line',
+                                        }"
+                                       domain="[('template_ids', '=', parent.branch_code)]"
+                                />
+                                <field name="name_show" invisible="1"/>
+                                <field name="name" invisible="1"/>
+                                <field name="date_planned_show"/>
+                                <field name="date_planned" invisible="1"/>
+                                <field name="account_analytic_id" context="{'default_partner_id':parent.partner_id}" groups="purchase.group_analytic_accounting"/>
+                                <field name="analytic_tag_ids" groups="purchase.group_analytic_accounting" widget="many2many_tags"/>
+                                <field name="product_qty" widget="allow_number"/>
+                                <field name="product_qty_available" widget="integer"/>
+                                <field name="qty_received" invisible="not context.get('show_purchase', False)" widget="integer"/>
+                                <field name="qty_invoiced" invisible="not context.get('show_purchase', False)" widget="integer"/>
+                                <field name="product_uom_show"/>
+                                <field name="product_uom" groups="product.group_uom" invisible="1"/>
+                                <field name="price_unit_show"/>
+                                <field name="move_ids" invisible="1"/>
+                                <field name="invoice_lines" invisible="1"/>
+                                <field name="price_unit" invisible="1"/>
+                                <field name="taxes_id_show" widget="many2many_tags"/>
+                                <field name="taxes_id" widget="many2many_tags" domain="[('type_tax_use','=','purchase')]" context="{'default_type_tax_use': 'purchase'}" invisible="1"/>
+                                <field name="price_subtotal_show" widget="monetary"/>
+                                <field name="price_subtotal" widget="monetary" invisible="1"/>
+                                <field name="price_total" invisible="1"/>
+                                <field name="price_tax" invisible="1"/>
+                                <field name="is_sent_ofm" invisible="1"/>
+                                <field name="product_status_show"/>
+                                <field name="product_status" invisible="1"/>
+                                <field name="product_status_odoo" invisible="1"/>
+                                <field name="product_status_correct" invisible="1"/>
+                                <field name="is_danger" invisible="1"/>
+                            </tree>
+                        </field>
+                        <group class="oe_subtotal_footer oe_right">
+                            <field name="amount_untaxed_ofm" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                            <field name="amount_tax_ofm" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                            <div class="oe_subtotal_footer_separator oe_inline">
+                                <label for="amount_total"/>
+                            </div>
+                            <field name="amount_total_ofm" nolabel="1" class="oe_subtotal_footer_separator" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                        </group>
+                    </page>
+                </xpath>
+                <xpath expr="//notebook/page/group/group/div/field[@name='date_planned']" position="attributes">
+                    <attribute name="attrs"></attribute>
+                    <attribute name="required">0</attribute>
+                </xpath>
+                <xpath expr="//field[@name='date_approve']" position="after">
+                    <field name="ofm_purchase_order_header_id"/>
+                </xpath>
+                <xpath expr="//field[@name='notes']" position="attributes">
+                    <attribute name="readonly">1</attribute>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="ofm_purchase_request_tree" model="ir.ui.view">
+            <field name="name">purchase.order.tree</field>
+            <field name="model">purchase.order</field>
+            <field name="inherit_id" ref="purchase.purchase_order_tree"/>
+            <field name="mode">primary</field>
+            <field name="priority">99</field>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='amount_untaxed']" position="replace">
+                    <field name="amount_untaxed_ofm" sum="Total Untaxed amount" string="Untaxed" widget="monetary"/>
+                </xpath>
+                <xpath expr="//field[@name='amount_total']" position="replace">
+                    <field name="amount_total_ofm" sum="Total amount" widget="monetary"/>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="ofm_purchase_request_header_form" model="ir.ui.view">
+            <field name="name">ofm.purchase.request.header.form</field>
+            <field name="model">ofm.purchase.order.header</field>
+            <field name="arch" type="xml">
+                <form string="Purchase Request OFM">
+                    <header>
+                        <button name="action_send" type="object" states="draft" string="Send"/>
+                        <button name="action_cancel" type="object" states="draft" string="Cancel"/>
+                        <button
+                                name="action_cancel_pr_sent"
+                                type="object"
+                                states="sent"
+                                string="Cancel"
+                                groups="purchase.group_purchase_manager,ofm_access_right_center.group_ofm_hq"
+                        />
+                        <button name="action_re_send" type="object" states="waiting" string="Re-Send"/>
+                        <field name="state" widget="statusbar" statusbar_visible="draft,sent,waiting,cancel,purchase" readonly="1"/>
+                    </header>
+                    <sheet>
+                        <div class="oe_button_box" name="button_box">
+                            <button string="PR/PO"
+                                    type="object"
+                                    name= "action_view_pr_po"
+                                    class="oe_stat_button"
+                                    icon="fa-pencil-square-o"
+                                    attrs="{'invisible':[('is_header_can_create_order_line', '=', True)]}"
+                            />
+                            <button string="Check Quantity"
+                                    type="object"
+                                    name= "check_qty_from_ofm"
+                                    class="oe_stat_button"
+                                    icon="fa-arrows-h"
+                                    attrs="{'invisible':[('state', '!=', 'draft')]}"
+                            />
+                        </div>
+                        <div class="oe_title">
+                        <h1>
+                            <field name="name" readonly="1"/>
+                        </h1>
+                    </div>
+                        <group>
+                            <group>
+                                <field name="vendor_invoice_no" />
+                                <field name="type_to_ofm" required="1"/>
+                                <field name="partner_id" attrs="{'readonly': [('state', '!=', 'draft')]}" context="{'search_default_supplier':1, 'default_supplier':1, 'default_customer':0}" domain="[('supplier','=',True)]"/>
+                                <field name="partner_ref" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
+                                <field name="currency_id" groups="base.group_multi_currency"/>
+                                <field name="is_shipped" invisible="1"/>
+                            </group>
+                            <group>
+                                <field name="date_order" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
+                                <field name="origin" attrs="{'invisible': [('origin','=',False)]}"/>
+                                <field name="company_id" attrs="{'readonly': [('state', '!=', 'draft')]}" groups="base.group_multi_company" options="{'no_create': True}"/>
+                                <field name="branch_id" attrs="{'readonly': [('state', '!=', 'draft')]}" options="{'no_create': True}"/>
+                                <field name="type_purchase_ofm" invisible="1"/>
+                                <field name="is_header_can_create_order_line" invisible="1"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="OFM">
+                                <field name="ofm_purchase_order_line_ids"
+                                       attrs="{'readonly': [('state', '!=', 'draft')]}"
+                                        context="{
+                                            'is_header_can_create_order_line': is_header_can_create_order_line
+                                        }"
+                                >
+                                    <tree string="Purchase Order Line" editable="bottom" decoration-danger="product_qty_available &lt; product_qty">
+                                        <field name="currency_id" invisible="1"/>
+                                        <field name="state" invisible="1"/>
+                                        <field name="sequence" widget="handle" invisible="1"/>
+                                        <field name="product_id"
+                                               attrs="{'readonly': [('state', '!=', 'draft')]}"
+                                               context="{
+                                                    'partner_id':parent.partner_id,
+                                                    'quantity':product_qty,
+                                                    'uom':product_uom,
+                                                    'company_id': parent.company_id
+                                                    }"
+                                               options="{'no_create': True}"
+                                        />
+                                        <field name="name"/>
+                                        <field name="date_planned"/>
+                                        <field name="company_id" groups="base.group_multi_company" options="{'no_create': True}"/>
+                                        <field name="account_analytic_id" context="{'default_partner_id':parent.partner_id}" groups="purchase.group_analytic_accounting"/>
+                                        <field name="analytic_tag_ids" groups="purchase.group_analytic_accounting" widget="many2many_tags"/>
+                                        <field name="product_qty"/>
+                                        <field name="product_qty_available"/>
+                                        <field name="qty_received" invisible="not context.get('show_purchase', False)"/>
+                                        <field name="qty_invoiced" invisible="not context.get('show_purchase', False)"/>
+                                        <field name="product_uom" groups="product.group_uom"/>
+                                        <field name="price_unit"/>
+                                        <field name="taxes_id" widget="many2many_tags" domain="[('type_tax_use','=','purchase')]" context="{'default_type_tax_use': 'purchase'}"/>
+                                        <field name="price_subtotal" widget="monetary"/>
+                                        <field name="is_header_can_create_order_line" invisible="1"/>
+                                    </tree>
+                                </field>
+                                <group class="oe_subtotal_footer oe_right">
+                                    <field name="amount_untaxed" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                                    <field name="amount_tax" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                                    <div class="oe_subtotal_footer_separator oe_inline">
+                                        <label for="amount_total"/>
+                                    </div>
+                                    <field name="amount_total" nolabel="1" class="oe_subtotal_footer_separator" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                                </group>
+                            </page>
+                            <page string="Deliveries &amp; Invoices">
+                                <group>
+                                    <group>
+                                        <label for="date_planned"/>
+                                        <div>
+                                            <field name="date_planned"/>
+                                            <button name="action_set_date_planned" type="object"
+                                                states="draft,sent"
+                                                string="Set date to all order lines"
+                                                help="This changes the scheduled date of all order lines to the given date"
+                                                class="fa fa-calendar o_icon_button oe_edit_only"/>
+                                        </div>
+                                        <field name="picking_type_id"
+                                               domain="[('code','=','incoming')]"
+                                               context="{'branch_id': branch_id}"
+                                               options="{'no_create': True}"
+                                               groups="stock.group_stock_multi_locations"
+                                               attrs="{'readonly': [('state', '!=', 'draft')]}"
+                                        />
+                                        <field name="dest_address_id"
+                                               groups="stock.group_stock_multi_locations"
+                                               attrs="{
+                                                    'invisible': [('default_location_dest_id_usage', '!=', 'customer')],
+                                                    'required': [('default_location_dest_id_usage', '=', 'customer')],
+                                                    'readonly': [('state', '!=', 'draft')]
+                                                }"
+                                        />
+                                        <field name="default_location_dest_id_usage" invisible="1"/>
+                                        <field name="incoterm_id" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
+                                    </group>
+                                    <group>
+                                        <field name="invoice_status"/>
+                                        <field name="payment_term_id"
+                                               options="{'no_open': True, 'no_create': True}"
+                                               attrs="{'readonly': ['|', ('invoice_status','=', 'invoiced'), ('state', '!=', 'draft')]}"/>
+                                        <field name="fiscal_position_id"
+                                               attrs="{'readonly': ['|', ('invoice_status','=', 'invoiced'), ('state', '!=', 'draft')]}"/>
+                                        <field name="date_approve" groups="base.group_no_one"/>
+                                    </group>
+                                </group>
+                            </page>
+                            <page string="Comment">
+                                <group string="Comment">
+                                    <field name="comment_po" attrs="{'readonly': [('state', '!=', 'draft')]}"/>
+                                </group>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="ofm_purchase_request_header_tree" model="ir.ui.view">
+            <field name="name">ofm.purchase.request.header.tree</field>
+            <field name="model">ofm.purchase.order.header</field>
+            <field name="arch" type="xml">
+                <tree string="Purchase Request OFM">
+                    <field name="name"/>
+                    <field name="date_order" />
+                    <field name="partner_id"/>
+                    <field name="company_id" groups="base.group_multi_company" options="{'no_create': True}"/>
+                    <field name="origin"/>
+                    <field name="amount_untaxed" sum="Total Untaxed amount" string="Untaxed" widget="monetary"/>
+                    <field name="amount_total" sum="Total amount" widget="monetary"/>
+                    <field name="currency_id" invisible="1"/>
+                    <field name="state"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="ofm_purchase_order_form" model="ir.ui.view">
+            <field name="name">ofm.purchase.order.form</field>
+            <field name="model">purchase.order</field>
+            <field name="inherit_id" ref="ofm_purchase_request_form"/>
+            <field name="mode">primary</field>
+            <field name="priority">99</field>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='order_line']/.." position="attributes">
+                    <attribute name="attrs">{'invisible': [('type_purchase_ofm', '=', False)]}</attribute>
+                </xpath>
+                <xpath expr="//field[@name='price_subtotal']" position="after">
+                    <field name="product_status"/>
+                    <field name="product_status_odoo" invisible="1"/>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="ofm_purchase_order_tree_inherit" model="ir.ui.view">
+            <field name="name">purchase.order.tree</field>
+            <field name="model">purchase.order</field>
+            <field name="inherit_id" ref="purchase.purchase_order_tree"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='origin']" position="before">
+                    <field name="type_to_ofm"/>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="ofm_purchase_order_tree" model="ir.ui.view">
+            <field name="name">purchase.order.tree</field>
+            <field name="model">purchase.order</field>
+            <field name="inherit_id" ref="purchase.purchase_order_tree"/>
+            <field name="mode">primary</field>
+            <field name="priority">99</field>
+            <field name="arch" type="xml">
+                <xpath expr="//tree" position="attributes">
+                    <attribute name="create">false</attribute>
+                    <attribute name="delete">false</attribute>
+                </xpath>
+                <xpath expr="//field[@name='name']" position="after">
+                    <field name="purchase_request_no"/>
+                    <field name="vendor_invoice_no"/>
+                </xpath>
+                <xpath expr="//field[@name='amount_untaxed']" position="replace">
+                    <field name="amount_untaxed_ofm" sum="Total Untaxed amount" string="Untaxed" widget="monetary"/>
+                </xpath>
+                <xpath expr="//field[@name='amount_total']" position="replace">
+                    <field name="amount_total_ofm" sum="Total amount" widget="monetary"/>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="view_purchase_order_filter" model="ir.ui.view">
+            <field name="name">purchase.request.ofm.search</field>
+            <field name="model">purchase.order</field>
+            <field name="inherit_id" ref="purchase.view_purchase_order_filter"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='name']" position="attributes">
+                    <attribute name="filter_domain">[
+                        '|',
+                        '|',
+                        '|',
+                        ('name', 'ilike', self),
+                        ('partner_ref', 'ilike', self),
+                        ('purchase_request_no', 'ilike', self),
+                        ('vendor_invoice_no', 'ilike', self),
+                    ]</attribute>
+                </xpath>
+                <xpath expr="//field[@name='name']" position="after">
+                    <field name="purchase_request_no" filter_domain="[
+                        '|',
+                        ('name', 'ilike', self),
+                        ('purchase_request_no', 'ilike', self),
+                    ]"/>
+                    <field name="vendor_invoice_no" filter_domain="[
+                        ('vendor_invoice_no', 'ilike', self),
+                    ]"/>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="purchase.purchase_rfq" model="ir.actions.act_window">
+            <field name="domain">[('type_purchase_ofm', '=', 0)]</field>
+        </record>
+
+        <record id="purchase.purchase_form_action" model="ir.actions.act_window">
+            <field name="domain">[('type_purchase_ofm', '=', 0)]</field>
+        </record>
+
+        <record id="ofm_purchase_request_header_action" model="ir.actions.act_window">
+            <field name="name">Purchase Request OFM</field>
+            <field name="res_model">ofm.purchase.order.header</field>
+            <field name="view_ids" eval="[(5, 0, 0),
+                (0, 0, {'view_mode': 'tree', 'view_id': ref('ofm_purchase_request_header_tree')}),
+                (0, 0, {'view_mode': 'form', 'view_id': ref('ofm_purchase_request_header_form')}),
+            ]"/>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="domain">[('type_purchase_ofm', '=', 1)]</field>
+            <field name="context">{'default_type_purchase_ofm': 1}</field>
+            <field name="help" type="html">
+                <p class="oe_view_nocontent_create">
+                    Click to create Purchase Request OFM
+                </p>
+            </field>
+        </record>
+
+        <record id="ofm_purchase_request_action" model="ir.actions.act_window">
+            <field name="name">Purchase Request OFM</field>
+            <field name="res_model">purchase.order</field>
+            <field name="view_ids" eval="[(5, 0, 0),
+                (0, 0, {'view_mode': 'tree', 'view_id': ref('ofm_purchase_request_tree')}),
+                (0, 0, {'view_mode': 'form', 'view_id': ref('ofm_purchase_request_form')}),
+            ]"/>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="domain">[
+                    ('type_purchase_ofm', '=', 1),
+                    ('state', '!=', 'purchase'),
+                ]
+            </field>
+            <field name="context">{'default_type_purchase_ofm': 1, 'show_purchase': False}</field>
+        </record>
+
+        <record id="ofm_purchase_order_action" model="ir.actions.act_window">
+            <field name="name">Purchase Order OFM</field>
+            <field name="res_model">purchase.order</field>
+            <field name="view_ids" eval="[(5, 0, 0),
+                (0, 0, {'view_mode': 'tree', 'view_id': ref('ofm_purchase_order_tree')}),
+                (0, 0, {'view_mode': 'form', 'view_id': ref('ofm_purchase_order_form')}),
+            ]"/>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="context">{'default_type_purchase_ofm': 1, 'show_purchase': True}</field>
+            <field name="domain">[
+                ('type_purchase_ofm', '=', 1),
+                ('state', '=', 'purchase')
+                ]
+            </field>
+        </record>
+
+        <record id="ofm_purchase_order_suggest_action" model="ir.actions.act_window">
+            <field name="name">Suggest Fulfillment OFM</field>
+            <field name="res_model">suggest.fulfillment.wizard</field>
+            <field name="view_ids" eval="[(5, 0, 0),
+                (0, 0, {'view_mode': 'form', 'view_id': ref('ofm_view_suggest_fulfillment_wizard')}),
+            ]"/>
+            <field name="view_type">form</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+         </record>
+        
+        <menuitem
+                id="menu_ofm_purchase_request"
+                name="Purchase Request OFM"
+                action="ofm_purchase_request_action"
+                parent="purchase.menu_procurement_management"
+                sequence="0"
+                groups="purchase_request_ofm_group"
+        />
+        <menuitem
+                id="menu_ofm_purchase_order"
+                name="Purchase Order OFM"
+                action="ofm_purchase_order_action"
+                parent="purchase.menu_procurement_management"
+                sequence="1"
+                groups="purchase_request_ofm_group"
+        />
+        <menuitem
+                id="menu_ofm_purchase_order_suggest"
+                name="Suggest Fulfillment OFM"
+                action="ofm_purchase_order_suggest_action"
+                parent="purchase.menu_procurement_management"
+                sequence="2"
+                groups="purchase_request_ofm_group"
+        />
+        <menuitem
+                action="purchase.purchase_rfq"
+                id="purchase.menu_purchase_rfq"
+                parent="purchase.menu_procurement_management"
+                sequence="3"
+        />
+        <menuitem
+                action="purchase.purchase_form_action"
+                id="purchase.menu_purchase_form_action"
+                parent="purchase.menu_procurement_management"
+                sequence="4"
+        />
+    </data>
+</odoo>

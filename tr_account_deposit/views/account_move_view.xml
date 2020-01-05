@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="tr_deposit_view_move_form" model="ir.ui.view">
+            <field name="name">tr.deposit.account.move.form</field>
+            <field name="model">account.move</field>
+            <field name="inherit_id" ref="account.view_move_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//button[@name='button_cancel']" position="after">
+                    <button name="action_auto_reverse" string="Auto Reverse" type="object" states="posted" groups="account.group_account_invoice" />
+                </xpath>
+                <xpath expr="//field[@name='date']" position="after">
+                    <field name="auto_reverse_date" />
+                    <field name="account_reverse_id" />
+                </xpath>
+                <xpath expr="//field[@name='date_maturity']" position="after">
+                    <field name="invoice_id" />
+                    <field name="voucher_id" />
+                    <field name="deposit_id" />
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

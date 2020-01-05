@@ -1,0 +1,81 @@
+<?xml version="1.0"?>
+<odoo>
+    <data>
+        <record id="view_confirm_monthly_summary_franchise" model="ir.ui.view">
+            <field name="name">Confirm Monthly Summary Franchise</field>
+            <field name="model">confirm.monthly.summary.franchise</field>
+            <field name="arch" type="xml">
+                <form string="ยืนยันรายการสรุปประจำเดือน">
+                    <group col="6">
+                        <group col="2" colspan="2">
+                            <field name="year"/>
+                            <field name="month"/>
+                            <field name="branch_ids" widget='many2many_tags' options="{'no_create_edit': True}"/>
+                        </group>
+                    </group>
+                    <footer>
+                        <button name="action_confirm"
+                                string="Confirm" type="object"
+                                class="oe_highlight"/>
+                        or
+                        <button string="Cancel" class="oe_link"
+                                special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_confirm_monthly_summary_franchise" model="ir.actions.act_window">
+            <field name="name">ยืนยันรายการสรุปประจำเดือน</field>
+            <field name="res_model">confirm.monthly.summary.franchise</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="ofm_franchise.view_confirm_monthly_summary_franchise"/>
+            <field name="target">new</field>
+        </record>
+
+        <menuitem id="menu_confirm_summary_franchise_wizard"
+                  parent="ofm_franchise.menu_monthly_summary_franchise_main"
+                  action="ofm_franchise.action_confirm_monthly_summary_franchise"
+                  sequence="6"
+                  groups="ofm_access_right_center.group_ofm_hq"/>
+
+        <record id="view_set2draft_monthly_summary_franchise" model="ir.ui.view">
+            <field name="name">ยืนยันการกลับสถานะรายการสรุปประจำเดือน</field>
+            <field name="model">confirm.monthly.summary.franchise</field>
+            <field name="arch" type="xml">
+                <form string="ยืนยันรายการสรุปประจำเดือน">
+                    <group col="6">
+                        <group col="2" colspan="2">
+                            <field name="year"/>
+                            <field name="month"/>
+                            <field name="branch_ids" widget='many2many_tags' options="{'no_create_edit': True}"/>
+                        </group>
+                    </group>
+                    <footer>
+                        <button name="action_set_to_draft"
+                                string="Confirm" type="object"
+                                class="oe_highlight"/>
+                        or
+                        <button string="Cancel" class="oe_link"
+                                special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+        <record id="action_set2draft_monthly_summary_franchise" model="ir.actions.act_window">
+            <field name="name">ยืนยันการกลับสถานะรายการสรุปประจำเดือน</field>
+            <field name="res_model">confirm.monthly.summary.franchise</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="ofm_franchise.view_set2draft_monthly_summary_franchise"/>
+            <field name="target">new</field>
+        </record>
+
+        <menuitem id="menu_set2draft_summary_franchise_wizard"
+                  parent="ofm_franchise.menu_monthly_summary_franchise_main"
+                  action="ofm_franchise.action_set2draft_monthly_summary_franchise"
+                  sequence="7"
+                  groups="ofm_access_right_center.group_ofm_hq"/>
+    </data>
+</odoo>

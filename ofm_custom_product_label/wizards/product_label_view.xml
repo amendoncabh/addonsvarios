@@ -1,0 +1,54 @@
+<?xml version="1.0"?>
+<openerp>
+    <data>
+        <record id="product_label_jasper" model="ir.actions.report.xml">
+            <field name="string">product label</field>
+            <field name="auto">True</field>
+            <field name="model">product.label.wizard</field>
+            <field name="name">product label</field>
+            <field name="report_name">product.label.jasper</field>
+            <field name="rml">ofm_custom_product_label/report/product_label.jrxml</field>
+            <field name="report_rml">ofm_custom_product_label/report/product_label.jrxml</field>
+            <field name="menu">False</field>
+            <field name="header">False</field>
+            <field name="jasper_report">True</field>
+            <field name="jasper_output">pdf</field>
+        </record>
+
+        <act_window id="action_open_product_label_wizard"
+                   name="Product Label"
+                   res_model="product.label.wizard"
+                   view_mode="form"
+                   target="new"/>
+
+        <menuitem id="menu_product_label_wizard"
+                 parent="point_of_sale.menu_point_of_sale"
+                 action="action_open_product_label_wizard"
+                 sequence="99"/>
+
+        <record id="view_product_label_wizard" model="ir.ui.view">
+        <field name="name">product.label.form</field>
+        <field name="model">product.label.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Product label">
+                    <group>
+                        <group>
+                           <field name="price_type" widget="radio"/>
+                        </group>
+                        <group>
+                           <field name="branch_id"/>
+                        </group>
+                    </group>
+                    <footer>
+                        <button name="action_print_label"
+                               string="Print" type="object"
+                               class="oe_highlight"/>
+                        or
+                        <button string="Cancel" class="oe_link"
+                               special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+    </data>
+</openerp>

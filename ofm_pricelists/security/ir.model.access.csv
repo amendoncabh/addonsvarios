@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+
+pricelists_group_user,pricelists group_user,model_pricelists,base.group_user,1,1,1,1
+pricelists_line_group_user,pricelists line group_user,model_pricelists_line,base.group_user,1,1,1,1
+mail_tracking_value_group_hq,mail tracking value group_hq,model_mail_tracking_value,ofm_access_right_center.group_ofm_hq,1,1,1,1

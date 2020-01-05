@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <record id="export_monthly_jasper_excel" model="ir.actions.report.xml">
+            <field name="string">Export (.xls)</field>
+            <field name="auto">True</field>
+            <field name="model">monthly.summary.franchise</field>
+            <field name="jasper_model_id" ref="ofm_franchise.model_monthly_summary_franchise"/>
+            <field name="name">Export (.xls)</field>
+            <field name="report_name">monthly.summary.franchise.report.jasper.excel</field>
+            <field name="rml">ofm_franchise/reports/monthly_summary_franchise_report.jrxml</field>
+            <field name="report_rml">ofm_franchise/reports/monthly_summary_franchise_report.jrxml</field>
+            <field name="menu">True</field>
+            <field name="header">False</field>
+            <field name="jasper_report">True</field>
+            <field name="jasper_output">xls</field>
+        </record>
+
+    </data>
+</odoo>

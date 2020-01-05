@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<openerp>
+    <data>
+
+        <record id="wizard_vat_report_view" model="ir.ui.view">
+            <field name="name">wizard.vat.report.view</field>
+            <field name="model">wizard.vat.report</field>
+            <field name="inherit_id" ref="account_reporting.wizard_vat_report_view"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='company_id']" position="after">
+                    <field name="branch_id"
+                           domain="[('pos_company_id','=', company_id)]"
+                           options="{
+                                'no_quick_create': True,
+                                'no_create_edit': True,
+                                'no_open': True
+                            }"
+                           required="1"/>
+                </xpath>
+            </field>
+        </record>
+
+    </data>
+</openerp>

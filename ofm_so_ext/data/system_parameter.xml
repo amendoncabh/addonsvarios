@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="ir_config_parameter_so_quotation_expire_amount_day" model="ir.config_parameter">
+            <field name="key">so_quotation_expire_amount_day</field>
+            <field name="value">7</field>
+        </record>
+        <record id="ir_config_parameter_so_delivery_fee_special" model="ir.config_parameter">
+            <field name="key">so_delivery_fee_special</field>
+            <field name="value">50</field>
+        </record>
+        <record id="ir_config_parameter_so_auto_return_reason" model="ir.config_parameter">
+            <field name="key">so_auto_return_reason</field>
+            <field name="value">อื่นๆ</field>
+        </record>
+        <record id="ir_config_parameter_so_validate_do_new_transfer" model="ir.config_parameter">
+            <field name="key">so_validate_do_new_transfer</field>
+            <field name="value">True</field>
+        </record>
+    </data>
+</odoo>

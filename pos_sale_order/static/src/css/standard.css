@@ -1,0 +1,667 @@
+.pos.sale.screen-content{
+    max-width: unset;
+}
+
+.pos.sale.left-content, .pos.sale.right-content{
+    top: 0px;
+}
+
+.sale-form-left-pane{
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -ms-box-sizing: border-box;
+    box-sizing: border-box;
+    position: absolute;
+    left: 0;
+    top: 0px;
+    bottom: 0;
+    border-right: solid 1px #CECBCB;
+    border-right: solid 3px #787878;
+    background: #e2e2e2;
+    width: 800px !important;
+}
+
+.sale-form-right-pane{
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 800px !important;
+    right: 0;
+    vertical-align: top;
+    -webkit-transform: translate3d(0,0,0);
+}
+
+.sale .window .top-pane{
+    height: 300px !important;
+}
+
+.sale .window .bottom-pane{
+    top: 300px !important;
+}
+
+
+.pos .sale .order-container {
+    position: relative;
+}
+
+.pos .sale .order {
+    max-width: unset;
+    padding-top: unset;
+}
+
+.pos .sale .orderlines-header{
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index:100;
+    border-bottom: 1px solid #BBB;
+    height: 42px !important;
+}
+
+.pos .sale .orderlines-header .content-row > .content-cell{
+    font-size: 14px;
+    border-right: 1px solid #BBB;
+    border-top: 1px solid #BBB;
+}
+
+.pos .sale .order .orderline{
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-left: 15px;
+    padding-right: 0px;
+    font-size: 13px;
+}
+
+.pos .sale .order .orderlines > li:nth-of-type(odd){
+    background: rgb(224,224,224);
+}
+
+.pos .sale .order .orderline .product-detail{
+    padding: 0;
+    display: inline-block;
+    font-weight: bold;
+    width: 260px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.pos .sale .order .orderline .ordered{
+    padding: 0;
+    display: inline-block;
+    font-weight: bold;
+    width: 65px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: center;
+}
+
+.pos .sale .order .orderline .available{
+    padding: 0;
+    display: inline-block;
+    font-weight: bold;
+    width: 65px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: center;
+}
+
+.pos .sale .order .orderline .unitprice {
+    padding: 0 4px 0 0px;
+    display: inline-block;
+    font-weight: bold;
+    width: 90px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: right;
+}
+
+.pos .sale .order .orderline .subtotal{
+    padding: 0 4px 0 0px;
+    display: inline-block;
+    font-weight: bold;
+    width: 90px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: right;
+}
+
+.pos .sale .order .orderline .product_status{
+    padding: 0;
+    display: inline-block;
+    font-weight: bold;
+    width: 80px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: center;
+}
+
+.pos .sale .order .orderline .product_status_oasis{
+    padding: 0;
+    display: inline-block;
+    font-weight: bold;
+    width: 80px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: center;
+}
+
+.pos .sale .order .orderline .orderline-trash{
+    padding: 0;
+    display: inline-block;
+    font-weight: bold;
+    width: 18px;
+    overflow: hidden;
+    text-align: right;
+    cursor: pointer;
+}
+
+.pos .sale .order .orderline .ordered > input{
+    width: 45px;
+    position: relative;
+    text-align: center;
+    border: 1px solid #cecbcb;
+}
+
+.screen .sale-screen-content {
+    margin: 0px auto;
+    text-align: left;
+    height: 100%;
+    overflow: hidden;
+    position: relative;
+}
+
+.pos .sale .t1c-controler{
+    width: 100px;
+}
+
+.pos .sale .customer-info{
+    width: 355px;
+}
+
+.pos .sale .order-info{
+    width: 340px;
+}
+
+.pos .sale .leftpane-header{
+    padding: 0;
+    height: 50px;
+    /*border-bottom: 1px solid #c7c7c7;
+    background: #d3d3d3;*/
+    text-align: center;
+}
+
+.leftpane-header .button{
+    float: left;
+    top: 0px;
+    line-height: 32px;
+    padding: 1px 12px;
+    font-size: 14px;
+    background: rgb(230, 230, 230);
+    margin: 4px 12px;
+    border-radius: 3px;
+    border: solid 1px rgb(209, 209, 209);
+    cursor: pointer;
+    transition: all 150ms linear;
+}
+
+.btn-primary{
+    color: white !important;
+    background-color: #7c7bad !important;
+    border-color: #7c7bad !important;
+}
+
+.btn-success{
+    color: #fff !important;
+    background-color: #5cb85c !important;
+    border-color: #4cae4c !important;
+}
+
+.pos .sale .sale-form-left-pane label{
+    margin-right: 2px;
+}
+
+.pos .sale .sale-form-left-pane .customer-info{
+    text-align: left;
+    text-indent: 15px;
+    font-size: 16px;
+}
+
+.pos .sale .o_td_label{
+    text-align: left;
+    font-weight: bold;
+}
+
+.pos .sale .order-info-items{
+    /*padding: 6px 0;*/
+    font-size: 13px;
+}
+.pos .sale .order-info-items > div{
+    padding: 5px 10px;
+    line-height: 15px;
+}
+
+.pos .title-sale-type{
+    display: flex;
+    flex: 1;
+    align-items: center;
+}
+
+.pos .title-sale-type > label{
+    font-size: 20px;
+    font-weight: bold;
+    color: #DDD;
+}
+
+.pos .sale .order .summary .line .subentry {
+    font-size: 16px;
+    font-weight: normal;
+    text-align: right;
+}
+
+.pos .sale .order .summary .line .subentry > span{
+    padding-left: 10px;
+}
+
+.pos .sale .order .order-empty{
+    margin: 48px 0px 0px 0px;
+}
+
+
+.o_notification_manager {
+    width: 300px;
+    max-width: 100%;
+    position: absolute;
+    top: 32px;
+    left: auto;
+    bottom: auto;
+    right: 5px;
+    z-index: 1100;
+    font-size: 13px
+}
+
+.o_notification_manager .o_notification {
+    padding: 0;
+    margin: 5px 0 0 0;
+    opacity: 0;
+    background-color: #FCFBEA;
+    box-shadow: 0px 0px 5px 1px #4c4c4c;
+    position: relative;
+}
+
+.o_notification_manager .o_notification .o_close {
+    position: absolute;
+    top: 5px;
+    left: auto;
+    bottom: auto;
+    right: 5px;
+    color: rgba(0, 0, 0, 0.3);
+    text-decoration: none;
+}
+
+.o_notification_manager .o_notification .o_notification_title {
+    display: -ms-flexbox;
+    display: -moz-box;
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: flex;
+    -webkit-align-items: center;
+    align-items: center;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    padding: 10px 10px 10px 20px;
+    font-weight: bold;
+}
+
+.o_notification_manager .o_notification .o_notification_title .o_icon {
+    display: inline-block;
+    margin-right: 20px;
+    color: rgba(0, 0, 0, 0.3);
+}
+
+.o_notification_manager .o_notification .o_notification_content {
+    padding: 10px;
+}
+
+.o_notification_manager .o_notification.o_error {
+    color: white;
+    background-color: #F16567;
+}
+
+.text-danger{
+    color: #a94442 !important;
+}
+
+.modal-open {
+    overflow: hidden;
+}
+
+.modal {
+    display: none;
+    overflow: hidden;
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 1050;
+    -webkit-overflow-scrolling: touch;
+    outline: 0;
+}
+
+.modal.fade .modal-dialog {
+    -webkit-transform: translate(0, -25%);
+    -ms-transform: translate(0, -25%);
+    -o-transform: translate(0, -25%);
+    transform: translate(0, -25%);
+    -webkit-transition: -webkit-transform 0.3s ease-out;
+    -moz-transition: -moz-transform 0.3s ease-out;
+    -o-transition: -o-transform 0.3s ease-out;
+    transition: transform 0.3s ease-out;
+}
+
+.modal.in .modal-dialog {
+    -webkit-transform: translate(0, 0);
+    -ms-transform: translate(0, 0);
+    -o-transform: translate(0, 0);
+    transform: translate(0, 0);
+}
+
+.modal-open .modal {
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+.modal-dialog {
+    position: relative;
+    width: auto;
+    margin: 10px;
+    color: #4c4c4c;
+    font-size: 13px;
+}
+
+.modal-content {
+    position: relative;
+    background-color: #fff;
+    border: 1px solid #999;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    /*border-radius: 6px;*/
+    -webkit-box-shadow: 0 3px 9px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 3px 9px rgba(0, 0, 0, 0.5);
+    background-clip: padding-box;
+    outline: 0;
+}
+
+/*
+.modal-backdrop {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 1040;
+    background-color: #000;
+}
+*/
+
+/*
+.modal-backdrop.fade {
+    opacity: 0;
+    filter: alpha(opacity=0);
+}
+
+.modal-backdrop.in {
+    opacity: 0.5;
+    filter: alpha(opacity=50);
+}
+*/
+
+.modal-header {
+    padding: 6px 0px 6px 12px;
+    border-bottom: 1px solid #e5e5e5;
+    min-height: 17.42857143px;
+}
+
+.modal-header .close {
+    margin-top: 4px;
+}
+
+.modal-title {
+    margin: 0;
+    line-height: 1.42857143;
+}
+
+.modal-body {
+    position: relative;
+    padding: 16px;
+}
+
+.modal-footer {
+    padding: 16px;
+    text-align: right;
+    border-top: 1px solid #e5e5e5;
+}
+
+.modal-footer .btn + .btn {
+    margin-left: 5px;
+    margin-bottom: 0;
+}
+
+.modal-footer .btn-group .btn + .btn {
+    margin-left: -1px;
+}
+
+.modal-footer .btn-block + .btn-block {
+    margin-left: 0;
+}
+
+.modal-scrollbar-measure {
+    position: absolute;
+    top: -9999px;
+    width: 50px;
+    height: 50px;
+    overflow: scroll;
+}
+
+@media (min-width: 768px) {
+    .modal-dialog {
+        width: 650px;
+        margin: 0px auto;
+    }
+
+    .modal-content {
+        -webkit-box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+    }
+
+    .modal-sm {
+        width: 300px;
+    }
+}
+
+@media (min-width: 992px) {
+    .modal-lg {
+        width: 980px;
+    }
+}
+
+div.modal.in {
+    position: absolute;
+    background: unset;
+    padding: 0;
+    box-shadow: 0px 10px 20px black;
+    border-radius: 3px;
+    max-width: 100%;
+    max-height: 100%;
+    margin-top: 0;
+    margin-left: 0;
+    top: 0;
+    left: 0;
+}
+
+.ui-dialog, .modal-dialog {
+    background: unset;
+    padding: 10px;
+    border-radius: 3px;
+    font-family: sans-serif;
+    box-shadow: unset;
+    top: 30px;
+    height: unset;
+    overflow: unset;
+}
+
+
+.modal-dialog h1, .modal-dialog h2, .modal-dialog h3, .modal-dialog h4,
+.modal-dialog h5, .modal-dialog h6, .modal-dialog .h1, .modal-dialog .h2,
+.modal-dialog .h3, .modal-dialog .h4, .modal-dialog .h5, .modal-dialog .h6 {
+    font-family: inherit;
+    font-weight: bold;
+    line-height: 1.1;
+    color: inherit;
+}
+
+.modal-dialog h1 small, .modal-dialog  h2 small, .modal-dialog  h3 small, .modal-dialog h4 small,
+.modal-dialog h5 small, .modal-dialog h6 small, .modal-dialog .h1 small, .modal-dialog .h2 small,
+.modal-dialog .h3 small, .modal-dialog .h4 small, .modal-dialog .h5 small, .modal-dialog .h6 small,
+.modal-dialog h1 .small, .modal-dialog h2 .small, .modal-dialog h3 .small, .modal-dialog h4 .small,
+.modal-dialog h5 .small, .modal-dialog h6 .small, .modal-dialog .h1 .small, .modal-dialog .h2 .small,
+.modal-dialog .h3 .small, .modal-dialog .h4 .small, .modal-dialog .h5 .small, .modal-dialog .h6 .small {
+    font-weight: normal;
+    line-height: 1;
+    color: #777777;
+}
+
+.modal-dialog h1, .modal-dialog .h1, .modal-dialog h2,
+.modal-dialog.h2, .modal-dialog h3, .modal-dialog .h3 {
+    margin-top: 18px;
+    margin-bottom: 9px;
+}
+
+.modal-dialog h1 small, .modal-dialog .h1 small, .modal-dialog h2 small, .modal-dialog .h2 small,
+.modal-dialog h3 small, .modal-dialog .h3 small, .modal-dialog h1 .small, .modal-dialog .h1 .small,
+.modal-dialog h2 .small, .modal-dialog .h2 .small, .modal-dialog h3 .small, .modal-dialog .h3 .small {
+    font-size: 65%;
+}
+
+.modal-dialog h4, .modal-dialog .h4, .modal-dialogh5, .modal-dialog .h5, .modal-dialogh6, .modal-dialog.h6 {
+    margin-top: 9px;
+    margin-bottom: 9px;
+}
+
+.modal-dialog h4 small, .modal-dialog .h4 small, .modal-dialog h5 small, .modal-dialog .h5 small,
+.modal-dialog h6 small, .modal-dialog .h6 small, .modal-dialog h4 .small, .modal-dialog.h4 .small,
+.modal-dialog h5 .small, .modal-dialog .h5 .small, .modal-dialog h6 .small, .modal-dialog.h6 .small {
+    font-size: 75%;
+}
+
+.modal-dialog h1, .modal-dialog .h1 {
+    font-size: 26px;
+}
+
+.modal-dialog h2, .modal-dialog .h2 {
+    font-size: 20px;
+}
+
+.modal-dialog h3, .modal-dialog.h3 {
+    font-size: 16px;
+}
+
+.modal-dialog h4, .modal-dialog.h4 {
+    font-size: 15px;
+}
+
+.modal-dialog h5, .modal-dialog .h5 {
+    font-size: 14px;
+}
+
+.modal-dialog h6, .modal-dialog .h6 {
+    font-size: 13px;
+}
+
+.modal-dialog p {
+    margin: 0 0 9px;
+}
+
+.modal-dialog button.close {
+    padding: 0;
+    cursor: pointer;
+    background: transparent;
+    border: 0;
+    -webkit-appearance: none;
+
+    /* close */
+    float: right;
+    font-size: 19.5px;
+    font-weight: bold;
+    line-height: 1;
+    color: #000;
+    text-shadow: 0 1px 0 #fff;
+    opacity: 0.2;
+    filter: alpha(opacity=20);
+}
+
+.modal-dialog .btn {
+    display: inline-block;
+    margin-bottom: 0;
+    font-weight: normal;
+    text-align: center;
+    vertical-align: middle;
+    touch-action: manipulation;
+    cursor: pointer;
+    background-image: none;
+    border: 1px solid transparent;
+    white-space: nowrap;
+    padding: 6px 12px;
+    font-size: 13px;
+    line-height: 1.42857143;
+    border-radius: 4px;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.modal-dialog.btn-primary {
+    color: white;
+    background-color: #7c7bad;
+    border-color: #7c7bad
+}
+
+.modal-dialog .btn-sm, .modal-dialog .btn-group-sm > .btn {
+    padding: 5px 10px;
+    font-size: 12px;
+    line-height: 1.5;
+    border-radius: 3px;
+}
+
+.the-one-detail-container{
+    font-size: 13px;
+    padding-left: 10px;
+    text-indent: 0;
+}
+
+.the-one-detail-row{
+    padding: 0 0 0 5px;
+    line-height: 15px;
+}
+
+.the-one-detail-row > div.right{
+    display:inline-block;
+    width: 185px;
+}
+
+.the-one-detail-row > div.left{
+    display:inline-block;
+    width: 135px;
+}
+
+.return_so_reason_selection_box{
+    margin-left: 10px;
+    width: 190px;
+    padding: 4px;
+    border-radius: 3px;
+    border: solid 1px #cecbcb;
+    background: rgba(255,255,255,0.5);
+    font-family: "Lato","Lucida Grande", Helvetica, Verdana, Arial;
+    color: #555555;
+    font-size: 14px;
+    box-sizing: border-box;
+}

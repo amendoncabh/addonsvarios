@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+
+        <record model="ir.ui.view" id="view_ofm_request_reverse_tree_user">
+            <field name="name">ofm.request.reverse.tree.view.user</field>
+            <field name="model">ofm.request.reverse</field>
+            <field name="groups_id" eval="[(6, 0, [ref('stock.group_stock_user')])]"/>
+            <field name="arch" type="xml">
+                <tree string="Request Reverse"
+                      decoration-danger="picking_status == 'assigned'"
+                      create="0"
+                      delete="0"
+                      editable="bottom">
+                    <field name="create_date"/>
+                    <field name="user_id"/>
+                    <field name="branch_id"/>
+                    <field name="picking_id" string="RT No."/>
+                    <field name="return_reason_id"/>
+                    <field name="reason_reject"/>
+                    <field name="state"/>
+                    <field name="picking_status" invisible="1"/>
+                    <button
+                            name="action_view_reverse_picking"
+                            type="object"
+                            string="View Picking"
+                            class="oe_highlight"
+                    />
+
+                </tree>
+            </field>
+        </record>
+
+        <record id="view_ofm_request_reverse_tree_manager" model="ir.ui.view">
+            <field name="name">ofm.request.reverse.tree.view.manager</field>
+            <field name="model">ofm.request.reverse</field>
+            <field name="groups_id" eval="[(6, 0, [ref('stock.group_stock_manager')])]"/>
+            <field name="inherit_id" ref="view_ofm_request_reverse_tree_user"/>
+            <field name="arch" type="xml">
+                <xpath expr="//button[@name='action_view_reverse_picking']" position="after">
+                    <button
+                            name="action_approve_wizard"
+                            type="object"
+                            string="Approve"
+                            class="oe_highlight"
+                            attrs="{'invisible': [
+                                ('state', '!=', 'waiting')
+                            ]}"
+                    />
+                    <button
+                            name="action_reject_wizard"
+                            type="object"
+                            string="Reject"
+                            class="oe_highlight"
+                            attrs="{'invisible': [
+                                ('state', '!=', 'waiting')
+                            ]}"
+                    />
+                </xpath>
+            </field>
+        </record>
+
+        <record id="view_ofm_request_reverse_search" model="ir.ui.view">
+            <field name="name">ofm.request.reverse.search</field>
+            <field name="model">ofm.request.reverse</field>
+            <field name="arch" type="xml">
+                <search string="Request Reverse">
+                    <field name="picking_id" string="Picking No."
+                           filter_domain="['|', ('picking_id', 'ilike', self), ('branch_id', 'ilike', self)]"/>
+                    <group expand="0" string="Group By">
+                        <filter name="group_branch" string="Branch" domain="[]" context="{'group_by':'branch_id'}"/>
+                        <filter name="group_user" string="User" domain="[]" context="{'group_by':'user_id'}"/>
+                        <filter name="group_state" string="State" domain="[]" context="{'group_by':'state'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record model="ir.actions.act_window" id="action_ofm_request_reverse_form">
+            <field name="name">Request Reverse</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">ofm.request.reverse</field>
+            <field name="view_type">form</field>
+            <field name="search_view_id" ref="view_ofm_request_reverse_search"/>
+            <field name="context">{
+                'search_default_group_branch': 1,
+                'search_default_group_state': 1
+            }
+            </field>
+        </record>
+
+        <menuitem
+                parent="stock.menu_stock_warehouse_mgmt"
+                action="action_ofm_request_reverse_form"
+                id="menu_ofm_request_reverse"
+                sequence="35"
+                groups="stock.group_stock_manager"/>
+
+    </data>
+</openerp>

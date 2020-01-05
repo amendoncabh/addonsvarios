@@ -1,0 +1,118 @@
+<?xml version="1.0"?>
+<odoo>
+    <data>
+        <record id="so_payments_form_wizard" model="ir.ui.view">
+            <field name="name">so.payments.form.wizard</field>
+            <field name="model">so.payments.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Payments">
+                    <group>
+                        <group>
+                            <field name="company_id" invisible="1"/>
+                            <field name="is_credit_card" invisible="1"/>
+                            <field name="is_hide_field_credit_term" invisible="1"/>
+                            <field name="is_hide_credit_term_card_no" invisible="1"/>
+                            <field name="type_sale_ofm" invisible="1"/>
+                            <field name="payment_type_id"
+                                   options="{'no_create_edit': True, 'no_open': True}"/>
+                            <field name="journal_id"
+                                   options="{'no_create_edit': True, 'no_open': True}"
+                                   attrs="{
+                                        'invisible':[
+                                            ('is_hide_field_credit_term', '=', True)
+                                        ],
+                                        'required':[
+                                            ('is_hide_field_credit_term', '=', False)
+                                        ]
+                                   }"
+                            />
+                            <field name="credit_term_tender"
+                                   options="{'no_create_edit': True, 'no_open': True}"
+                                   attrs="{
+                                    'invisible':[
+                                            ('is_hide_field_credit_term', '=', False)
+                                        ],
+                                   'required':[('is_hide_field_credit_term', '=', True)]
+                                   }"
+                            />
+                            <field name="journal_type" invisible="1"/>
+                            <field name="advance_amount"
+                                   attrs="{
+                                        'invisible':[
+                                            ('is_hide_field_credit_term', '=', True)
+                                        ],
+                                        'required':[
+                                            ('is_hide_field_credit_term', '=', False)
+                                        ]
+                                   }"
+                            />
+                            <field name="change_rounding"
+                                   attrs="{
+                                        'invisible': [
+                                            ('journal_type', '!=', 'cash')
+                                        ]
+                                   }"/>
+                            <field name="total_amount"/>
+                            <field name="save_total_amount" invisible="1"/>
+                            <field name="customer_type" invisible="1"/>
+
+                        </group>
+                        <group attrs="{
+                            'invisible':[
+                                '|',
+                                ('is_hide_field_credit_term', '=', False),
+                                ('is_hide_credit_term_card_no', '=', True)
+                            ]
+                        }"
+                        >
+                            <field name="credit_term_card_no"
+                                   options="{'no_create_edit': True, 'no_open': True}"
+                                   widget="allow_number"
+                            />
+                        </group>
+
+                        <group attrs="{
+                            'invisible':[
+                                '|',
+                                ('is_credit_card', '!=', True),
+                                ('is_hide_field_credit_term', '=', True)
+                            ]
+                        }"
+                        >
+                            <field name="credit_card_no" attrs="{'required':[('is_credit_card', '=', True)]}" widget="allow_number"/>
+                            <field name="approve_code" attrs="{'required':[('is_credit_card', '=', True)]}"/>
+                            <field name="tender" attrs="{'required':[('is_credit_card', '=', True)]}"/>
+                        </group>
+                        <!--<group attrs="{'invisible': ['|', ('customer_type', '!=', 'credit'), ('journal_id', '!=', False)]}">-->
+                            <!--<field name="credit_note_amount" invisible="1"/>-->
+                            <!--<field name="credit_note_ids" nolabel="1" >-->
+                                <!--<tree string="Purchase Order Lines" editable="bottom">-->
+                                    <!--<field name="tax_number" />-->
+                                    <!--<field name="number" />-->
+                                    <!--<field name="amount_total" />-->
+                                <!--</tree>-->
+                            <!--</field>-->
+
+                        <!--</group>-->
+                    </group>
+                    <footer>
+                        <button name="action_confirm_payment"
+                                string="Confirm"
+                                type="object"
+                                class="oe_highlight"/>
+                        or
+                        <button string="Cancel"
+                                class="oe_link"
+                                special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <act_window id="action_open_so_payments_form_wizard"
+                    name="Payments"
+                    res_model="so.payments.wizard"
+                    view_mode="form"
+                    target="new"/>
+    </data>
+</odoo>
